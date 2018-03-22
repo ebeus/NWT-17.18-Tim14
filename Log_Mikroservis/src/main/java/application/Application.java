@@ -2,6 +2,7 @@ package application;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,30 +31,33 @@ public class Application {
             logClassRepository.save(new LogClass("msg4", "mah", Calendar.getInstance().getTime()));
             logClassRepository.save(new LogClass("msg5", "app", Calendar.getInstance().getTime()));
 
+            appLog.info("------------------------------------------ START ----------------------------------------");
+
             // fetch all logs
-            appLog.info("Loga found with findAll():");
+            appLog.info("Logs found with findAll():");
             appLog.info("-------------------------------");
-            for (LogClass logic : logClassRepository.findAll()) {
-                appLog.info(logic.toString());
+            for (LogClass log : logClassRepository.findAll()) {
+                appLog.info(log.toString());
             }
             appLog.info("");
 
-            // fetch an individual application by ID
-    /*        logMikroservisRepository.findById(1L)
-                    .ifPresent(application -> {
-                        appLog.info("LogClass found with findById(1L):");
+            // fetch an individual log by ID
+            logClassRepository.findById(4L)
+                    .ifPresent(log -> {
+                        appLog.info("Logs found with findById(4L):");
                         appLog.info("--------------------------------");
-                        appLog.info(logMikroservisRepository.toString());
+                        appLog.info(log.toString());
                         appLog.info("");
                     });
-*/
+
             // fetch application by application source
             appLog.info("LogClass found with findByLogSource('app'):");
             appLog.info("--------------------------------------------");
-            logClassRepository.findByLogSource("app").forEach(app -> {
-                appLog.info(app.toString());
+            logClassRepository.findByLogSource("app").forEach(log -> {
+                appLog.info(log.toString());
             });
             appLog.info("");
+            appLog.info("------------------------------------------- END -----------------------------------------");
         };
     }
 }
