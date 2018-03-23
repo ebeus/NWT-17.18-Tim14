@@ -1,9 +1,6 @@
 package application;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Korisnik {
@@ -38,8 +35,6 @@ public class Korisnik {
                 id,firstName,lastName,userTypeId,userGroupId,deviceId
                 );
     }
-
-
 
     public Long getId() {
         return id;

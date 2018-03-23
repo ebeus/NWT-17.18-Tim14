@@ -1,9 +1,6 @@
 package application;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class TipKorisnika {
@@ -15,7 +12,7 @@ public class TipKorisnika {
 
     TipKorisnika(){}
 
-    public TipKorisnika(String typeName) {
+    TipKorisnika(String typeName) {
         this.typeName = typeName;
     }
 
