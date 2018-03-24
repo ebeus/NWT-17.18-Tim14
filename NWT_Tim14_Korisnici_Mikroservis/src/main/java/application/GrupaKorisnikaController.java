@@ -52,11 +52,8 @@ public class GrupaKorisnikaController {
         }
     }
 
-
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     ResponseEntity<?> addGroup(@RequestParam String groupName) {
-
-
         if (!grupaKorisnikaRepository.findByGroupName(groupName).isPresent()) {
             GrupaKorisnika k = new GrupaKorisnika(groupName);
 
