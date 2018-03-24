@@ -16,7 +16,7 @@ public class Uredjaj {
 
     public Uredjaj() { }
 
-    public Uredjaj(String deviceName, Long deviceTypeId) {
+    Uredjaj(String deviceName, Long deviceTypeId) {
         this.deviceName = deviceName;
         this.deviceTypeId = deviceTypeId;
     }

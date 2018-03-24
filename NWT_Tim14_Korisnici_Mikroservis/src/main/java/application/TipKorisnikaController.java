@@ -85,7 +85,7 @@ public class TipKorisnikaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
         tipKorisnikaRepository.delete(tip.get());
-        return new ResponseEntity<Korisnik>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<TipKorisnika>(HttpStatus.NO_CONTENT);
     }
 
 }
