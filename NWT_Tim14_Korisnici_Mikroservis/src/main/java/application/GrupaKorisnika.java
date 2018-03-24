@@ -15,7 +15,7 @@ public class GrupaKorisnika {
 
     public GrupaKorisnika() {}
 
-    public GrupaKorisnika(String groupName) {
+    GrupaKorisnika(String groupName) {
         this.groupName = groupName;
     }
 

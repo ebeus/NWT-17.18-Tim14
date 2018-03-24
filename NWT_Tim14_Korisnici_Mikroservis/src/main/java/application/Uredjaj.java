@@ -52,7 +52,4 @@ public class Uredjaj {
                 id,deviceName,deviceTypeId
         );
     }
-
-
-
 }

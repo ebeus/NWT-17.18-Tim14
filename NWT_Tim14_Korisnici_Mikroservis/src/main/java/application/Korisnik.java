@@ -1,5 +1,7 @@
 package application;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -28,6 +30,15 @@ public class Korisnik {
         this.deviceId = deviceId;
     }
 
+    public void updateFields(Korisnik k){
+        this.firstName = k.firstName;
+        this.lastName = k.lastName;
+        this.username = k.username;
+        this.password = k.password;
+        this.userTypeId = k.userTypeId;
+        this.userGroupId = k.userGroupId;
+        this.deviceId = k.deviceId;
+    }
     @Override
     public String toString() {
         return String.format(

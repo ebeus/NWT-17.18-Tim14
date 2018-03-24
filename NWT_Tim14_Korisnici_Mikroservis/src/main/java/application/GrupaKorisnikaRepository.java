@@ -3,8 +3,9 @@ package application;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface GrupaKorisnikaRepository extends CrudRepository<GrupaKorisnika,Long>{
 
-    List<GrupaKorisnika> findByGroupName(String groupName);
+    Optional<GrupaKorisnika> findByGroupName(String groupName);
 }
