@@ -3,14 +3,13 @@ package application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-
-import java.util.Calendar;
+import org.springframework.stereotype.Component;
 
 @ComponentScan()
 @SpringBootApplication
@@ -23,15 +22,22 @@ public class Application {
         SpringApplication.run(Application.class);
     }
 
-    @Bean
-    public CommandLineRunner initializeLogDatabase(final LogClassRepository logClassRepository) {
-        return (args) -> {
-            // save a couple of logs
-            logClassRepository.save(new LogClass("msg1", "bla", Calendar.getInstance().getTime()));
-            logClassRepository.save(new LogClass("msg2", "blah", Calendar.getInstance().getTime()));
-            logClassRepository.save(new LogClass("msg3", "app", Calendar.getInstance().getTime()));
-            logClassRepository.save(new LogClass("msg4", "mah", Calendar.getInstance().getTime()));
-            logClassRepository.save(new LogClass("msg5", "app", Calendar.getInstance().getTime()));
+    @Component
+    class LogCommandLineRunner implements CommandLineRunner{
+
+        @Autowired
+        LogClassRepository logClassRepository;
+
+        @Override
+        public void run(String... args) throws Exception {
+
+            logClassRepository.save(new LogClass((long) 1,"Sign in",(long) 1,"msg1", "korisnik","user1",""));
+            logClassRepository.save(new LogClass((long) 2,"Sign up",(long) 1,"msg2", "korisnik","user2",""));
+            logClassRepository.save(new LogClass((long) 2,"Sign up",(long) 1,"msg3", "korisnik", "user2",""));
+            logClassRepository.save(new LogClass((long) 3,"Register",(long) 1,"msg4", "korisnik", "user3",""));
+            logClassRepository.save(new LogClass((long) 4,"Started trips",(long) 1,"msg5", "trips", "user3","trip1"));
+            logClassRepository.save(new LogClass((long) 5,"Stopped trips",(long) 1,"msg5", "trips","user3","trip1"));
+
 
             log.info("------------------------------------------ START ----------------------------------------");
 
@@ -55,11 +61,13 @@ public class Application {
             // fetch application by application source
             log.info("LogClass found with findByLogSource('app'):");
             log.info("--------------------------------------------");
-            logClassRepository.findByLogSource("app").forEach(log -> {
-                Application.log.info(log.toString());
+            logClassRepository.findByLogSource("app").forEach(l -> {
+                Application.log.info(l.toString());
             });
             log.info("");
             log.info("------------------------------------------- END -----------------------------------------");
-        };
+
+        }
     }
+
 }

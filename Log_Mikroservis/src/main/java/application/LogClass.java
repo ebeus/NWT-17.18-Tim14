@@ -1,8 +1,8 @@
 package application;
 
 import javax.persistence.*;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 @Entity
 public class LogClass {
@@ -20,22 +20,32 @@ public class LogClass {
     private String user;
     private String tripName;
 
-    public LogClass(){}
+    protected LogClass(){}
 
-    LogClass(String message, String logSource, Date date) {
+    LogClass(Long logTypeId, String logTypeName, Long status, String message, String logSource, String user, String tripName) {
+        this.logTypeId = logTypeId;
+        this.logTypeName = logTypeName;
+        this.status = status;
         this.message = message;
         this.logSource = logSource;
-        this.date = date;
+        this.date = Calendar.getInstance().getTime();
+        this.user = user;
+        this.tripName = tripName;
     }
 
     @Override
     public String toString() {
         return String.format(
-                "Log[id=%d, message='%s', logSource='%s', timeStamp='%s']",
-                id, message, logSource, date);
+                "Log[id=%d, logTypeId=%d, " +
+                        "logTypeName=%s," +
+                        "status=%d," +
+                        "message='%s'," +
+                        "logSource='%s'," +
+                        "date='%s'," +
+                        "user='%s'," +
+                        "tripName='%s']",
+                id,logTypeId, logTypeName,status, message, logSource, date, user , tripName);
     }
-
-
 
     public Long getId() {   return id;   }
 
