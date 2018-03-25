@@ -68,7 +68,7 @@ public class UredjajController {
     @RequestMapping(value = "/update/{deviceId}", method = RequestMethod.PUT)
     ResponseEntity<?> updateDeviceName(@PathVariable Long deviceId, @RequestParam String deviceName) {
         Uredjaj stariUredjaj = uredjajRepository.findById(deviceId).orElseThrow(
-                () -> new ItemNotFoundException(deviceId,"uredjaj"));
+                () -> new ItemNotFoundException(deviceId,"device"));
         stariUredjaj.setDeviceName(deviceName);
 
         uredjajRepository.save(stariUredjaj);
