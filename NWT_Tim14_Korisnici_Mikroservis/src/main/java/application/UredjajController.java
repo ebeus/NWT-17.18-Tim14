@@ -1,7 +1,8 @@
 package application;
 
-import application.Errors.ApiError;
+import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
+import application.Responses.ApiSuccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/uredjaji")
+@RequestMapping("/devices")
 public class UredjajController {
 
     private static final Logger log = LoggerFactory.getLogger(UredjajController.class);
@@ -46,7 +47,7 @@ public class UredjajController {
         if(postojeci.isPresent())
             return postojeci;
         else {
-            throw new ItemNotFoundException(deviceName , "uredjaj");
+            throw new ItemNotFoundException(deviceName , "device");
         }
     }
 
@@ -56,7 +57,8 @@ public class UredjajController {
             Uredjaj k = new Uredjaj(deviceName,deviceTypeId);
 
             uredjajRepository.save(k);
-            return ResponseEntity.status(HttpStatus.OK).build();
+            ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Device added",k);
+            return ResponseEntity.ok(apiSuccess);
         } else {
             ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Already Exists", "Device with that name already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
@@ -65,12 +67,13 @@ public class UredjajController {
 
     @RequestMapping(value = "/update/{deviceId}", method = RequestMethod.PUT)
     ResponseEntity<?> updateDeviceName(@PathVariable Long deviceId, @RequestParam String deviceName) {
-        Uredjaj stariTip = uredjajRepository.findById(deviceId).orElseThrow(
+        Uredjaj stariUredjaj = uredjajRepository.findById(deviceId).orElseThrow(
                 () -> new ItemNotFoundException(deviceId,"uredjaj"));
-        stariTip.setDeviceName(deviceName);
+        stariUredjaj.setDeviceName(deviceName);
 
-        uredjajRepository.save(stariTip);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        uredjajRepository.save(stariUredjaj);
+        ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Device updated",stariUredjaj);
+        return ResponseEntity.ok(apiSuccess);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
@@ -84,6 +87,7 @@ public class UredjajController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
         uredjajRepository.delete(uredjaj.get());
-        return new ResponseEntity<Uredjaj>(HttpStatus.NO_CONTENT);
+        ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Device deleted", uredjaj.get());
+        return ResponseEntity.ok(apiSuccess);
     }
 }

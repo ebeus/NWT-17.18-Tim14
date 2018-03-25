@@ -1,7 +1,8 @@
 package application;
 
-import application.Errors.ApiError;
+import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
+import application.Responses.ApiSuccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/tipovi")
+@RequestMapping("/userTypes")
 public class TipKorisnikaController {
 
     private static final Logger log = LoggerFactory.getLogger(TipKorisnikaController.class);
@@ -37,7 +38,7 @@ public class TipKorisnikaController {
         if(postojeci.isPresent())
             return postojeci;
         else {
-            throw new ItemNotFoundException(typeId, "tip");
+            throw new ItemNotFoundException(typeId, "userType");
         }
     }
 
@@ -47,7 +48,7 @@ public class TipKorisnikaController {
         if(postojeci.isPresent())
             return postojeci;
         else {
-            throw new ItemNotFoundException(typeName , "tip");
+            throw new ItemNotFoundException(typeName , "userType");
         }
     }
 
@@ -57,7 +58,8 @@ public class TipKorisnikaController {
             TipKorisnika k = new TipKorisnika(typeName);
 
             tipKorisnikaRepository.save(k);
-            return ResponseEntity.status(HttpStatus.OK).build();
+            ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"User Type added",k);
+            return ResponseEntity.ok(apiSuccess);
         } else {
             ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Already Exists", "Type with that name already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
@@ -71,7 +73,8 @@ public class TipKorisnikaController {
         stariTip.setTypeName(typeName);
 
         tipKorisnikaRepository.save(stariTip);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"User Type updated",stariTip);
+        return ResponseEntity.ok(apiSuccess);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
@@ -85,7 +88,8 @@ public class TipKorisnikaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
         tipKorisnikaRepository.delete(tip.get());
-        return new ResponseEntity<TipKorisnika>(HttpStatus.NO_CONTENT);
+        ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"User Type deleted", tip.get());
+        return ResponseEntity.ok(apiSuccess);
     }
 
 }

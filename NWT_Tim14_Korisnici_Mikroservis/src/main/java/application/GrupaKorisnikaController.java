@@ -1,7 +1,8 @@
 package application;
 
-import application.Errors.ApiError;
+import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
+import application.Responses.ApiSuccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/grupe")
+@RequestMapping("/groups")
 public class GrupaKorisnikaController {
 
     private static final Logger log = LoggerFactory.getLogger(GrupaKorisnikaController.class);
@@ -38,7 +39,7 @@ public class GrupaKorisnikaController {
         if(postojeca.isPresent())
             return postojeca;
         else {
-            throw new ItemNotFoundException(groupId, "grupa");
+            throw new ItemNotFoundException(groupId, "group");
         }
     }
 
@@ -48,7 +49,7 @@ public class GrupaKorisnikaController {
         if(postojeca.isPresent())
             return postojeca;
         else {
-            throw new ItemNotFoundException(groupName , "grupa");
+            throw new ItemNotFoundException(groupName , "group");
         }
     }
 
@@ -58,7 +59,8 @@ public class GrupaKorisnikaController {
             GrupaKorisnika k = new GrupaKorisnika(groupName);
 
             grupaKorisnikaRepository.save(k);
-            return ResponseEntity.status(HttpStatus.OK).build();
+            ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Group added",k);
+            return ResponseEntity.ok(apiSuccess);
         } else {
             ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Already Exists", "Group with that name already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
@@ -72,7 +74,8 @@ public class GrupaKorisnikaController {
         staraGrupa.setGroupName(groupName);
 
         grupaKorisnikaRepository.save(staraGrupa);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Group updated",staraGrupa);
+        return ResponseEntity.ok(apiSuccess);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
@@ -86,6 +89,7 @@ public class GrupaKorisnikaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
         grupaKorisnikaRepository.delete(grupa.get());
-        return new ResponseEntity<Korisnik>(HttpStatus.NO_CONTENT);
+        ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Group deleted", grupa.get());
+        return ResponseEntity.ok(apiSuccess);
     }
 }

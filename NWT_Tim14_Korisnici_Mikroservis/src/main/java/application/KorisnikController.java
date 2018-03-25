@@ -1,8 +1,8 @@
 package application;
 
-import application.Errors.ApiError;
+import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
-import application.Exceptions.KorisnikNotFoundException;
+import application.Responses.ApiSuccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/korisnici")
+@RequestMapping("/users")
 public class KorisnikController {
 
     private static final Logger log = LoggerFactory.getLogger(KorisnikController.class);
@@ -27,13 +27,14 @@ public class KorisnikController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     Collection<Korisnik> korisnici() {
-        log.info("/korisnici GET");
+        log.info("Get all users");
         return (Collection<Korisnik>) this.korisnikRepository.findAll();
     }
 
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
     Optional<Korisnik> korisnikWithId(@PathVariable Long userId) {
+        log.info("Get user with id: " + userId);
         this.validateKorisnikId(userId);
         return this.korisnikRepository.findById(userId);
     }
@@ -57,7 +58,8 @@ public class KorisnikController {
             Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
 
             korisnikRepository.save(k);
-            return ResponseEntity.status(HttpStatus.OK).build();
+            ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"User added",k);
+            return ResponseEntity.ok(apiSuccess);
         } else {
             ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Already Exists", "User with that username already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
@@ -81,7 +83,8 @@ public class KorisnikController {
         stari.updateFields(k);
 
         korisnikRepository.save(stari);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"User updated",stari);
+        return ResponseEntity.ok(apiSuccess);
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
@@ -95,7 +98,8 @@ public class KorisnikController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
         korisnikRepository.delete(korisnik.get());
-        return new ResponseEntity<Korisnik>(HttpStatus.NO_CONTENT);
+        ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"User deleted",korisnik.get());
+        return ResponseEntity.ok(apiSuccess);
     }
 
     private void validateKorisnikId(Long userId) {

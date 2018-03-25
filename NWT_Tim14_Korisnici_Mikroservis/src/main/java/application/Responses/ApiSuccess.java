@@ -1,23 +1,20 @@
-package application.Errors;
-
-import org.springframework.http.HttpStatus;
+package application.Responses;
 
 import java.time.LocalDateTime;
 
-public class ApiError {
-
+public class ApiSuccess {
     private LocalDateTime timestamp;
     private int status;
-    private String error;
     private String message;
+    private Object responseObject;
 
-    public ApiError() { }
+    public ApiSuccess() {}
 
-    public ApiError( int status, String error, String message) {
-        this.timestamp = LocalDateTime.now();
+    public ApiSuccess(int status, String message, Object responseObject) {
+        this.timestamp = LocalDateTime.now();;
         this.status = status;
-        this.error = error;
         this.message = message;
+        this.responseObject = responseObject;
     }
 
     public LocalDateTime getTimestamp() {
@@ -36,19 +33,19 @@ public class ApiError {
         this.status = status;
     }
 
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
     public String getMessage() {
         return message;
     }
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public Object getResponseObject() {
+        return responseObject;
+    }
+
+    public void setResponseObject(Object responseObject) {
+        this.responseObject = responseObject;
     }
 }
