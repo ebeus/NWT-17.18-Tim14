@@ -41,12 +41,12 @@ public class Application {
         @Override
         public void run(String... args) throws Exception {
 
+            tipKorisnikaRepository.save(new TipKorisnika("Administrator"));
+            tipKorisnikaRepository.save(new TipKorisnika("Obicni"));
+
             korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer","1234",0L,(long) 0,(long) 0));
             korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian","1234",0L,(long) 0,(long) 0));
             korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer","1234",0L,(long) 0,(long) 0));
-
-            tipKorisnikaRepository.save(new TipKorisnika("Administrator"));
-            tipKorisnikaRepository.save(new TipKorisnika("Obicni"));
 
             uredjajRepository.save(new Uredjaj("Mobitel",(long) 0));
             uredjajRepository.save(new Uredjaj("Tramvaj",(long) 1));

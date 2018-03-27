@@ -5,12 +5,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name="tip_korisnika")
 public class TipKorisnika {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
     private String typeName;
+//    private Set<Korisnik> korisnici;
 
     TipKorisnika(){}
 
@@ -42,4 +44,13 @@ public class TipKorisnika {
                 id,typeName
         );
     }
+
+//    @OneToMany(mappedBy = "tip_korisnika_fk")
+//    public Set<Korisnik> getKorisnici() {
+//        return korisnici;
+//    }
+//
+//    public void setKorisnici(Set<Korisnik> korisnici) {
+//        this.korisnici = korisnici;
+//    }
 }

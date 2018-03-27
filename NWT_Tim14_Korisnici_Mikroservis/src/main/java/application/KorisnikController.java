@@ -6,11 +6,16 @@ import application.Responses.ApiSuccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -52,17 +57,30 @@ public class KorisnikController {
                           @RequestParam String password,
                           @RequestParam Long userTypeId,
                           @RequestParam Long userGroupId,
-                          @RequestParam Long deviceId) {
+                          @RequestParam Long deviceId, @Valid Korisnik k1,BindingResult bindingResult) {
 
-        if (this.validateNewKorisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId)) {
-            Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
+        if(bindingResult.hasErrors()){
+            log.error("Validation error");
 
-            korisnikRepository.save(k);
-            ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"User added",k);
-            return ResponseEntity.ok(apiSuccess);
-        } else {
-            ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Already Exists", "User with that username already exists");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+            List<FieldError> errors = bindingResult.getFieldErrors();
+            StringBuilder message= new StringBuilder();
+            for (FieldError e : errors){
+                message.append("@").append(e.getField().toUpperCase()).append(":").append(e.getDefaultMessage());
+            }
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST.value(),"Validation error",message.toString()));
+        }else {
+
+            if (this.validateNewKorisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId)) {
+                Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
+
+                korisnikRepository.save(k);
+                ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "User added", k);
+                return ResponseEntity.ok(apiSuccess);
+            } else {
+                ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Already Exists", "User with that username already exists");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+            }
         }
     }
 

@@ -1,15 +1,20 @@
 package application;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 
 @Entity
+@Table(name="korisnik")
 public class Korisnik {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
+    @NotNull
+    @NotEmpty
+    @Size(min=3,max=20,message="Name should be between 3 and 20 characters")
+    @NotBlank
     private String firstName;
     private String lastName;
     private String username;
@@ -17,6 +22,9 @@ public class Korisnik {
     private Long userTypeId;
     private Long userGroupId;
     private Long deviceId;
+//    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity=TipKorisnika.class )
+//    @JoinColumn(name = "tip_korisnika_id")
+//    private TipKorisnika tipKorisnika;
 
     protected Korisnik(){}
 
@@ -110,4 +118,12 @@ public class Korisnik {
     public void setDeviceId(Long deviceId) {
         this.deviceId = deviceId;
     }
+
+//    public TipKorisnika getTipKorisnika() {
+//        return tipKorisnika;
+//    }
+//
+//    public void setTipKorisnika(TipKorisnika tipKorisnika) {
+//        this.tipKorisnika = tipKorisnika;
+//    }
 }
