@@ -1,6 +1,10 @@
 package application;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,6 +15,10 @@ public class TipKorisnika {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
+    @NotNull
+    @NotEmpty
+    @Size(min=3,max=20,message="User type name should be between 3 and 20 characters")
+    @NotBlank
     private String typeName;
 //    private Set<Korisnik> korisnici;
 

@@ -13,11 +13,19 @@ public class Korisnik {
     private Long id;
     @NotNull
     @NotEmpty
-    @Size(min=3,max=20,message="Name should be between 3 and 20 characters")
+    @Size(min=3,max=20,message="First name should be between 3 and 20 characters")
     @NotBlank
     private String firstName;
+    @NotNull
+    @NotEmpty
+    @Size(min=3,max=20,message="Last name should be between 3 and 20 characters")
+    @NotBlank
     private String lastName;
-    private String username;
+    @NotNull
+    @NotEmpty
+    @Size(min=3,max=20,message="Username should be between 3 and 20 characters")
+    @NotBlank
+    private String userName;
     private String password;
     private Long userTypeId;
     private Long userGroupId;
@@ -28,10 +36,10 @@ public class Korisnik {
 
     protected Korisnik(){}
 
-    Korisnik(String firstName, String lastName, String username, String password, Long userTypeId, Long userGroupId, Long deviceId) {
+    Korisnik(String firstName, String lastName, String userName, String password, Long userTypeId, Long userGroupId, Long deviceId) {
         this.firstName = firstName;
         this.lastName = lastName;
-        this.username = username;
+        this.userName = userName;
         this.password = password;
         this.userTypeId = userTypeId;
         this.userGroupId = userGroupId;
@@ -41,7 +49,7 @@ public class Korisnik {
     public void updateFields(Korisnik k){
         this.firstName = k.firstName;
         this.lastName = k.lastName;
-        this.username = k.username;
+        this.userName = k.userName;
         this.password = k.password;
         this.userTypeId = k.userTypeId;
         this.userGroupId = k.userGroupId;
@@ -79,12 +87,12 @@ public class Korisnik {
         this.lastName = lastName;
     }
 
-    public String getUsername() {
-        return username;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getPassword() {

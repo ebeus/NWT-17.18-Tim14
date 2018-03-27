@@ -47,7 +47,7 @@ public class KorisnikController {
     @RequestMapping(method = RequestMethod.GET)
     Optional<Korisnik> korisnikWithUserName(@RequestParam("userName") String userName) {
         this.validateKorisnikUserName(userName);
-        return this.korisnikRepository.findByUsername(userName);
+        return this.korisnikRepository.findByUserName(userName);
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
@@ -60,15 +60,7 @@ public class KorisnikController {
                           @RequestParam Long deviceId, @Valid Korisnik k1,BindingResult bindingResult) {
 
         if(bindingResult.hasErrors()){
-            log.error("Validation error");
-
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            StringBuilder message= new StringBuilder();
-            for (FieldError e : errors){
-                message.append("@").append(e.getField().toUpperCase()).append(":").append(e.getDefaultMessage());
-            }
-
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST.value(),"Validation error",message.toString()));
+            return validationErrorHandling(bindingResult);
         }else {
 
             if (this.validateNewKorisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId)) {
@@ -92,17 +84,33 @@ public class KorisnikController {
                                  @RequestParam String password,
                                  @RequestParam Long userTypeId,
                                  @RequestParam Long userGroupId,
-                                 @RequestParam Long deviceId) {
+                                 @RequestParam Long deviceId, @Valid Korisnik k2,BindingResult bindingResult) {
 
-        Korisnik stari = korisnikRepository.findById(userId).orElseThrow(
-                () -> new ItemNotFoundException(userId,"user"));
+        if(bindingResult.hasErrors()){
+            return validationErrorHandling(bindingResult);
+        }else {
+            Korisnik stari = korisnikRepository.findById(userId).orElseThrow(
+                    () -> new ItemNotFoundException(userId, "user"));
 
-        Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
-        stari.updateFields(k);
+            Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
+            stari.updateFields(k);
 
-        korisnikRepository.save(stari);
-        ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"User updated",stari);
-        return ResponseEntity.ok(apiSuccess);
+            korisnikRepository.save(stari);
+            ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "User updated", stari);
+            return ResponseEntity.ok(apiSuccess);
+        }
+    }
+
+    private ResponseEntity<?> validationErrorHandling(BindingResult bindingResult){
+        log.error("Validation error");
+
+        List<FieldError> errors = bindingResult.getFieldErrors();
+        StringBuilder message= new StringBuilder();
+        for (FieldError e : errors){
+            message.append("@").append(e.getField().toUpperCase()).append(":").append(e.getDefaultMessage());
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST.value(),"Validation error",message.toString()));
     }
 
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
@@ -126,12 +134,12 @@ public class KorisnikController {
     }
 
     private void validateKorisnikUserName(String userName) {
-        this.korisnikRepository.findByUsername(userName).orElseThrow(
+        this.korisnikRepository.findByUserName(userName).orElseThrow(
                 () -> new ItemNotFoundException(userName,"user"));
     }
 
     private boolean validateNewKorisnik(String firstName, String lastName, String userName, String password, Long userTypeId, Long userGroupId, Long deviceId) {
-        boolean b = korisnikRepository.findByUsername(userName).isPresent();
+        boolean b = korisnikRepository.findByUserName(userName).isPresent();
         return !b;
     }
 }

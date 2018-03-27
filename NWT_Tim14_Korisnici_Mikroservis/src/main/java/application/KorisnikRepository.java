@@ -11,5 +11,5 @@ public interface KorisnikRepository extends CrudRepository<Korisnik,Long> {
 
     List<Korisnik> findByLastName(String lastName);
 
-    Optional<Korisnik> findByUsername(String userName);
+    Optional<Korisnik> findByUserName(String userName);
 }

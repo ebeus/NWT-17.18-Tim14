@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.*;
 
 @Entity
 public class Uredjaj {
@@ -11,7 +12,12 @@ public class Uredjaj {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
+    @NotNull
+    @NotEmpty
+    @Size(min=3,max=20,message="Device name should be between 3 and 20 characters")
+    @NotBlank
     private String deviceName;
+    @NotNull
     private Long deviceTypeId;
 
     public Uredjaj() { }
