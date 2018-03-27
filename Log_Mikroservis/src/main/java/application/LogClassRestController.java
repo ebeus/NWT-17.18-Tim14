@@ -1,19 +1,99 @@
 package application;
 
+import application.Responses.ApiError;
+import application.Responses.ApiSuccess;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
-
 @RestController
-public class LogClassRestController {
+@RequestMapping("/logs")
+class LogClassRestController {
 
-    @RequestMapping("/logs")
+    private static final Logger logController = LoggerFactory.getLogger(LogClassRestController.class);
+    private final LogClassRepository logClassRepository;
+
+    @Autowired
+    LogClassRestController(LogClassRepository logClassRepository) {
+        this.logClassRepository = logClassRepository;
+    }
+
+
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     Collection<LogClass> logs(){
+        logController.info("LogClassRestController: findAll()");
         return (Collection<LogClass>) this.logClassRepository.findAll();
     }
 
-    @Autowired LogClassRepository logClassRepository;
+    //Pretraga po:
+    // - tipu (1-5)
+    //Find more ne radi!!!! --------------------------------------------------
+    @RequestMapping(value = "type/{typeId}" , method = RequestMethod.GET)
+    Collection<LogClass> logsWithType(@PathVariable Long typeId){
+        logController.info("LogClassRestController: logsWithType() "+ typeId);
+        return this.logClassRepository.findByLogTypeId(typeId);
+    }
+
+    // - statusu (1, 0)
+    @RequestMapping(value = "status/{status}" , method = RequestMethod.GET)
+    Collection<LogClass> logsWithStatus(@PathVariable Long status){
+        logController.info("LogClassRestController: logsWithType() "+ status);
+        return this.logClassRepository.findByStatus(status);
+    }
+
+    // - mikroservisu
+    @RequestMapping(value = "source/{logSource}" , method = RequestMethod.GET)
+    Collection<LogClass> losgWithLogSource(@PathVariable String logSource){
+        logController.info("LogClassRestController: logWithLogSource() "+ logSource);
+        return this.logClassRepository.findByLogSource(logSource);
+    }
+
+    // - korisnickom imenu
+    @RequestMapping(value = "/user/{user}", method = RequestMethod.GET)
+    Collection<LogClass> logsWithUser(@PathVariable String user){
+        logController.info("LogClassRestController: logWithUser() "+ user);
+        return this.logClassRepository.findByUser(user);
+    }
+
+    // - imenu putovanja
+    @RequestMapping(value = "trip/{tripName}" , method = RequestMethod.GET)
+    Collection<LogClass> logsWithTripName(@PathVariable String tripName){
+        logController.info("LogClassRestController: logsWithTripName() "+ tripName);
+        return this.logClassRepository.findByTripName(tripName);
+    }
+
+    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    ResponseEntity<?> add(@RequestParam Long logTypeId,
+                          @RequestParam String logTypeName,
+                          @RequestParam Long status,
+                          @RequestParam String message,
+                          @RequestParam String logSource,
+                          @RequestParam String user,
+                          @RequestParam String tripName) {
+
+        String validation = this.validateNewLogClass(logTypeId, logTypeName, status, message, logSource, user, tripName);
+        if (("").equals(validation)) {
+            LogClass logic = new LogClass(logTypeId, logTypeName, status, message, logSource, user, tripName);
+
+            logClassRepository.save(logic);
+            ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Log added: ",logic);
+            return ResponseEntity.ok(apiSuccess);
+        } else {
+            ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Wrong params", "Log params error: " + validation);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+        }
+    }
+
+    private String validateNewLogClass(Long logTypeId, String logTypeName, Long status, String message, String logSource, String user, String tripName) {
+        if(logTypeId <= 0 || logTypeId > 6) return "logTypeId";
+        else if(status <= 0 || status >2 ) return "status";
+        else if (logSource.equals("")) return "logSource";
+        else return "";
+    }
+
 }
