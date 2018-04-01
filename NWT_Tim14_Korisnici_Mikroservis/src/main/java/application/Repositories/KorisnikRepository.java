@@ -1,8 +1,9 @@
-package application;
+package application.Repositories;
 
 import java.util.List;
 import java.util.Optional;
 
+import application.Models.Korisnik;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,5 +1,13 @@
 package application;
 
+import application.Models.GrupaKorisnika;
+import application.Models.Korisnik;
+import application.Models.TipKorisnika;
+import application.Models.Uredjaj;
+import application.Repositories.GrupaKorisnikaRepository;
+import application.Repositories.KorisnikRepository;
+import application.Repositories.TipKorisnikaRepository;
+import application.Repositories.UredjajRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,12 +16,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@EnableDiscoveryClient
 @ComponentScan()
 @SpringBootApplication
 @EnableAutoConfiguration

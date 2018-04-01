@@ -1,4 +1,4 @@
-package application;
+package application.Models;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -22,9 +22,9 @@ public class TipKorisnika {
     private String typeName;
 //    private Set<Korisnik> korisnici;
 
-    TipKorisnika(){}
+    public TipKorisnika(){}
 
-    TipKorisnika(String typeName) {
+    public TipKorisnika(String typeName) {
         this.typeName = typeName;
     }
 

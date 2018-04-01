@@ -1,5 +1,7 @@
-package application;
+package application.Controllers;
 
+import application.Repositories.GrupaKorisnikaRepository;
+import application.Models.GrupaKorisnika;
 import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
 import application.Responses.ApiSuccess;
@@ -21,20 +23,20 @@ public class GrupaKorisnikaController {
     private final GrupaKorisnikaRepository grupaKorisnikaRepository;
 
     @Autowired
-    GrupaKorisnikaController(GrupaKorisnikaRepository grupaKorisnikaRepository) {
+    public GrupaKorisnikaController(GrupaKorisnikaRepository grupaKorisnikaRepository) {
         this.grupaKorisnikaRepository = grupaKorisnikaRepository;
     }
 
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    Collection<GrupaKorisnika> grupe() {
+    public Collection<GrupaKorisnika> grupe() {
         log.info("/grupe GET");
         return (Collection<GrupaKorisnika>) this.grupaKorisnikaRepository.findAll();
     }
 
 
     @RequestMapping(value = "/{groupId}", method = RequestMethod.GET)
-    Optional<GrupaKorisnika> grupaWithId(@PathVariable Long groupId) {
+    public Optional<GrupaKorisnika> grupaWithId(@PathVariable Long groupId) {
         Optional<GrupaKorisnika> postojeca=grupaKorisnikaRepository.findById(groupId);
         if(postojeca.isPresent())
             return postojeca;
@@ -44,7 +46,7 @@ public class GrupaKorisnikaController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    Optional<GrupaKorisnika> grupaWithGroupName(@RequestParam("groupName") String groupName) {
+    public Optional<GrupaKorisnika> grupaWithGroupName(@RequestParam("groupName") String groupName) {
         Optional<GrupaKorisnika> postojeca=grupaKorisnikaRepository.findByGroupName(groupName);
         if(postojeca.isPresent())
             return postojeca;
@@ -54,7 +56,7 @@ public class GrupaKorisnikaController {
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    ResponseEntity<?> addGroup(@RequestParam String groupName) {
+    public ResponseEntity<?> addGroup(@RequestParam String groupName) {
         if (!grupaKorisnikaRepository.findByGroupName(groupName).isPresent()) {
             GrupaKorisnika k = new GrupaKorisnika(groupName);
 
@@ -68,7 +70,7 @@ public class GrupaKorisnikaController {
     }
 
     @RequestMapping(value = "/update/{groupId}", method = RequestMethod.PUT)
-    ResponseEntity<?> updateGroupName(@PathVariable Long groupId, @RequestParam String groupName) {
+    public ResponseEntity<?> updateGroupName(@PathVariable Long groupId, @RequestParam String groupName) {
         GrupaKorisnika staraGrupa = grupaKorisnikaRepository.findById(groupId).orElseThrow(
                 () -> new ItemNotFoundException(groupId,"grupa"));
         staraGrupa.setGroupName(groupName);

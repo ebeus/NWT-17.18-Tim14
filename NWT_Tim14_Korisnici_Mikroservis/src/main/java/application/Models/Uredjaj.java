@@ -1,4 +1,4 @@
-package application;
+package application.Models;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,7 +22,7 @@ public class Uredjaj {
 
     public Uredjaj() { }
 
-    Uredjaj(String deviceName, Long deviceTypeId) {
+    public Uredjaj(String deviceName, Long deviceTypeId) {
         this.deviceName = deviceName;
         this.deviceTypeId = deviceTypeId;
     }

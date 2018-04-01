@@ -1,8 +1,10 @@
-package application;
+package application.Controllers;
 
+import application.Models.Uredjaj;
 import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
 import application.Responses.ApiSuccess;
+import application.Repositories.UredjajRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,18 +23,18 @@ public class UredjajController {
     private final UredjajRepository uredjajRepository;
 
     @Autowired
-    UredjajController(UredjajRepository uredjajRepository) {
+    public UredjajController(UredjajRepository uredjajRepository) {
         this.uredjajRepository = uredjajRepository;
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    Collection<Uredjaj> uredjaji() {
+    public Collection<Uredjaj> uredjaji() {
         log.info("/uredjaji GET");
         return (Collection<Uredjaj>) this.uredjajRepository.findAll();
     }
 
     @RequestMapping(value = "/{deviceId}", method = RequestMethod.GET)
-    Optional<Uredjaj> uredjajWithId(@PathVariable Long deviceId) {
+    public Optional<Uredjaj> uredjajWithId(@PathVariable Long deviceId) {
         Optional<Uredjaj> postojeci= uredjajRepository.findById(deviceId);
         if(postojeci.isPresent())
             return postojeci;
@@ -42,7 +44,7 @@ public class UredjajController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    Optional<Uredjaj> uredjajWithDeviceName(@RequestParam("deviceName") String deviceName) {
+    public Optional<Uredjaj> uredjajWithDeviceName(@RequestParam("deviceName") String deviceName) {
         Optional<Uredjaj> postojeci= uredjajRepository.findByDeviceName(deviceName);
         if(postojeci.isPresent())
             return postojeci;
@@ -52,7 +54,7 @@ public class UredjajController {
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    ResponseEntity<?> addDevice(@RequestParam String deviceName, @RequestParam long deviceTypeId) {
+    public ResponseEntity<?> addDevice(@RequestParam String deviceName, @RequestParam long deviceTypeId) {
         if (!uredjajRepository.findByDeviceName(deviceName).isPresent()) {
             Uredjaj k = new Uredjaj(deviceName,deviceTypeId);
 
@@ -66,7 +68,7 @@ public class UredjajController {
     }
 
     @RequestMapping(value = "/update/{deviceId}", method = RequestMethod.PUT)
-    ResponseEntity<?> updateDeviceName(@PathVariable Long deviceId, @RequestParam String deviceName) {
+    public ResponseEntity<?> updateDeviceName(@PathVariable Long deviceId, @RequestParam String deviceName) {
         Uredjaj stariUredjaj = uredjajRepository.findById(deviceId).orElseThrow(
                 () -> new ItemNotFoundException(deviceId,"device"));
         stariUredjaj.setDeviceName(deviceName);

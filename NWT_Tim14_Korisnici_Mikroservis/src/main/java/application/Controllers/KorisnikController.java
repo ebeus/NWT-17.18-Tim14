@@ -1,12 +1,13 @@
-package application;
+package application.Controllers;
 
+import application.Repositories.KorisnikRepository;
+import application.Models.Korisnik;
 import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
 import application.Responses.ApiSuccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -26,32 +27,31 @@ public class KorisnikController {
     private final KorisnikRepository korisnikRepository;
 
     @Autowired
-    KorisnikController(KorisnikRepository korisnikRepository) {
+    public KorisnikController(KorisnikRepository korisnikRepository) {
         this.korisnikRepository = korisnikRepository;
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    Collection<Korisnik> korisnici() {
+    public Collection<Korisnik> korisnici() {
         log.info("Get all users");
         return (Collection<Korisnik>) this.korisnikRepository.findAll();
     }
 
-
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-    Optional<Korisnik> korisnikWithId(@PathVariable Long userId) {
+    public Optional<Korisnik> korisnikWithId(@PathVariable Long userId) {
         log.info("Get user with id: " + userId);
-        this.validateKorisnikId(userId);
+        this.userWithIdExists(userId);
         return this.korisnikRepository.findById(userId);
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    Optional<Korisnik> korisnikWithUserName(@RequestParam("userName") String userName) {
-        this.validateKorisnikUserName(userName);
+    public Optional<Korisnik> korisnikWithUserName(@RequestParam("userName") String userName) {
+        this.userWithUserNameExists(userName);
         return this.korisnikRepository.findByUserName(userName);
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    ResponseEntity<?> add(@RequestParam String firstName,
+    public ResponseEntity<?> add(@RequestParam String firstName,
                           @RequestParam String lastName,
                           @RequestParam String userName,
                           @RequestParam String password,
@@ -63,7 +63,7 @@ public class KorisnikController {
             return validationErrorHandling(bindingResult);
         }else {
 
-            if (this.validateNewKorisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId)) {
+            if (this.checkExistingUsername(userName)) {
                 Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
 
                 korisnikRepository.save(k);
@@ -77,7 +77,7 @@ public class KorisnikController {
     }
 
     @RequestMapping(value = "/update/{userId}", method = RequestMethod.PUT)
-    ResponseEntity<?> updateUser(@PathVariable Long userId,
+    public ResponseEntity<?> updateUser(@PathVariable Long userId,
                                  @RequestParam String firstName,
                                  @RequestParam String lastName,
                                  @RequestParam String userName,
@@ -128,17 +128,17 @@ public class KorisnikController {
         return ResponseEntity.ok(apiSuccess);
     }
 
-    private void validateKorisnikId(Long userId) {
+    private void userWithIdExists(Long userId) {
         this.korisnikRepository.findById(userId).orElseThrow(
                 () -> new ItemNotFoundException(userId,"user"));
     }
 
-    private void validateKorisnikUserName(String userName) {
+    private void userWithUserNameExists(String userName) {
         this.korisnikRepository.findByUserName(userName).orElseThrow(
                 () -> new ItemNotFoundException(userName,"user"));
     }
 
-    private boolean validateNewKorisnik(String firstName, String lastName, String userName, String password, Long userTypeId, Long userGroupId, Long deviceId) {
+    private boolean checkExistingUsername(String userName) {
         boolean b = korisnikRepository.findByUserName(userName).isPresent();
         return !b;
     }

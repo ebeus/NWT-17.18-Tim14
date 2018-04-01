@@ -1,4 +1,4 @@
-package application;
+package application.Models;
 
 
 import javax.persistence.*;
@@ -34,9 +34,9 @@ public class Korisnik {
 //    @JoinColumn(name = "tip_korisnika_id")
 //    private TipKorisnika tipKorisnika;
 
-    protected Korisnik(){}
+    public Korisnik(){}
 
-    Korisnik(String firstName, String lastName, String userName, String password, Long userTypeId, Long userGroupId, Long deviceId) {
+    public Korisnik(String firstName, String lastName, String userName, String password, Long userTypeId, Long userGroupId, Long deviceId) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;

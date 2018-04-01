@@ -1,8 +1,10 @@
-package application;
+package application.Controllers;
 
+import application.Models.TipKorisnika;
 import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
 import application.Responses.ApiSuccess;
+import application.Repositories.TipKorisnikaRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

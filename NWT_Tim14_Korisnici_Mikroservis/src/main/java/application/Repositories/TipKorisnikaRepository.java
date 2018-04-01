@@ -1,5 +1,6 @@
-package application;
+package application.Repositories;
 
+import application.Models.TipKorisnika;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;

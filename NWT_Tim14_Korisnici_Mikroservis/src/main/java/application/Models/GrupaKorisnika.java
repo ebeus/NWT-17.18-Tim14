@@ -1,4 +1,4 @@
-package application;
+package application.Models;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -23,7 +23,7 @@ public class GrupaKorisnika {
 
     public GrupaKorisnika() {}
 
-    GrupaKorisnika(String groupName) {
+    public GrupaKorisnika(String groupName) {
         this.groupName = groupName;
     }
 
