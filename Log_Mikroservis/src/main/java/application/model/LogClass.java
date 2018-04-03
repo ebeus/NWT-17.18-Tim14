@@ -1,6 +1,8 @@
-package application;
+package application.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -10,19 +12,46 @@ public class LogClass {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @NotNull
     private Long logTypeId;
+
+    @NotNull
+    @Size(min=1,max=50,message="LogTypeName must be min=1 and max=50 chars long")
     private String logTypeName;
+    /*  logTypeId  |    logTypeName
+          1        |      Sign in
+          2        |      Sign up
+          3        |      Register
+          4        |     Started trips
+          5        |     Stopped trips   */
+
+    @NotNull
     private Long status;
+    /*     status
+        1 = uspješno
+        2 = neuspješno    */
+
+    @NotNull
+    @Size(min=1,max=50,message="Message must be min=1 and max=50 chars long")
     private String message;
+
+    @NotNull
+    @Size(min=1,max=50,message="LogSource must be min=1 and max=50 chars long")
     private String logSource;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
+
+    @Size(min=1,max=50,message="User name must be min=1 and max=50 chars long")
     private String user;
+
+    @Size(min=1,max=50,message="Trip name must be min=1 and max=50 chars long")
     private String tripName;
 
     protected LogClass(){}
 
-    LogClass(Long logTypeId, String logTypeName, Long status, String message, String logSource, String user, String tripName) {
+    public LogClass(Long logTypeId, String logTypeName, Long status, String message, String logSource, String user, String tripName) {
         this.logTypeId = logTypeId;
         this.logTypeName = logTypeName;
         this.status = status;
