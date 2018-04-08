@@ -25,16 +25,13 @@ public class LogClassRestController {
         this.logClassRepository = logClassRepository;
     }
 
-
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Collection<LogClass> logs(){
         logController.info("LogClassRestController: findAll()");
         return (Collection<LogClass>) this.logClassRepository.findAll();
     }
 
-    //Pretraga po:
-    // - tipu (1-5)
-    //Find more ne radi!!!! --------------------------------------------------
+    //Pretraga po tipu (1-5)
     @RequestMapping(value = "type/{typeId}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithType(@PathVariable Long typeId){
         logController.info("LogClassRestController: logsWithType() "+ typeId);
