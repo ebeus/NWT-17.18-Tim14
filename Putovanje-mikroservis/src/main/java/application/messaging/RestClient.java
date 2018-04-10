@@ -1,0 +1,17 @@
+package application.messaging;
+
+import org.springframework.web.client.RestTemplate;
+
+import antlr.collections.List;
+import application.models.Korisnik;
+
+public class RestClient {
+	
+	public Korisnik getUserByID(long id) {
+		String URL = "http://localhost:8080/users/{id}";
+		RestTemplate restTemplate = new RestTemplate();
+		Korisnik korisnik = restTemplate.getForObject(URL, Korisnik.class,id);
+		return korisnik;
+	}
+	
+}

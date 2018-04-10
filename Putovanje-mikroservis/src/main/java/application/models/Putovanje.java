@@ -11,6 +11,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -23,9 +25,11 @@ public class Putovanje {
 	private long id;
 	
 	@Column(name="naziv")
+	@Size(min=2, max=100)
 	private String naziv;
 	
 	@Column(name="start_time")
+	@NotNull
 	private long start_time;
 	
 	@Column(name="end_time", nullable=true)

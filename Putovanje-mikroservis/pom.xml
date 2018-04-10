@@ -11,7 +11,7 @@
 	<name>Putovanje-mikroservis</name>
 	<description>Putovanje mikroservis NWT</description>
 
- <parent>
+ 	<parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.0.0.RELEASE</version>
@@ -59,6 +59,40 @@
             <artifactId>spring-cloud-netflix-eureka-server</artifactId>
             <version>RELEASE</version>
         </dependency>
+        
+        <dependency>
+        	<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-actuator-docs</artifactId>
+        	<version>RELEASE</version>
+        </dependency>
+        
+        <dependency>
+        	<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        
+        
+        <dependency>
+        	<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        
+        <dependency>
+        	<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
+        
+        <dependency>
+        	<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-starter-hateoas</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        
+        
     </dependencies>
 
     <dependencyManagement>

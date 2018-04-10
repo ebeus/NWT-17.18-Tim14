@@ -3,6 +3,7 @@ package application.controller;
 import java.sql.Timestamp;
 import java.util.List;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,9 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import application.DataValidation;
 import application.exceptions.ItemNotFoundException;
+import application.messaging.PutovanjeConfig;
+import application.messaging.RestClient;
+import application.messaging.TripService;
+import application.models.Korisnik;
 import application.models.Lokacija;
 import application.models.Putovanje;
 import application.repository.LokacijaRepository;
@@ -29,6 +36,13 @@ public class PutovanjeController {
 	PutovanjeRepository putovanjeRepo;
 	@Autowired
 	LokacijaRepository lokacijaRepo;
+	
+	@Autowired
+	private RabbitTemplate rabbitTemplate;
+	
+	@Autowired
+	private Queue queue;
+	
 	
 	@RequestMapping(value = "/by-user/{userId}", method = RequestMethod.GET)
 	public List<Putovanje> getByUserId(@PathVariable long userId) {
@@ -69,14 +83,30 @@ public class PutovanjeController {
 			@RequestParam long start_time,
 			@RequestParam long korisnikId) {
 		
+		//Check if user exists
+		
+		/*
+		RestClient restClient = new RestClient();
+		Korisnik korisnik = restClient.getUserByID(korisnikId);
+		
+		if(korisnik.getId() == null) {
+			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"User does not exists", "User does not exists");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+		}
+*/
+	
 		if(start_time < 0) {
 			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid time ", "Invalid start time");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 		}
 		
+		
 		Putovanje putovanje = new Putovanje(naziv, start_time, korisnikId);
 		putovanjeRepo.save(putovanje);
 		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "Trip started", putovanje);
+		
+		TripService tripService = new TripService(rabbitTemplate, queue);
+		tripService.tripStarted(putovanje);
 		
 		return ResponseEntity.ok(apiSuccess);
 	}
@@ -85,22 +115,27 @@ public class PutovanjeController {
 	ResponseEntity<?> add_trip(@RequestParam long id,
 			@RequestParam long end_time) {
 		
-		Putovanje p = putovanjeRepo.findById(id);
+		Putovanje putovanje = putovanjeRepo.findById(id);
 		
-		if(p == null) {
+		if(putovanje == null) {
 			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"Trip not found ", "Trip not found");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
 		
-		if(p.getStart_time() > end_time) {
+		
+		if(putovanje.getStart_time() > end_time) {
 			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid time ", "Invalid end");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 		}
 		
-		p.setEnd_time(end_time);
-		putovanjeRepo.save(p);
+		putovanje.setEnd_time(end_time);
+		putovanjeRepo.save(putovanje);
 		
-		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "OK", p);
+		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "OK", putovanje);
+		
+		TripService tripService = new TripService(rabbitTemplate, queue);
+		tripService.tripStarted(putovanje);
+		
 		return ResponseEntity.ok(apiSuccess);
 	}
 	
