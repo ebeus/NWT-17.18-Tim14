@@ -1,7 +1,9 @@
-package application;
+package application.controllers;
 
 import application.Responses.ApiError;
 import application.Responses.ApiSuccess;
+import application.model.LogClass;
+import application.repository.LogClassRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,62 +15,59 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/logs")
-class LogClassRestController {
+public class LogClassRestController {
 
     private static final Logger logController = LoggerFactory.getLogger(LogClassRestController.class);
     private final LogClassRepository logClassRepository;
 
     @Autowired
-    LogClassRestController(LogClassRepository logClassRepository) {
+    public LogClassRestController(LogClassRepository logClassRepository) {
         this.logClassRepository = logClassRepository;
     }
 
-
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    Collection<LogClass> logs(){
+    public Collection<LogClass> logs(){
         logController.info("LogClassRestController: findAll()");
         return (Collection<LogClass>) this.logClassRepository.findAll();
     }
 
-    //Pretraga po:
-    // - tipu (1-5)
-    //Find more ne radi!!!! --------------------------------------------------
+    //Pretraga po tipu (1-5)
     @RequestMapping(value = "type/{typeId}" , method = RequestMethod.GET)
-    Collection<LogClass> logsWithType(@PathVariable Long typeId){
+    public Collection<LogClass> logsWithType(@PathVariable Long typeId){
         logController.info("LogClassRestController: logsWithType() "+ typeId);
         return this.logClassRepository.findByLogTypeId(typeId);
     }
 
     // - statusu (1, 0)
     @RequestMapping(value = "status/{status}" , method = RequestMethod.GET)
-    Collection<LogClass> logsWithStatus(@PathVariable Long status){
+    public Collection<LogClass> logsWithStatus(@PathVariable Long status){
         logController.info("LogClassRestController: logsWithType() "+ status);
         return this.logClassRepository.findByStatus(status);
     }
 
     // - mikroservisu
     @RequestMapping(value = "source/{logSource}" , method = RequestMethod.GET)
-    Collection<LogClass> losgWithLogSource(@PathVariable String logSource){
+    public Collection<LogClass> losgWithLogSource(@PathVariable String logSource){
         logController.info("LogClassRestController: logWithLogSource() "+ logSource);
         return this.logClassRepository.findByLogSource(logSource);
     }
 
     // - korisnickom imenu
     @RequestMapping(value = "/user/{user}", method = RequestMethod.GET)
-    Collection<LogClass> logsWithUser(@PathVariable String user){
+    public Collection<LogClass> logsWithUser(@PathVariable String user){
         logController.info("LogClassRestController: logWithUser() "+ user);
         return this.logClassRepository.findByUser(user);
     }
 
     // - imenu putovanja
     @RequestMapping(value = "trip/{tripName}" , method = RequestMethod.GET)
-    Collection<LogClass> logsWithTripName(@PathVariable String tripName){
+    public Collection<LogClass> logsWithTripName(@PathVariable String tripName){
         logController.info("LogClassRestController: logsWithTripName() "+ tripName);
         return this.logClassRepository.findByTripName(tripName);
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    ResponseEntity<?> add(@RequestParam Long logTypeId,
+    public ResponseEntity<?> add(@RequestParam Long logTypeId,
                           @RequestParam String logTypeName,
                           @RequestParam Long status,
                           @RequestParam String message,

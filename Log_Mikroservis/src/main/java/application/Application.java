@@ -1,5 +1,7 @@
 package application;
 
+import application.model.LogClass;
+import application.repository.LogClassRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,9 +10,11 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
+@EnableDiscoveryClient
 @ComponentScan()
 @SpringBootApplication
 @EnableAutoConfiguration
@@ -31,10 +35,10 @@ public class Application {
         @Override
         public void run(String... args) throws Exception {
 
-            logClassRepository.save(new LogClass((long) 1,"Sign in",(long) 1,"msg1", "korisnik","user1",""));
-            logClassRepository.save(new LogClass((long) 2,"Sign up",(long) 1,"msg2", "korisnik","user2",""));
-            logClassRepository.save(new LogClass((long) 2,"Sign up",(long) 1,"msg3", "korisnik", "user2",""));
-            logClassRepository.save(new LogClass((long) 3,"Register",(long) 1,"msg4", "korisnik", "user3",""));
+            logClassRepository.save(new LogClass((long) 1,"Sign in",(long) 1,"msg1", "korisnik","user1","null"));
+            logClassRepository.save(new LogClass((long) 2,"Sign up",(long) 1,"msg2", "korisnik","user2","null"));
+            logClassRepository.save(new LogClass((long) 2,"Sign up",(long) 1,"msg3", "korisnik", "user2","null"));
+            logClassRepository.save(new LogClass((long) 3,"Register",(long) 1,"msg4", "korisnik", "user3","null"));
             logClassRepository.save(new LogClass((long) 4,"Started trips",(long) 1,"msg5", "trips", "user3","trip1"));
             logClassRepository.save(new LogClass((long) 5,"Stopped trips",(long) 1,"msg5", "trips","user3","trip1"));
 

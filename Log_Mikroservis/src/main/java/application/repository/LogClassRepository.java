@@ -1,5 +1,6 @@
-package application;
+package application.repository;
 
+import application.model.LogClass;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
