@@ -30,9 +30,17 @@ public class Korisnik {
     private Long userTypeId;
     private Long userGroupId;
     private Long deviceId;
-//    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity=TipKorisnika.class )
-//    @JoinColumn(name = "tip_korisnika_id")
-//    private TipKorisnika tipKorisnika;
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity=TipKorisnika.class )
+    @JoinColumn(name = "tip_korisnika_id")
+    private TipKorisnika userType;
+
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity=GrupaKorisnika.class )
+    @JoinColumn(name = "grupa_korisnika_id")
+    private GrupaKorisnika userGroup;
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity=Uredjaj.class )
+    @JoinColumn(name = "uredjaj_id")
+    private Uredjaj device;
 
     public Korisnik(){}
 
@@ -127,11 +135,27 @@ public class Korisnik {
         this.deviceId = deviceId;
     }
 
-//    public TipKorisnika getTipKorisnika() {
-//        return tipKorisnika;
-//    }
-//
-//    public void setTipKorisnika(TipKorisnika tipKorisnika) {
-//        this.tipKorisnika = tipKorisnika;
-//    }
+    public TipKorisnika getUserType() {
+        return userType;
+    }
+
+    public void setUserType(TipKorisnika userType) {
+        this.userType = userType;
+    }
+
+    public GrupaKorisnika getUserGroup() {
+        return userGroup;
+    }
+
+    public void setUserGroup(GrupaKorisnika userGroup) {
+        this.userGroup = userGroup;
+    }
+
+    public Uredjaj getDevice() {
+        return device;
+    }
+
+    public void setDevice(Uredjaj device) {
+        this.device = device;
+    }
 }

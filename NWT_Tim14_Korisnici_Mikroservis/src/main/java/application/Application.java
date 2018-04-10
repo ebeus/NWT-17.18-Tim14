@@ -8,15 +8,25 @@ import application.Repositories.GrupaKorisnikaRepository;
 import application.Repositories.KorisnikRepository;
 import application.Repositories.TipKorisnikaRepository;
 import application.Repositories.UredjajRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
 
+import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
@@ -27,9 +37,42 @@ import java.util.List;
 @SpringBootApplication
 @EnableAutoConfiguration
 public class Application {
-
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
+    public static final String topicExchangeName="spring-boot-exchange";
+    static final  String queueName="spring-boot";
+
+    static final String logExchangeName="log-exchange";
+    static final String logQueue="log-queue";
+
+    @Bean
+    Queue queue(){
+        return new Queue(queueName,false);
+    }
+
+    @Bean
+    TopicExchange exchange(){
+        return new TopicExchange(topicExchangeName);
+    }
+
+    @Bean
+    Binding binding(Queue queue,TopicExchange topicExchange){
+        return BindingBuilder.bind(queue).to(topicExchange).with("foo.bar.#");
+    }
+
+    @Bean
+    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter){
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.setQueueNames(queueName);
+        container.setMessageListener(listenerAdapter);
+        return  container;
+    }
+
+    @Bean
+    MessageListenerAdapter listenerAdapter(Receiver receiver){
+        return new MessageListenerAdapter(receiver,"receiveMessage");
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class);
@@ -47,15 +90,19 @@ public class Application {
         @Autowired
         GrupaKorisnikaRepository grupaKorisnikaRepository;
 
+        private final RabbitTemplate rabbitTemplate;
+        private final Receiver receiver;
+
+        public KorisniciCommandLineRunner(Receiver receiver,RabbitTemplate rabbitTemplate){
+            this.receiver=receiver;
+            this.rabbitTemplate=rabbitTemplate;
+        }
+
         @Override
         public void run(String... args) throws Exception {
 
             tipKorisnikaRepository.save(new TipKorisnika("Administrator"));
             tipKorisnikaRepository.save(new TipKorisnika("Obicni"));
-
-            korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer","1234",0L,(long) 0,(long) 0));
-            korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian","1234",0L,(long) 0,(long) 0));
-            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer","1234",0L,(long) 0,(long) 0));
 
             uredjajRepository.save(new Uredjaj("Mobitel",(long) 0));
             uredjajRepository.save(new Uredjaj("Tramvaj",(long) 1));
@@ -64,6 +111,10 @@ public class Application {
 
             grupaKorisnikaRepository.save(new GrupaKorisnika("Grupa1"));
             grupaKorisnikaRepository.save(new GrupaKorisnika("Grupa2"));
+
+            korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer","1234",0L,0L, 3L));
+            korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian","1234",0L, 0L, 4L));
+            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer","1234",0L, 0L, 5L));
 
             List<TipKorisnika> tipoviKorisnika= (List<TipKorisnika>) tipKorisnikaRepository.findAll();
             List<Uredjaj> uredjaji= (List<Uredjaj>) uredjajRepository.findAll();
@@ -88,9 +139,11 @@ public class Application {
                 korisnikRepository.save(korisnik);
             }
 
+            List<Korisnik> korisnici= (List<Korisnik>) korisnikRepository.findAll();
+
             log.info("Svi korisnici pomocu findAll(): ");
             log.info("-------------------------------");
-            for (Korisnik korisnik : korisnikRepository.findAll()) {
+            for (Korisnik korisnik : korisnici) {
                 log.info(korisnik.toString());
             }
             log.info("");
@@ -123,92 +176,17 @@ public class Application {
             // }
             log.info("");
 
+
+            ObjectMapper mapper = new ObjectMapper();
+
+
+            log.info("Sending message...");
+            rabbitTemplate.convertAndSend(Application.topicExchangeName,"foo.bar.baz",grupeKorisnika.get(0).toString());
+            rabbitTemplate.convertAndSend(Application.topicExchangeName,"foo.bar.rab",korisnici.get(0).toString());
+
         }
+
+
+
     }
-
-//    @Bean
-//    public CommandLineRunner initializeKorisniciDatabase(KorisnikRepository korisnikRepository, TipKorisnikaRepository tipKorisnikaRepository, UredjajRepository uredjajRepository, GrupaKorisnikaRepository grupaKorisnikaRepository) {
-//
-//
-//
-//        return (args) -> {
-//
-//
-//            korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer","1234",0L,(long) 0,(long) 0));
-//            korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian","1234",0L,(long) 0,(long) 0));
-//            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer","1234",0L,(long) 0,(long) 0));
-//
-//            KorisnikController korisnikController=new KorisnikController(korisnikRepository);
-//
-//            tipKorisnikaRepository.save(new TipKorisnika("Administrator"));
-//            tipKorisnikaRepository.save(new TipKorisnika("Obicni"));
-//
-//            uredjajRepository.save(new Uredjaj("Mobitel",(long) 0));
-//            uredjajRepository.save(new Uredjaj("Tramvaj",(long) 1));
-//            uredjajRepository.save(new Uredjaj("Trola",(long) 2));
-//            uredjajRepository.save(new Uredjaj("Minibus",(long) 3));
-//
-//            grupaKorisnikaRepository.save(new GrupaKorisnika("Grupa1"));
-//            grupaKorisnikaRepository.save(new GrupaKorisnika("Grupa2"));
-//
-//            List<TipKorisnika> tipoviKorisnika= (List<TipKorisnika>) tipKorisnikaRepository.findAll();
-//            List<Uredjaj> uredjaji= (List<Uredjaj>) uredjajRepository.findAll();
-//            List<GrupaKorisnika> grupeKorisnika = (List<GrupaKorisnika>) grupaKorisnikaRepository.findAll();
-//
-//            Long admin=tipoviKorisnika.get(0).getId();
-//            Long obicni=tipoviKorisnika.get(1).getId();
-//
-//            Long mobitel=uredjaji.get(0).getDeviceTypeId();
-//            Long tramvaj=uredjaji.get(1).getDeviceTypeId();
-//
-//            Long grupa1=grupeKorisnika.get(0).getId();
-//            Long grupa2=grupeKorisnika.get(1).getId();
-//
-//            log.info("Admin: " + admin);
-//            log.info("Obicni: " + obicni);
-//
-//            for (Korisnik korisnik : korisnikRepository.findAll()) {
-//                    korisnik.setUserTypeId(admin);
-//                    korisnik.setDeviceId(tramvaj);
-//                    korisnik.setUserGroupId(grupa2);
-//                    korisnikRepository.save(korisnik);
-//            }
-//
-//            log.info("Svi korisnici pomocu findAll(): ");
-//            log.info("-------------------------------");
-//            for (Korisnik korisnik : korisnikRepository.findAll()) {
-//                log.info(korisnik.toString());
-//            }
-//            log.info("");
-//
-//            log.info("Svi tipovi korisnika pomocu findAll(): ");
-//            log.info("-------------------------------");
-//            for (TipKorisnika tipKorisnika : tipKorisnikaRepository.findAll()) {
-//                log.info(tipKorisnika.toString());
-//            }
-//            log.info("");
-//
-//
-//            // fetch an individual customer by ID
-//            korisnikRepository.findById(1L)
-//                    .ifPresent(korisnik -> {
-//                        log.info("Korisnik pomocu findById(1L):");
-//                        log.info("--------------------------------");
-//                        log.info(korisnik.toString());
-//                        log.info("");
-//                    });
-//
-//            // fetch customers by last name
-//            log.info("Customer found with findByLastName('Bauer'):");
-//            log.info("--------------------------------------------");
-//            korisnikRepository.findByLastName("Bauer").forEach(bauer -> {
-//                log.info(bauer.toString());
-//            });
-//            // for (Customer bauer : korisnikRepository.findByLastName("Bauer")) {
-//            // 	log.info(bauer.toString());
-//            // }
-//            log.info("");
-//        };
-//    }
-
 }

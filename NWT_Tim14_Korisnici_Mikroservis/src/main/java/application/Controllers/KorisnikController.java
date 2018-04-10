@@ -1,5 +1,6 @@
 package application.Controllers;
 
+import application.Application;
 import application.Repositories.KorisnikRepository;
 import application.Models.Korisnik;
 import application.Responses.ApiError;
@@ -7,6 +8,7 @@ import application.Exceptions.ItemNotFoundException;
 import application.Responses.ApiSuccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +28,13 @@ public class KorisnikController {
     private static final Logger log = LoggerFactory.getLogger(KorisnikController.class);
     private final KorisnikRepository korisnikRepository;
 
+    private final RabbitTemplate rabbitTemplate;
+
+
     @Autowired
-    public KorisnikController(KorisnikRepository korisnikRepository) {
+    public KorisnikController(KorisnikRepository korisnikRepository, RabbitTemplate rabbitTemplate) {
         this.korisnikRepository = korisnikRepository;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -66,6 +72,7 @@ public class KorisnikController {
             if (this.checkExistingUsername(userName)) {
                 Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
 
+                rabbitTemplate.convertAndSend(Application.topicExchangeName,"foo.bar.baz","User with username: " + k.getUserName() + " created");
                 korisnikRepository.save(k);
                 ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "User added", k);
                 return ResponseEntity.ok(apiSuccess);

@@ -20,7 +20,6 @@ public class TipKorisnika {
     @Size(min=3,max=20,message="User type name should be between 3 and 20 characters")
     @NotBlank
     private String typeName;
-//    private Set<Korisnik> korisnici;
 
     public TipKorisnika(){}
 
