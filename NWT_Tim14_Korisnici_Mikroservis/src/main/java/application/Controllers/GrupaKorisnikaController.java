@@ -1,12 +1,15 @@
 package application.Controllers;
 
+import application.Application;
 import application.Repositories.GrupaKorisnikaRepository;
 import application.Models.GrupaKorisnika;
 import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
 import application.Responses.ApiSuccess;
+import application.Utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,26 +24,30 @@ public class GrupaKorisnikaController {
 
     private static final Logger log = LoggerFactory.getLogger(GrupaKorisnikaController.class);
     private final GrupaKorisnikaRepository grupaKorisnikaRepository;
+    private final RabbitTemplate rabbitTemplate;
 
     @Autowired
-    public GrupaKorisnikaController(GrupaKorisnikaRepository grupaKorisnikaRepository) {
+    public GrupaKorisnikaController(GrupaKorisnikaRepository grupaKorisnikaRepository, RabbitTemplate rabbitTemplate) {
         this.grupaKorisnikaRepository = grupaKorisnikaRepository;
+        this.rabbitTemplate=rabbitTemplate;
     }
-
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Collection<GrupaKorisnika> grupe() {
         log.info("/grupe GET");
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "getAllGroups","Get all groups");
         return (Collection<GrupaKorisnika>) this.grupaKorisnikaRepository.findAll();
     }
 
-
     @RequestMapping(value = "/{groupId}", method = RequestMethod.GET)
     public Optional<GrupaKorisnika> grupaWithId(@PathVariable Long groupId) {
-        Optional<GrupaKorisnika> postojeca=grupaKorisnikaRepository.findById(groupId);
-        if(postojeca.isPresent())
-            return postojeca;
+        Optional<GrupaKorisnika> existing=grupaKorisnikaRepository.findById(groupId);
+        if(existing.isPresent()) {
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "getGroupId", "Get group with Id: " + groupId);
+            return existing;
+        }
         else {
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "errorNotFound", "Group with Id: " + groupId + " not found");
             throw new ItemNotFoundException(groupId, "group");
         }
     }
@@ -48,9 +55,12 @@ public class GrupaKorisnikaController {
     @RequestMapping(method = RequestMethod.GET)
     public Optional<GrupaKorisnika> grupaWithGroupName(@RequestParam("groupName") String groupName) {
         Optional<GrupaKorisnika> postojeca=grupaKorisnikaRepository.findByGroupName(groupName);
-        if(postojeca.isPresent())
+        if(postojeca.isPresent()) {
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "getGroupName", "Get group with name: " + groupName);
             return postojeca;
+        }
         else {
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "errorNotFound", "Group with name: " + groupName + " not found");
             throw new ItemNotFoundException(groupName , "group");
         }
     }
@@ -62,8 +72,10 @@ public class GrupaKorisnikaController {
 
             grupaKorisnikaRepository.save(k);
             ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Group added",k);
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "addedGroup", "Group with name: " + groupName + " created");
             return ResponseEntity.ok(apiSuccess);
         } else {
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "errorExists", "Group with that name already exists");
             ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Already Exists", "Group with that name already exists");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
         }
@@ -76,6 +88,7 @@ public class GrupaKorisnikaController {
         staraGrupa.setGroupName(groupName);
 
         grupaKorisnikaRepository.save(staraGrupa);
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "updatedGroup", "Group with name: " + groupName + " updated");
         ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Group updated",staraGrupa);
         return ResponseEntity.ok(apiSuccess);
     }
@@ -87,10 +100,12 @@ public class GrupaKorisnikaController {
         Optional<GrupaKorisnika> grupa = grupaKorisnikaRepository.findById(id);
         if (!grupa.isPresent()) {
             log.error("Unable to delete. Group with id {} not found.", id);
-            ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), "Unable to delete", "Unable to delete. Group with id: " + id + " not found." );
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "errorDelete", "Unable to delete. Group with id: " + id + " not found." );
+            ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), "Unable to delete", "Unable to delete. Group with id: " + id + " not found.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
         grupaKorisnikaRepository.delete(grupa.get());
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "deletedGroup","Group with id: " + id + " deleted");
         ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Group deleted", grupa.get());
         return ResponseEntity.ok(apiSuccess);
     }

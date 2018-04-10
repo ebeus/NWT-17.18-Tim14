@@ -6,6 +6,7 @@ import application.Models.Korisnik;
 import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
 import application.Responses.ApiSuccess;
+import application.Utils.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -30,7 +31,6 @@ public class KorisnikController {
 
     private final RabbitTemplate rabbitTemplate;
 
-
     @Autowired
     public KorisnikController(KorisnikRepository korisnikRepository, RabbitTemplate rabbitTemplate) {
         this.korisnikRepository = korisnikRepository;
@@ -40,18 +40,21 @@ public class KorisnikController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Collection<Korisnik> korisnici() {
         log.info("Get all users");
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "getAll","Get all users");
         return (Collection<Korisnik>) this.korisnikRepository.findAll();
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
     public Optional<Korisnik> korisnikWithId(@PathVariable Long userId) {
         log.info("Get user with id: " + userId);
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "getId","Get user with id: " + userId);
         this.userWithIdExists(userId);
         return this.korisnikRepository.findById(userId);
     }
 
     @RequestMapping(method = RequestMethod.GET)
     public Optional<Korisnik> korisnikWithUserName(@RequestParam("userName") String userName) {
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "getUsername","Get user with username: " + userName);
         this.userWithUserNameExists(userName);
         return this.korisnikRepository.findByUserName(userName);
     }
@@ -72,11 +75,12 @@ public class KorisnikController {
             if (this.checkExistingUsername(userName)) {
                 Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
 
-                rabbitTemplate.convertAndSend(Application.topicExchangeName,"foo.bar.baz","User with username: " + k.getUserName() + " created");
+                rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "added","User with username: " + k.getUserName() + " created");
                 korisnikRepository.save(k);
                 ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "User added", k);
                 return ResponseEntity.ok(apiSuccess);
             } else {
+                rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "errorExists","User with username: " + userName + " already exists");
                 ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Already Exists", "User with that username already exists");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
             }
@@ -99,9 +103,11 @@ public class KorisnikController {
             Korisnik stari = korisnikRepository.findById(userId).orElseThrow(
                     () -> new ItemNotFoundException(userId, "user"));
 
+
             Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
             stari.updateFields(k);
 
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "updated","User with username: " + k.getUserName() + " updated");
             korisnikRepository.save(stari);
             ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "User updated", stari);
             return ResponseEntity.ok(apiSuccess);
@@ -117,6 +123,7 @@ public class KorisnikController {
             message.append("@").append(e.getField().toUpperCase()).append(":").append(e.getDefaultMessage());
         }
 
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "errorValidation","Validation error");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST.value(),"Validation error",message.toString()));
     }
 
@@ -127,10 +134,12 @@ public class KorisnikController {
         Optional<Korisnik> korisnik = korisnikRepository.findById(id);
         if (!korisnik.isPresent()) {
             log.error("Unable to delete. User with id {} not found.", id);
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "errorDelete","Unable to delete. User with id: " + id + " not found.");
             ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), "Unable to delete", "Unable to delete. User with id: " + id + " not found." );
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
         korisnikRepository.delete(korisnik.get());
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "deleted","User with id: " + id + " deleted");
         ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"User deleted",korisnik.get());
         return ResponseEntity.ok(apiSuccess);
     }

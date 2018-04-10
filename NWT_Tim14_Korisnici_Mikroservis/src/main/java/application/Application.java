@@ -8,6 +8,7 @@ import application.Repositories.GrupaKorisnikaRepository;
 import application.Repositories.KorisnikRepository;
 import application.Repositories.TipKorisnikaRepository;
 import application.Repositories.UredjajRepository;
+import application.Utils.Constants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -39,11 +41,8 @@ import java.util.List;
 public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
-    public static final String topicExchangeName="spring-boot-exchange";
-    static final  String queueName="spring-boot";
-
-    static final String logExchangeName="log-exchange";
-    static final String logQueue="log-queue";
+    public static final String topicExchangeName=Constants.TOPIC_EXCHANGE_NAME;
+    private static final  String queueName = Constants.USERS_QUEUE;
 
     @Bean
     Queue queue(){
@@ -57,7 +56,7 @@ public class Application {
 
     @Bean
     Binding binding(Queue queue,TopicExchange topicExchange){
-        return BindingBuilder.bind(queue).to(topicExchange).with("foo.bar.#");
+        return BindingBuilder.bind(queue).to(topicExchange).with(Constants.USERS_ROUTING_KEY+"*");
     }
 
     @Bean
@@ -93,6 +92,8 @@ public class Application {
         private final RabbitTemplate rabbitTemplate;
         private final Receiver receiver;
 
+        RestTemplate restTemplate = new RestTemplate();
+
         public KorisniciCommandLineRunner(Receiver receiver,RabbitTemplate rabbitTemplate){
             this.receiver=receiver;
             this.rabbitTemplate=rabbitTemplate;
@@ -115,6 +116,8 @@ public class Application {
             korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer","1234",0L,0L, 3L));
             korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian","1234",0L, 0L, 4L));
             korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer","1234",0L, 0L, 5L));
+
+
 
             List<TipKorisnika> tipoviKorisnika= (List<TipKorisnika>) tipKorisnikaRepository.findAll();
             List<Uredjaj> uredjaji= (List<Uredjaj>) uredjajRepository.findAll();
@@ -180,13 +183,16 @@ public class Application {
             ObjectMapper mapper = new ObjectMapper();
 
 
+            String abc;
+
             log.info("Sending message...");
-            rabbitTemplate.convertAndSend(Application.topicExchangeName,"foo.bar.baz",grupeKorisnika.get(0).toString());
-            rabbitTemplate.convertAndSend(Application.topicExchangeName,"foo.bar.rab",korisnici.get(0).toString());
+            rabbitTemplate.convertAndSend(Application.topicExchangeName,Constants.USERS_ROUTING_KEY,korisnici.get(0).toString());
 
+            String response= restTemplate.getForObject("http://localhost:8080/users/9",String.class);
+            log.info("Rest template response: " + response);
         }
-
-
-
     }
+
+
+
 }

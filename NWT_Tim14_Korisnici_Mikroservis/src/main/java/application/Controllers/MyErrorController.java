@@ -26,7 +26,7 @@ public class MyErrorController  implements ErrorController{
 
         RequestAttributes requestAttributes = new ServletRequestAttributes(request);
 
-        return new ApiError(response.getStatus(),"ERROR","");
+        return new ApiError(response.getStatus(),"ERROR",response.toString());
     }
 
     @Override

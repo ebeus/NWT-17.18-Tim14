@@ -1,6 +1,9 @@
 package application.Models;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -65,10 +68,14 @@ public class Korisnik {
     }
     @Override
     public String toString() {
-        return String.format(
-                "Korisnik[id=%d, firstName='%s', lastName='%s', userType=%d, userGroupId=%d, deviceId=%d]",
-                id,firstName,lastName,userTypeId,userGroupId,deviceId
-                );
+        ObjectMapper mapper = new ObjectMapper();
+        String string="";
+        try {
+            string = mapper.writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return string;
     }
 
     public Long getId() {
@@ -158,4 +165,5 @@ public class Korisnik {
     public void setDevice(Uredjaj device) {
         this.device = device;
     }
+
 }
