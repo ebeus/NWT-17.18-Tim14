@@ -85,15 +85,15 @@ public class PutovanjeController {
 		
 		//Check if user exists
 		
-		/*
+		
 		RestClient restClient = new RestClient();
 		Korisnik korisnik = restClient.getUserByID(korisnikId);
 		
-		if(korisnik.getId() == null) {
+		if(korisnik == null) {
 			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"User does not exists", "User does not exists");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
-*/
+
 	
 		if(start_time < 0) {
 			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid time ", "Invalid start time");
