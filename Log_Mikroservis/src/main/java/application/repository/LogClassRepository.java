@@ -13,7 +13,7 @@ public interface LogClassRepository extends CrudRepository<LogClass,Long> {
 
     Collection<LogClass> findByStatus(Long status);
 
-    Collection<LogClass> findByLogSource(String logSource);
+    Collection<LogClass> findBySource(String logSource);
 
     Collection<LogClass> findByUser(String user);
 

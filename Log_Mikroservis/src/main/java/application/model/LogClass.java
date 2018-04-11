@@ -7,30 +7,18 @@ import java.util.Calendar;
 import java.util.Date;
 
 @Entity
+@Table(name="log")
 public class LogClass {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    //@Column(name="logTypeId", insertable = true, updatable = false)
     private Long logTypeId;
 
-    @NotNull
-    @Size(min=1,max=50,message="LogTypeName must be min=1 and max=50 chars long")
-    private String logTypeName;
-    /*  logTypeId  |    logTypeName
-          1        |      Sign in
-          2        |      Sign up
-          3        |      Register
-          4        |     Started trips
-          5        |     Stopped trips   */
-
-    @NotNull
+    //@Column(name="status", insertable = true, updatable = false)
     private Long status;
-    /*     status
-        1 = uspješno
-        2 = neuspješno    */
 
     @NotNull
     @Size(min=1,max=50,message="Message must be min=1 and max=50 chars long")
@@ -38,7 +26,7 @@ public class LogClass {
 
     @NotNull
     @Size(min=1,max=50,message="LogSource must be min=1 and max=50 chars long")
-    private String logSource;
+    private String source;
 
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
@@ -49,14 +37,25 @@ public class LogClass {
     @Size(min=1,max=50,message="Trip name must be min=1 and max=50 chars long")
     private String tripName;
 
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = LogTypeClass.class)
+   // @OneToOne(fetch = FetchType.EAGER, targetEntity = LogTypeClass.class)
+    @JoinColumn(name = "logTypeId", insertable = false, updatable = false)
+    private LogTypeClass logType;
+
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = LogStatusClass.class)
+   // @OneToOne(fetch = FetchType.EAGER, targetEntity = LogStatusClass.class)
+    @JoinColumn(name = "status", insertable = false, updatable = false)
+    private LogStatusClass logStatus;
+
+
     protected LogClass(){}
 
-    public LogClass(Long logTypeId, String logTypeName, Long status, String message, String logSource, String user, String tripName) {
+    public LogClass(Long logTypeId, Long status, String message, String source, String user, String tripName) {
         this.logTypeId = logTypeId;
-        this.logTypeName = logTypeName;
         this.status = status;
         this.message = message;
-        this.logSource = logSource;
+        this.source = source;
         this.date = Calendar.getInstance().getTime();
         this.user = user;
         this.tripName = tripName;
@@ -66,14 +65,13 @@ public class LogClass {
     public String toString() {
         return String.format(
                 "Log[id=%d, logTypeId=%d, " +
-                        "logTypeName=%s," +
                         "status=%d," +
                         "message='%s'," +
-                        "logSource='%s'," +
+                        "source='%s'," +
                         "date='%s'," +
                         "user='%s'," +
                         "tripName='%s']",
-                id,logTypeId, logTypeName,status, message, logSource, date, user , tripName);
+                id,logTypeId,status, message, source, date, user , tripName);
     }
 
     public Long getId() {   return id;   }
@@ -84,10 +82,6 @@ public class LogClass {
 
     public void setLogTypeId(Long logTypeId) {        this.logTypeId = logTypeId;    }
 
-    public String getLogTypeName() {        return logTypeName;    }
-
-    public void setLogTypeName(String logTypeName) {        this.logTypeName = logTypeName;    }
-
     public Long getStatus() {        return status;    }
 
     public void setStatus(Long status) {        this.status = status;    }
@@ -96,9 +90,9 @@ public class LogClass {
 
     public void setMessage(String message) {        this.message = message;    }
 
-    public String getLogSource() {        return logSource;    }
+    public String getSource() {        return source;    }
 
-    public void setLogSource(String logSource) {        this.logSource = logSource;    }
+    public void setSource(String source) {        this.source = source;    }
 
     public Date getDate() {        return date;    }
 

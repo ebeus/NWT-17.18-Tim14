@@ -15,13 +15,13 @@ import java.util.Collection;
 
 @RestController
 @RequestMapping("/logs")
-public class LogClassRestController {
+public class LogClassController {
 
-    private static final Logger logController = LoggerFactory.getLogger(LogClassRestController.class);
+    private static final Logger logController = LoggerFactory.getLogger(LogClassController.class);
     private final LogClassRepository logClassRepository;
 
     @Autowired
-    public LogClassRestController(LogClassRepository logClassRepository) {
+    public LogClassController(LogClassRepository logClassRepository) {
         this.logClassRepository = logClassRepository;
     }
 
@@ -46,10 +46,10 @@ public class LogClassRestController {
     }
 
     // - mikroservisu
-    @RequestMapping(value = "source/{logSource}" , method = RequestMethod.GET)
-    public Collection<LogClass> losgWithLogSource(@PathVariable String logSource){
-        logController.info("LogClassRestController: logWithLogSource() "+ logSource);
-        return this.logClassRepository.findByLogSource(logSource);
+    @RequestMapping(value = "source/{source}" , method = RequestMethod.GET)
+    public Collection<LogClass> losgWithSource(@PathVariable String source){
+        logController.info("LogClassRestController: logWithLogSource() "+ source);
+        return this.logClassRepository.findBySource(source);
     }
 
     // - korisnickom imenu
@@ -75,9 +75,9 @@ public class LogClassRestController {
                           @RequestParam String user,
                           @RequestParam String tripName) {
 
-        String validation = this.validateNewLogClass(logTypeId, logTypeName, status, message, logSource, user, tripName);
+        String validation = this.validateNewLogClass(logTypeId, status, message, logSource, user, tripName);
         if (("").equals(validation)) {
-            LogClass logic = new LogClass(logTypeId, logTypeName, status, message, logSource, user, tripName);
+            LogClass logic = new LogClass(logTypeId, status, message, logSource, user, tripName);
 
             logClassRepository.save(logic);
             ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Log added: ",logic);
@@ -88,7 +88,7 @@ public class LogClassRestController {
         }
     }
 
-    private String validateNewLogClass(Long logTypeId, String logTypeName, Long status, String message, String logSource, String user, String tripName) {
+    private String validateNewLogClass(Long logTypeId, Long status, String message, String logSource, String user, String tripName) {
         if(logTypeId <= 0 || logTypeId > 6) return "logTypeId";
         else if(status <= 0 || status >2 ) return "status";
         else if (logSource.equals("")) return "logSource";
