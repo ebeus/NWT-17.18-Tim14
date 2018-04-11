@@ -30,13 +30,11 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableAutoConfiguration
 public class Application {
 
-    private static final Logger log = LoggerFactory.getLogger(Application.class);
+    private static final String topicExchangeName = "users-exchange";
 
-    static final String topicExchangeName = "users-exchange";
+    private static final String queueName = "users-queue";
 
-    static final String queueName = "users-queue";
-
-    static final String routingKey = "user.";
+    private static final String routingKey = "user.";
 
     @Bean
     Queue queue() {

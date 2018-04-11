@@ -105,7 +105,7 @@ public class Runner implements CommandLineRunner {
         log.info("");
         log.info("------------------------------------------- END -----------------------------------------");
 
-        System.out.println("Listening on message...");
+        log.info("Listening on message...");
         receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
     }
 }
