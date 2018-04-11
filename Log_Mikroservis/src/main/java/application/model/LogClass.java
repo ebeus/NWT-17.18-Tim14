@@ -14,10 +14,8 @@ public class LogClass {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //@Column(name="logTypeId", insertable = true, updatable = false)
     private Long logTypeId;
 
-    //@Column(name="status", insertable = true, updatable = false)
     private Long status;
 
     @NotNull
