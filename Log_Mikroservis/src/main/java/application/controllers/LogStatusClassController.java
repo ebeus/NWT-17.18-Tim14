@@ -1,7 +1,7 @@
 package application.controllers;
 
 import application.model.LogStatusClass;
-import application.repository.LogStatusClassRepository;
+import application.repositories.LogStatusClassRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

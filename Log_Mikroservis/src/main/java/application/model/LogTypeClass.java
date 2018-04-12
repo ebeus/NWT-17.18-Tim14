@@ -21,9 +21,6 @@ public class LogTypeClass implements Serializable{
     @NotNull
     private String typeName;
 
-  //  @OneToOne(fetch = FetchType.EAGER, mappedBy = "logType")
-    //private LogClass logClass;
-
     public LogTypeClass() {    }
 
     public LogTypeClass(@NotNull String typeName) {

@@ -3,7 +3,7 @@ package application.controllers;
 import application.Responses.ApiError;
 import application.Responses.ApiSuccess;
 import application.model.LogClass;
-import application.repository.LogClassRepository;
+import application.repositories.LogClassRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

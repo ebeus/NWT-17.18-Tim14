@@ -3,31 +3,19 @@ package application;
 import application.model.LogClass;
 import application.model.LogStatusClass;
 import application.model.LogTypeClass;
-import application.rabbit.Receiver;
-import application.repository.LogClassRepository;
-import application.repository.LogStatusClassRepository;
-import application.repository.LogTypeClassRepository;
+import application.repositories.LogClassRepository;
+import application.repositories.LogStatusClassRepository;
+import application.repositories.LogTypeClassRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class Runner implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(Runner.class);
-
-    private final RabbitTemplate rabbitTemplate;
-    private final Receiver receiver;
-
-    public Runner(Receiver receiver, RabbitTemplate rabbitTemplate) {
-        this.receiver = receiver;
-        this.rabbitTemplate = rabbitTemplate;
-    }
 
     @Autowired
     LogClassRepository logClassRepository;
@@ -61,7 +49,6 @@ public class Runner implements CommandLineRunner {
 
 
         log.info("------------------------------------------ START ----------------------------------------");
-
         // fetch all log types
         log.info("Log types found with findAll():");
         log.info("-------------------------------");
@@ -105,7 +92,7 @@ public class Runner implements CommandLineRunner {
         log.info("");
         log.info("------------------------------------------- END -----------------------------------------");
 
-        log.info("Listening on message...");
-        receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
+        log.info("Listening for messages...");
+
     }
 }
