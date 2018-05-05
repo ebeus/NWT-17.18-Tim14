@@ -18,9 +18,6 @@ public class LogStatusClass implements Serializable {
     @NotNull
     private String statusName;
 
-   // @OneToOne(fetch = FetchType.EAGER, mappedBy = "logStatus")
-   // private LogClass logClass;
-
     public LogStatusClass() {    }
 
     public LogStatusClass(@NotNull String statusName) {

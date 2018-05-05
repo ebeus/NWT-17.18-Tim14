@@ -1,7 +1,7 @@
 package application.controllers;
 
 import application.model.LogTypeClass;
-import application.repository.LogTypeClassRepository;
+import application.repositories.LogTypeClassRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -36,16 +36,13 @@ public class LogClass {
     private String tripName;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = LogTypeClass.class)
-   // @OneToOne(fetch = FetchType.EAGER, targetEntity = LogTypeClass.class)
     @JoinColumn(name = "logTypeId", insertable = false, updatable = false)
     private LogTypeClass logType;
 
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = LogStatusClass.class)
-   // @OneToOne(fetch = FetchType.EAGER, targetEntity = LogStatusClass.class)
     @JoinColumn(name = "status", insertable = false, updatable = false)
     private LogStatusClass logStatus;
-
 
     protected LogClass(){}
 
@@ -103,7 +100,5 @@ public class LogClass {
     public String getTripName() {        return tripName;    }
 
     public void setTripName(String tripName) {        this.tripName = tripName;    }
-
-
 
 }

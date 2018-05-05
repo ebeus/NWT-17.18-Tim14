@@ -1,14 +1,6 @@
 package application;
 
-import application.model.LogClass;
-import application.model.LogStatusClass;
-import application.model.LogTypeClass;
-import application.rabbit.Receiver;
-import application.repository.LogClassRepository;
-import application.repository.LogStatusClassRepository;
-import application.repository.LogTypeClassRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import application.MScommunication.Receiver;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -32,9 +24,9 @@ public class Application {
 
     private static final String topicExchangeName = "users-exchange";
 
-    private static final String queueName = "users-queue";
+    private static final String queueName = "users-queue"; //putovanjeStart.queue
 
-    private static final String routingKey = "user.";
+    private static final String routingKey = "user."; //trip.started i trip.ended
 
     @Bean
     Queue queue() {
@@ -42,14 +34,15 @@ public class Application {
     }
 
     @Bean
-    TopicExchange exchange() {
+    TopicExchange exchange(){
         return new TopicExchange(topicExchangeName);
     }
 
     @Bean
-    Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(routingKey+"*");
+    Binding binding(TopicExchange exchange) {
+        return BindingBuilder.bind(queue()).to(exchange).with(routingKey+"*");
     }
+
 
     @Bean
     SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
@@ -67,8 +60,19 @@ public class Application {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args).close();
+        SpringApplication.run(Application.class, args);
     }
 
+    String getRoutingKey(int n){
+        switch (n) {
+            case 1:
+                return "user.";
+            case 2:
+                return "trip.started";
+            case 3:
+                return "trip.ended";
+        }
+        return "";
+    }
 
 }

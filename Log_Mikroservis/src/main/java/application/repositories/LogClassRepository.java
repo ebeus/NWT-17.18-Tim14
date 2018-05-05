@@ -1,4 +1,4 @@
-package application.repository;
+package application.repositories;
 
 import application.model.LogClass;
 import org.springframework.data.repository.CrudRepository;
