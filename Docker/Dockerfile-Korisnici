@@ -1,0 +1,7 @@
+FROM alpine-jdk:base
+MAINTAINER etf
+RUN apk --no-cache add netcat-openbsd
+COPY files/nwt_tim14_korisnici-1.0-SNAPSHOT.jar /opt/lib/
+#COPY Korisnici-entrypoint.sh /opt/bin/Korisnici-entrypoint.sh
+#RUN chmod 755 /opt/bin/Korisnici-entrypoint.sh
+EXPOSE 8080

@@ -1,0 +1,55 @@
+version: '2.2'
+services:
+    eureka-server:
+        container_name: eureka-server
+        build:
+            context: .
+            dockerfile: Dockerfile-EurekaServer
+        image: eureka-server:latest
+        expose:
+            - 8761
+        ports:
+            - 8761:8761
+        networks:
+            - tracking-network
+    KorisniciService:
+        container_name: KorisniciService
+        build:
+            context: .
+            dockerfile: Dockerfile-Korisnici
+        image: korisnici:latest
+
+        expose:
+            - 8080
+        ports:
+            - 8080:8080
+        networks:
+            - tracking-network
+        links:
+            - eureka-server:eureka-server
+        depends_on:
+            - eureka-server
+        logging:
+            driver: json-file
+    Gateway:
+        container_name: Gateway
+        build:
+            context: .
+            dockerfile: Dockerfile-Gateway
+        image: gateway:latest
+        expose:
+            - 8090
+        ports:
+            - 8090:8090
+        networks:
+            - tracking-network
+        links:
+            - eureka-server:eureka-server
+        depends_on:
+            - eureka-server
+        logging:
+            driver: json-file
+
+networks:
+    tracking-network:
+        driver: bridge
