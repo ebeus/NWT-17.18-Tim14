@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.netflix.discovery.EurekaClient;
+
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
@@ -36,6 +39,9 @@ public class PutovanjeController {
 	PutovanjeRepository putovanjeRepo;
 	@Autowired
 	LokacijaRepository lokacijaRepo;
+	
+	@Autowired
+	EurekaClient eurekaClient;
 	
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
@@ -87,7 +93,7 @@ public class PutovanjeController {
 		
 		
 		RestClient restClient = new RestClient();
-		Korisnik korisnik = restClient.getUserByID(korisnikId);
+		Korisnik korisnik = restClient.getUserByID(korisnikId,eurekaClient);
 		
 		if(korisnik == null) {
 			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"User does not exists", "User does not exists");
