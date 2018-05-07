@@ -1,4 +1,12 @@
 version: '2.2'
+networks:
+    tracking-network:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+              - subnet: 172.18.10.0/24
+                gateway: 172.18.10.1
 services:
     eureka-server:
         container_name: eureka-server
@@ -11,7 +19,27 @@ services:
         ports:
             - 8761:8761
         networks:
-            - tracking-network
+            tracking-network:
+                ipv4_address: 172.18.10.10
+    rabbit-mq-service:
+        container_name: rabbit-mq-server
+        build:
+            context: .
+            dockerfile: Dockerfile-rabbitmq
+        image: rabbitmq:latest
+        expose:
+            - 5672
+        ports:
+            - 5672:5672
+        networks:
+            tracking-network:
+                ipv4_address: 172.18.10.11
+        links:
+            - eureka-server:eureka-server
+        depends_on:
+            - eureka-server
+        logging:
+            driver: json-file
     KorisniciService:
         container_name: KorisniciService
         build:
@@ -23,6 +51,24 @@ services:
             - 8080
         ports:
             - 8080:8080
+        networks:
+            - tracking-network
+        links:
+            - eureka-server:eureka-server
+        depends_on:
+            - eureka-server
+        logging:
+            driver: json-file
+    PutovanjaService:
+        container_name: PutovanjaService
+        build:
+            context: .
+            dockerfile: Dockerfile-Putovanja
+        image: putovanja:latest
+        expose:
+            - 8081
+        ports:
+            - 8081:8081
         networks:
             - tracking-network
         links:
@@ -49,7 +95,3 @@ services:
             - eureka-server
         logging:
             driver: json-file
-
-networks:
-    tracking-network:
-        driver: bridge

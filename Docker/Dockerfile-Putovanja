@@ -1,0 +1,10 @@
+FROM alpine-jdk:base
+MAINTAINER etf
+RUN apk --no-cache add netcat-openbsd
+COPY files/Putovanje-mikroservis-1.0.0-SNAPSHOT.jar /opt/lib/
+COPY Korisnici-entrypoint.sh /opt/bin/Korisnici-entrypoint.sh
+#RUN chmod 755 /opt/bin/Korisnici-entrypoint.sh
+#RUN sh /opt/bin/Putovanja-entrypoint.sh
+ENTRYPOINT ["/usr/bin/java"]
+CMD ["-jar", "/opt/lib/Putovanje-mikroservis-1.0.0-SNAPSHOT.jar"]
+EXPOSE 8081

@@ -1,0 +1,3 @@
+Iz direktorija Docker izvrsiti:
+sudo docker-compose up --build
+Prije toga dodati u direktorij files JAR filove od svakog mikroservisa
