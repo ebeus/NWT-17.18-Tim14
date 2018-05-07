@@ -5,5 +5,5 @@ ENTRYPOINT ["/usr/bin/java"]
 CMD ["-jar", "/opt/lib/nwt_tim14_gateway-1.0-SNAPSHOT.jar"]
 #COPY Gateway-entrypoint.sh /opt/bin/Gateway-entrypoint.sh
 #RUN chmod 755 /opt/bin/Gateway-entrypoint.sh
-#RUN ./opt/bin/Gateway-entrypoint.sh
+#RUN sh /opt/bin/Gateway-entrypoint.sh
 EXPOSE 8090
