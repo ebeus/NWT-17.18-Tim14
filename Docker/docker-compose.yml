@@ -77,6 +77,24 @@ services:
             - eureka-server
         logging:
             driver: json-file
+    LogoviService:
+        container_name: LogoviService
+        build:
+            context: .
+            dockerfile: Dockerfile-Logovi
+        image: logovi:latest
+        expose:
+            - 8083
+        ports:
+            - 8083:8083
+        networks:
+            - tracking-network
+        links:
+            - eureka-server:eureka-server
+        depends_on:
+            - eureka-server
+        logging:
+            driver: json-file
     Gateway:
         container_name: Gateway
         build:
