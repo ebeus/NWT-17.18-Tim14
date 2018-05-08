@@ -29,8 +29,10 @@ services:
         image: rabbitmq:latest
         expose:
             - 5672
+            - 15672
         ports:
             - 5672:5672
+            - 15672:15672
         networks:
             tracking-network:
                 ipv4_address: 172.18.10.11
