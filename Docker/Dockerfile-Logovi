@@ -2,10 +2,10 @@ FROM alpine-jdk:base
 MAINTAINER etf
 ENTRYPOINT /bin/bash
 RUN apk --no-cache add netcat-openbsd
-COPY files/Log_Mikroservis-1.0-SNAPSHOT.jar /opt/lib/
+COPY files/log_mikroservis-1.0-SNAPSHOT.jar /opt/lib/
 #COPY Logovi-entrypoint.sh /opt/bin/Logovi-entrypoint.sh
 #RUN chmod 755 /opt/bin/Logovi-entrypoint.sh
 #RUN sh /opt/bin/Logovi-entrypoint.sh
 EXPOSE 8083
 ENTRYPOINT ["/usr/bin/java"]
-CMD ["-jar", "/opt/lib/Log_Mikroservis-1.0-SNAPSHOT.jar"]
+CMD ["-jar", "/opt/lib/log_mikroservis-1.0-SNAPSHOT.jar"]
