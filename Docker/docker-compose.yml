@@ -8,6 +8,56 @@ networks:
               - subnet: 172.18.10.0/24
                 gateway: 172.18.10.1
 services:
+    korisnici-db:
+        image: mysql:5.5
+        volumes:
+            - /opt/data-korisnici:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: iamroot
+            MYSQL_USER: spring
+            MYSQL_PASSWORD: spring
+            MYSQL_DATABASE: korisnici
+        expose:
+            - 3306
+        ports:
+            - 3306:3306
+        networks:
+            tracking-network:
+                ipv4_address: 172.18.10.20
+                
+    putovanja-db:
+        image: mysql:5.5
+        volumes:
+            - /opt/data-putovanja:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: iamroot
+            MYSQL_USER: spring
+            MYSQL_PASSWORD: spring
+            MYSQL_DATABASE: putovanja
+        expose:
+            - 3306
+        ports:
+            - 3307:3306
+        networks:
+            tracking-network:
+                ipv4_address: 172.18.10.21
+                
+    log-db:
+        image: mysql:5.5
+        volumes:
+            - /opt/data-log:/var/lib/mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: iamroot
+            MYSQL_USER: spring
+            MYSQL_PASSWORD: spring
+            MYSQL_DATABASE: log
+        expose:
+            - 3306
+        ports:
+            - 3308:3306
+        networks:
+            tracking-network:
+                ipv4_address: 172.18.10.22
     eureka-server:
         container_name: eureka-server
         build:
@@ -44,11 +94,11 @@ services:
             driver: json-file
     KorisniciService:
         container_name: KorisniciService
+        restart: always
         build:
             context: .
             dockerfile: Dockerfile-Korisnici
         image: korisnici:latest
-
         expose:
             - 8080
         ports:
@@ -57,8 +107,12 @@ services:
             - tracking-network
         links:
             - eureka-server:eureka-server
+            - korisnici-db:korisnici-db
         depends_on:
             - eureka-server
+            - rabbit-mq-service
+            - Gateway
+            - korisnici-db
         logging:
             driver: json-file
     PutovanjaService:
@@ -75,12 +129,16 @@ services:
             - tracking-network
         links:
             - eureka-server:eureka-server
+            - putovanja-db:putovanja-db
         depends_on:
             - eureka-server
+            - Gateway
+            - putovanja-db
         logging:
             driver: json-file
     LogoviService:
         container_name: LogoviService
+        restart: always
         build:
             context: .
             dockerfile: Dockerfile-Logovi
@@ -93,8 +151,11 @@ services:
             - tracking-network
         links:
             - eureka-server:eureka-server
+            - log-db:log-db
         depends_on:
             - eureka-server
+            - Gateway
+            - log-db
         logging:
             driver: json-file
     Gateway:

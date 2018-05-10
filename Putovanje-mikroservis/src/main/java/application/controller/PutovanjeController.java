@@ -93,7 +93,14 @@ public class PutovanjeController {
 		
 		
 		RestClient restClient = new RestClient();
-		Korisnik korisnik = restClient.getUserByID(korisnikId,eurekaClient);
+		Korisnik korisnik = null;
+		
+		try {
+			korisnik = restClient.getUserByID(korisnikId,eurekaClient);
+		} catch (Exception e) {
+			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"Problem in communication", "Problem in communication");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+		}
 		
 		if(korisnik == null) {
 			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"User does not exists", "User does not exists");
@@ -102,7 +109,7 @@ public class PutovanjeController {
 
 	
 		if(start_time < 0) {
-			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid time ", "Invalid start time");
+			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid start time ", "Invalid start time");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 		}
 		

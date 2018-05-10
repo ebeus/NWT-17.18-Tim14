@@ -8,13 +8,22 @@ import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
 
 import application.models.Korisnik;
+import application.responses.ApiError;
+import javassist.NotFoundException;
 
 
 public class RestClient {
 	
-	public Korisnik getUserByID(long id, EurekaClient eurekaClient) {
+	public Korisnik getUserByID(long id, EurekaClient eurekaClient) throws NotFoundException {
 		Application application = eurekaClient.getApplication("KORISNICI_MS");
+		
+		if(application == null)
+			throw new NotFoundException("Application not found");
+		
 	    InstanceInfo instanceInfo = application.getInstances().get(0);
+	    
+	    if(instanceInfo == null)
+	    	throw new NotFoundException("Application not found");
 	    
 	    String hostname = instanceInfo.getHostName();
 	    int port = instanceInfo.getPort();
