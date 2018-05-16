@@ -1,6 +1,6 @@
 #!/bin/bash
 
-project_paths=("Eureka_Server" "NWT_Tim14_Korisnici_Mikroservis" "Putovanje-mikroservis" "nwt_tim14_gateway")
+project_paths=("Eureka_Server" "NWT_Tim14_Korisnici_Mikroservis" "Putovanje-mikroservis" "nwt_tim14_gateway" "Log_Mikroservis")
 pom_xml="/pom.xml"
 target_dir="/target/"
 extension="*.jar"
