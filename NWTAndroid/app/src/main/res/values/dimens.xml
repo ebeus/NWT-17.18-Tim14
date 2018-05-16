@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <!-- Button -->
+    <dimen name="button_text_size">16sp</dimen>
+    <dimen name="button_margin_top">10dp</dimen>
+    <dimen name="button_margin_bottom">10dp</dimen>
+    <dimen name="text_frame_radius">10dp</dimen>
+    <dimen name="button_menu_size">130dp</dimen>
+    <dimen name="button_margin">30dp</dimen>
+    <dimen name="button_settings_margin">15dp</dimen>
+    <dimen name="settings_spacing">10dp</dimen>
+    <dimen name="trip_history_spacing">5dp</dimen>
+
+
+    <!-- Simple Edit Text -->
+    <dimen name="edit_text_size">20sp</dimen>
+    <dimen name="edit_text_margin">10dp</dimen>
+    <dimen name="edit_text_margin_top">150dp</dimen>
+    <dimen name="text_size_small">15dp</dimen>
+
+    <!-- Title Text View -->
+    <dimen name="text_view_size">45sp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+</resources>

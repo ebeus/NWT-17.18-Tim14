@@ -1,0 +1,45 @@
+<resources>
+    <string name="app_name">Locator</string>
+
+    <!-- Strings related to login -->
+    <string name="login_str">Login</string>
+    <string name="sign_up_str">Sign Up</string>
+    <string name="change_str">Change</string>
+    <string name="sign_out_str">Sign Out</string>
+
+
+    <string name="prompt_email_or_username">Email or username</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_username">Username</string>
+
+    <string name="prompt_password">Password</string>
+    <string name="prompt_password_again">Repeat password</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_register">Register</string>
+    <string name="action_change">Change</string>
+
+
+    <string name="error_username_login">Wrong username</string>
+    <string name="error_pass_login">Wrong password</string>
+    <string name="error_email_or_username_short">Too short</string>
+    <string name="error_invalid_password">This password is too short</string>
+
+    <string name="btn_start_trip">Start trip</string>
+    <string name="btn_trip_history">My trips</string>
+    <string name="btn_group">My group</string>
+
+    <string name="btn_finish_trip">Finish trip</string>
+
+
+    <string name="title_activity_trip">My trip</string>
+    <string name="txt_trip_date">Date: </string>
+    <string name="txt_trip_duration">Duration:</string>
+    <string name="txt_trip_kilometers"> km</string>
+
+    <string name="title_activity_group">My group</string>
+    <string name="title_activity_trips">My trips</string>
+
+
+</resources>
