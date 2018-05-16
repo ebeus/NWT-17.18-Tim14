@@ -1,8 +1,10 @@
 package ba.tim14.nwt.nwt_android.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.os.Build;
@@ -15,10 +17,13 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
+import ba.tim14.nwt.nwt_android.activities.MainActivity;
+import ba.tim14.nwt.nwt_android.activities.MenuActivity;
 import ba.tim14.nwt.nwt_android.classes.User;
 
 public class Utils {
 
+    static Typeface customFont;
 
     public static BitmapDescriptor getBitmapDescriptor(Context applicationContext, int id) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -56,4 +61,11 @@ public class Utils {
         return users;
     }
 
+    public static Typeface getFont() {
+        return customFont;
+    }
+
+    public static void setFont(Activity activity) {
+//        customFont = Typeface.createFromAsset(activity.getAssets(),  "fonts/alex_brush.ttf");
+    }
 }

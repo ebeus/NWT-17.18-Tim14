@@ -24,7 +24,7 @@ public class CustomSpinnerAdapter extends ArrayAdapter<RowItem> {
         flater = context.getLayoutInflater();
     }
 
-    @Override
+   /* @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
         RowItem rowItem = getItem(position);
@@ -38,11 +38,11 @@ public class CustomSpinnerAdapter extends ArrayAdapter<RowItem> {
         txtTitle.setText(rowItem.getTitle());
 
         return rowview;
-    }
+    }*/
 
     @Override
     public View getDropDownView(int position, View convertView, ViewGroup parent) {
-        if(convertView == null){
+        /*if(convertView == null){
             convertView = flater.inflate(R.layout.spinner_item,parent, false);
         }
         RowItem rowItem = getItem(position);
@@ -53,6 +53,15 @@ public class CustomSpinnerAdapter extends ArrayAdapter<RowItem> {
         imageView.setImageResource(rowItem.getImageId());
         txtTitle.setText(rowItem.getTitle());
 
+        return convertView;*/
+
+        convertView = null;
+        if (position == 0) {
+            convertView = flater.inflate(R.layout.spinner_item,parent, false);
+            convertView.setVisibility(View.GONE);
+        } else {
+            convertView = super.getDropDownView(position, null, parent);
+        }
         return convertView;
     }
 

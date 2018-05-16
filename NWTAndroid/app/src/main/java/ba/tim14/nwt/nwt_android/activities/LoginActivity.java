@@ -8,10 +8,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
 import ba.tim14.nwt.nwt_android.utils.Constants;
+import ba.tim14.nwt.nwt_android.utils.Utils;
 
 public class LoginActivity extends Activity {
 
@@ -35,6 +37,8 @@ public class LoginActivity extends Activity {
             result = getIntent().getIntExtra(Constants.STEP, 0);
             if(result == Constants.LOGIN && !SharedPreferencesManager.instance().isLoggedIn()){
                 setContentView(R.layout.activity_login);
+//                ((TextView)findViewById(R.id.textView_title)).setTypeface(Utils.getFont());
+
                 setUsernameAndPassLogin();
                 setListenersUsernameAndPass();
                 findViewById(R.id.sign_in_button).setOnClickListener(view -> login());
@@ -42,12 +46,16 @@ public class LoginActivity extends Activity {
             else {
                 if(result == Constants.REGISTER) {
                     setContentView(R.layout.layout_register);
+//                    ((TextView)findViewById(R.id.textView_title)).setTypeface(Utils.getFont());
+
                     setRegisterAndChangeViews();
                     setListenersUsernameAndPass();
                     findViewById(R.id.action_button_register).setOnClickListener(view -> register());
                 }
-                else if (result == Constants.CHANGE){
+                else if (result == Constants.SETTINGS_CHANGE){
                     setContentView(R.layout.layout_change_user);
+//                    ((TextView)findViewById(R.id.textView_title)).setTypeface(Utils.getFont());
+
                     setRegisterAndChangeViews();
                     setParamsChange();
                     setListenersUsernameAndPass();
@@ -221,8 +229,10 @@ public class LoginActivity extends Activity {
      */
     @Override
     public void onBackPressed() {
-        if(result == Constants.CHANGE) {
-            startActivity(new Intent(this, MenuActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        if(result == Constants.SETTINGS_CHANGE) {
+            Intent goBack = new Intent(this, MenuActivity.class);
+            goBack.putExtra(Constants.STEP,0);
+            startActivity(goBack.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }
         else{
             startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));

@@ -2,6 +2,7 @@ package ba.tim14.nwt.nwt_android.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -15,20 +16,27 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
@@ -36,21 +44,31 @@ import java.util.ArrayList;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
+import ba.tim14.nwt.nwt_android.classes.ManageLocation;
 import ba.tim14.nwt.nwt_android.classes.User;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 
-public class TripActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationClickListener, View.OnClickListener, GoogleMap.OnMyLocationButtonClickListener {
+public class TripActivity extends FragmentActivity implements CompoundButton.OnCheckedChangeListener, View.OnClickListener, OnMapReadyCallback {
+        //OnMapReadyCallback, GoogleMap.OnMyLocationClickListener, View.OnClickListener, GoogleMap.OnMyLocationButtonClickListener {
+
     private GoogleMap mMap;
+
     ArrayList<User> users = new ArrayList<>();
-    int userPosition = 0;
 
     FloatingActionButton fabStart;
     FloatingActionButton fabStop;
     FloatingActionButton fabUsers;
-
     TextView textViewTitle;
 
+    private ManageLocation manageLocation = null;
+    private boolean firstTime = true;
+    private Marker myLocationMarker;
+
+    private boolean fabUsersClicked = false;
+    private Dialog openDialog;
+
+    int userPosition = 0;
     int step = 0;
 
     @Override
@@ -113,7 +131,13 @@ public class TripActivity extends FragmentActivity implements OnMapReadyCallback
                 break;
             case R.id.floatingActionButtonUsers:
                 textViewTitle.setText(getString(R.string.title_activity_group));
-                showAllUsersOnMap();
+                if (fabUsersClicked){
+                    fabUsersClicked = false;
+                    deleteMarkers();
+                } else {
+                    fabUsersClicked = true;
+                    showAllUsersOnMap();
+                }
                 break;
         }
     }
@@ -125,6 +149,68 @@ public class TripActivity extends FragmentActivity implements OnMapReadyCallback
     private void endTrip() {
         Toast.makeText(this, "STOP", Toast.LENGTH_SHORT).show();
     }
+
+    private void setUpMap() {
+        if (manageLocation == null)
+            manageLocation = new ManageLocation(getApplicationContext());
+
+        manageUserLocation();
+    }
+
+    private void setOneUserOnMap() {
+        User clickedUser = users.get(userPosition);
+        addMarkerOnMap(clickedUser.getLocation(), clickedUser.getUsername(), userPosition);
+        //Zoom to clicked user location
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(clickedUser.getLocation()));
+        mMap.animateCamera(CameraUpdateFactory.zoomBy(15));
+        textViewTitle.setText("Location of " + clickedUser.getUsername());
+    }
+
+    public void manageUserLocation() {
+        if (manageLocation.getLocationValue() != null) {
+            setMarkerAndZoom();
+            if(step == Constants.USERS){
+                setOneUserOnMap();
+            }
+            return;
+        }
+        if (manageLocation.locationIsEnabled()) {
+            searchLocation();
+        } else buildAlertMessageNoGps();
+    }
+
+
+    private void setMarkerAndZoom() {
+        if (firstTime) {
+            myLocationMarker = mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(manageLocation.getLocationValue().getLatitude(), manageLocation.getLocationValue().getLongitude()))
+                    .title(SharedPreferencesManager.instance().getUsername()));
+            myLocationMarker.setTag(SharedPreferencesManager.instance().getUsername());
+            firstTime = false;
+        } else {
+            myLocationMarker.setPosition(new LatLng(manageLocation.getLocationValue().getLatitude(), manageLocation.getLocationValue().getLongitude()));
+            myLocationMarker.setTag(SharedPreferencesManager.instance().getUsername());
+        }
+        if (fabUsersClicked) {
+            showAllUsersOnMap();
+        }
+    }
+
+    private void searchLocation() {
+            runOnUiThread(() -> {
+                if (Looper.myLooper() == null)
+                    Looper.prepare();
+                while (manageLocation.getLocationValue() == null) {
+                    manageLocation.setLocation();
+                    Log.i("LOCATION", getString(R.string.str_searching_location));
+                }
+                if (manageLocation.getLocationValue() != null) {
+                    Log.i("LOCATION", " Location Lattitude = " + String.valueOf(manageLocation.getLatitude()) + " Longitude = " + String.valueOf(manageLocation.getLongitude()));
+                    manageUserLocation();
+                    setUpMap();
+                }
+            });
+        }
 
     private void showAllUsersOnMap() {
         //Show all users
@@ -140,40 +226,54 @@ public class TripActivity extends FragmentActivity implements OnMapReadyCallback
                 .icon(Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin))).setTag(tag);
     }
 
+    private void deleteMarkers() {
+        mMap.clear();
+        firstTime = true;
+    }
+
+
+    private void buildAlertMessageNoGps() {
+        openDialog = new Dialog(this);
+        openDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        openDialog.setContentView(R.layout.custom_location_dialog);
+        openDialog.setCancelable(false);
+        openDialog.setCanceledOnTouchOutside(false);
+        ((TextView) openDialog.findViewById(R.id.textView_title)).setText(getResources().getText(R.string.str_GPS));
+        ((TextView) openDialog.findViewById(R.id.textView_text)).setText(getResources().getText(R.string.str_your_GPS_map));
+        openDialog.findViewById(R.id.button_no).setOnClickListener(v -> openDialog.dismiss());
+        openDialog.findViewById(R.id.button_yes).setOnClickListener(v -> {
+            openDialog.dismiss();
+            this.startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 1);
+        });
+        openDialog.show();
+    }
+
+
     @Override
-    public void onMyLocationClick(@NonNull Location location) {
-        Toast.makeText(this, "Current location:\n" + location, Toast.LENGTH_LONG).show();
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == 0) {
+            switch (requestCode) {
+                case 1:
+                    setUpMap();
+            }
+        }
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+        if (mMap != null){
+            deleteMarkers();
+            setUpMap();
+        }
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        LatLng sarajevo = new LatLng(43.856259, 18.413076);
-        mMap.addMarker(new MarkerOptions().position(sarajevo).title(SharedPreferencesManager.instance().getUsername()));
-        if(step == Constants.USERS){
-            User clickedUser = users.get(userPosition);
-            addMarkerOnMap(clickedUser.getLocation(), clickedUser.getUsername(), userPosition);
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(clickedUser.getLocation()));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-            textViewTitle.setText("Location of " + clickedUser.getUsername());
+        if (mMap != null){
+            deleteMarkers();
+            setUpMap();
         }
-        else {
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(sarajevo));
-            mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        }
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mMap.setMyLocationEnabled(true);
-        mMap.setOnMyLocationButtonClickListener(this);
-        mMap.setOnMyLocationClickListener(this);
-
-    }
-
-    @Override
-    public boolean onMyLocationButtonClick() {
-        return false;
     }
 }

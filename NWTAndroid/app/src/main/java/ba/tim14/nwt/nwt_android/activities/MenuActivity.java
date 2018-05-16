@@ -4,32 +4,17 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ImageView;
-import android.widget.Spinner;
-
-import com.google.android.gms.maps.model.LatLng;
-
-import java.util.ArrayList;
+import android.widget.ImageButton;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
-import ba.tim14.nwt.nwt_android.classes.RowItem;
-import ba.tim14.nwt.nwt_android.classes.User;
+import ba.tim14.nwt.nwt_android.classes.CustomDialogClass;
 import ba.tim14.nwt.nwt_android.utils.Constants;
+import ba.tim14.nwt.nwt_android.utils.Utils;
 
 public class MenuActivity extends Activity implements View.OnClickListener{
 
-    //LinearLayout dropDownMenuItems;
-    public static String[] titles = new String[] { };
-    public static final Integer[] images = {R.drawable.ic_user_settings, R.drawable.ic_logout };
-
-    ArrayList<User> users = new ArrayList<>();
-    ArrayList<RowItem> rowItems = new ArrayList<>();
-    Spinner spinner;
-
-    ImageView btnSettings;
+    ImageButton btnSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,21 +25,21 @@ public class MenuActivity extends Activity implements View.OnClickListener{
         }
         else {
             setContentView(R.layout.activity_menu);
-            //dropDownMenuItems = findViewById(R.id.layout_settings);
-
-            //setSpinnerItems();
-            btnSettings = findViewById(R.id.btn_settings);
-            //btnSettings.setOnClickListener(view -> clickOnSpinner());
-            btnSettings.setOnClickListener(view -> signOut());
-
+            if(getIntent().getIntExtra(Constants.STEP,0) != 0){
+                manageSettingsClick();
+            }
+//            initViews();
             setButtonActions();
         }
     }
+
 
     private void setButtonActions() {
         findViewById(R.id.layout_button_trip).setOnClickListener(this);
         findViewById(R.id.layout_button_trip_list).setOnClickListener(this);
         findViewById(R.id.layout_button_group).setOnClickListener(this);
+        findViewById(R.id.btn_settings).setOnClickListener(this);
+
     }
 
     @Override
@@ -70,34 +55,18 @@ public class MenuActivity extends Activity implements View.OnClickListener{
                 Intent startMyGroup = new Intent(new Intent(this, GroupActivity.class));
                 startActivity(startMyGroup);
                 break;
+            case R.id.btn_settings:
+                CustomDialogClass settingsDialog=new CustomDialogClass(this);
+                settingsDialog.show();
+                break;
         }
     }
 
     private void startTrip() {
-        //if connected then start trip else tell to turn connection on
         Intent startTrip = new Intent(new Intent(this, TripActivity.class));
         startTrip.putExtra(Constants.STEP, Constants.MY_TRIP);
         startActivity(startTrip);
     }
-
-    private void signOut() {
-        SharedPreferencesManager.instance().setLoggedIn(false);
-        startNewActivityForResult(MainActivity.class, Constants.LOGIN);
-    }
-
-    /*public void verticalDropDownIconMenu() {
-       // if (dropDownMenuItems.getVisibility() == View.VISIBLE) {
-           // dropDownMenuItems.setVisibility(View.INVISIBLE);
-            findViewById(R.id.layout_settings_change).setOnClickListener(null);
-            findViewById(R.id.layout_settings_sign_out).setOnClickListener(null);
-        //} else {
-       //     dropDownMenuItems.setVisibility(View.VISIBLE);
-            disableButtons();
-            findViewById(R.id.layout_settings_change).setOnClickListener(view -> startNewActivityForResult(LoginActivity.class, Constants.CHANGE));
-            findViewById(R.id.layout_settings_sign_out).setOnClickListener(view -> signOut());
-        //}
-    }*/
-
 
     private void startNewActivityForResult(Class c, int step){
         Intent intent = new Intent(this, c).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -105,14 +74,30 @@ public class MenuActivity extends Activity implements View.OnClickListener{
         startActivityForResult(intent, step);
     }
 
+    private void manageSettingsClick() {
+        switch (getIntent().getIntExtra(Constants.STEP,0)){
+            case Constants.SETTINGS_CHANGE:
+                startNewActivityForResult(LoginActivity.class, Constants.SETTINGS_CHANGE);
+                break;
+            case Constants.SETTINGS_SIGN_OUT:
+                SharedPreferencesManager.instance().setLoggedIn(false);
+                startNewActivityForResult(MainActivity.class, Constants.LOGIN);
+                break;
+            default:
+                break;
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode){
-            case Constants.CHANGE:
+            case Constants.SETTINGS_CHANGE:
                 if(resultCode == Constants.VALID){
                     finish();
-                    startActivity(getIntent());
+                    Intent finishIntent = getIntent();
+                    finishIntent.removeExtra(Constants.STEP);
+                    startActivity(finishIntent);
                 }
                 break;
         }
@@ -122,22 +107,5 @@ public class MenuActivity extends Activity implements View.OnClickListener{
     public void onBackPressed() {
         startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
     }
-/*
-    private void clickOnSpinner() {
-        spinner.setVisibility(View.VISIBLE);
-        spinner.performClick();
-    }
-
-    private void setSpinnerItems() {
-        titles = new String[] {getString(R.string.change_str), getString(R.string.sign_out_str) };
-        for(int i = 0; i < titles.length; i++){
-            RowItem item = new RowItem(titles[i],images[i]);
-            rowItems.add(item);
-        }
-        spinner = findViewById(R.id.spinner_settings);
-        spinner.setVerticalScrollBarEnabled(false);
-        CustomSpinnerAdapter adapter = new CustomSpinnerAdapter(this,R.layout.spinner_item, R.id.title, rowItems) {};
-        spinner.setAdapter(adapter);
-    }*/
 
 }

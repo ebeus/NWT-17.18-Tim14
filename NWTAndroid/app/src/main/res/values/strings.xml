@@ -28,18 +28,25 @@
 
     <string name="btn_start_trip">Start trip</string>
     <string name="btn_trip_history">My trips</string>
+    <string name="str_searching_location">Searching for location!</string>
     <string name="btn_group">My group</string>
-
     <string name="btn_finish_trip">Finish trip</string>
 
+    <string name="str_GPS">Enable GPS</string>
+    <string name="str_your_GPS_map">Your GPS seems to be disabled, do you want to enable it?</string>
+    <string name="str_no">No</string>
+    <string name="str_yes">Yes</string>
 
     <string name="title_activity_trip">My trip</string>
     <string name="txt_trip_date">Date: </string>
     <string name="txt_trip_duration">Duration:</string>
     <string name="txt_trip_kilometers"> km</string>
 
+    <string name="title_activity_menu">Locator</string>
     <string name="title_activity_group">My group</string>
     <string name="title_activity_trips">My trips</string>
+
+
 
 
 </resources>

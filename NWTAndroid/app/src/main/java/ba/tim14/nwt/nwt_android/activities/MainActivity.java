@@ -1,23 +1,34 @@
 package ba.tim14.nwt.nwt_android.activities;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
 import ba.tim14.nwt.nwt_android.utils.Constants;
+import ba.tim14.nwt.nwt_android.utils.Utils;
 
 public class MainActivity extends Activity {
 
+    private String[] permissions = new String[1];
 
+    private static final int PERMISSION_ALL = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        permissions[0] = Manifest.permission.ACCESS_FINE_LOCATION;
 
         int SPLASH_DISPLAY_LENGTH = 1000;
         new Handler().postDelayed(() -> {
@@ -28,18 +39,34 @@ public class MainActivity extends Activity {
             Log.i("TAG ", "username " + SharedPreferencesManager.instance().getUsername());
             Log.i("TAG ", "pass " + SharedPreferencesManager.instance().getUserPass());
 
-            if(!SharedPreferencesManager.instance().isLoggedIn() && !SharedPreferencesManager.instance().getUsername().equals("")) {
-                //Login
-                startNewActivityForResult(LoginActivity.class, Constants.LOGIN);
+            Utils.setFont(this);
+            if(SharedPreferencesManager.instance().getUsername().equals("")) {
+                checkOrRequestPermissions();
             }
-            else {
-                //Register
-                startNewActivityForResult(LoginActivity.class, Constants.REGISTER);
-            }
+            else startApplication();
+
         }, SPLASH_DISPLAY_LENGTH);
 
     }
 
+    private void startApplication() {
+        if(!SharedPreferencesManager.instance().isLoggedIn() && !SharedPreferencesManager.instance().getUsername().equals("")) {
+            //Login
+            startNewActivityForResult(LoginActivity.class, Constants.LOGIN);
+        }
+        else {
+            //Register
+            startNewActivityForResult(LoginActivity.class, Constants.REGISTER);
+        }
+    }
+
+    private void checkOrRequestPermissions() {
+        if (!hasPermissions(getApplicationContext(), permissions)) {
+            ActivityCompat.requestPermissions(this, permissions, PERMISSION_ALL);
+        } else {
+            startApplication();
+        }
+    }
 
     private void startNewActivityForResult(Class c, int step) {
         Intent intent = new Intent(this, c).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -65,6 +92,42 @@ public class MainActivity extends Activity {
                 break;
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_ALL: {
+                if (checkGrantResults(grantResults)) {
+                    startApplication();
+                } else {
+                    // TODO: 11/8/17 change this message!
+                    Toast.makeText(this, "Can't proceed without permissions!", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
+
+    private boolean hasPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean checkGrantResults(int[] grantResults) {
+        if (grantResults.length < 0)
+            return false;
+        for (int grantResult : grantResults) {
+            if (grantResult != PackageManager.PERMISSION_GRANTED)
+                return false;
+        }
+        return true;
+    }
+
 
     @Override
     public void onBackPressed() {
