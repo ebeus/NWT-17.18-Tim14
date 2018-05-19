@@ -39,9 +39,9 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:scaleType="center"
-        app:fabSize="mini"
+        app:fabSize="normal"
         android:layout_marginLeft="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/margin_bottom_trip"
         android:src="@drawable/ic_start"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
@@ -54,9 +54,9 @@
         android:layout_height="wrap_content"
         android:clickable="true"
         android:scaleType="center"
-        app:fabSize="mini"
+        app:fabSize="normal"
         android:layout_marginLeft="@dimen/activity_vertical_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/margin_bottom_trip"
         android:src="@drawable/ic_stop"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
@@ -71,12 +71,30 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:clickable="true"
-        android:layout_margin="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_vertical_margin"
+        android:layout_marginBottom="@dimen/margin_bottom_trip"
         android:scaleType="center"
-        app:fabSize="mini"
+        app:fabSize="normal"
         android:src="@drawable/ic_target_group_small"
         android:focusable="true"
-        android:layout_alignParentRight="true" />
+        android:layout_alignParentRight="true"
+        android:layout_marginEnd="@dimen/activity_vertical_margin" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/floatingActionButtonLocateMe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_vertical_margin"
+        android:layout_marginEnd="@dimen/activity_vertical_margin"
+        android:layout_below="@+id/toolbar"
+        android:clickable="true"
+        android:scaleType="center"
+        app:fabSize="normal"
+        android:src="@android:drawable/ic_menu_mylocation"
+        android:focusable="true" />
 
 
 </RelativeLayout>

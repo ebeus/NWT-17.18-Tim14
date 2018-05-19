@@ -12,12 +12,18 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 
+import static ba.tim14.nwt.nwt_android.utils.Utils.tripList;
+
 public class MainActivity extends Activity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private String[] permissions = new String[1];
 
@@ -33,17 +39,13 @@ public class MainActivity extends Activity {
         int SPLASH_DISPLAY_LENGTH = 1000;
         new Handler().postDelayed(() -> {
             SharedPreferencesManager.initialise(this);
-           // SharedPreferencesManager.instance().setUsername("");
-           // SharedPreferencesManager.instance().setUserPass("");
+
             SharedPreferencesManager.instance().setLoggedIn(false);
-            Log.i("TAG ", "username " + SharedPreferencesManager.instance().getUsername());
-            Log.i("TAG ", "pass " + SharedPreferencesManager.instance().getUserPass());
+            Log.i(TAG, "username " + SharedPreferencesManager.instance().getUsername());
+            Log.i(TAG, "pass " + SharedPreferencesManager.instance().getUserPass());
 
             Utils.setFont(this);
-            if(SharedPreferencesManager.instance().getUsername().equals("")) {
-                checkOrRequestPermissions();
-            }
-            else startApplication();
+            checkOrRequestPermissions();
 
         }, SPLASH_DISPLAY_LENGTH);
 
@@ -56,6 +58,7 @@ public class MainActivity extends Activity {
         }
         else {
             //Register
+            tripList = new ArrayList<>();
             startNewActivityForResult(LoginActivity.class, Constants.REGISTER);
         }
     }

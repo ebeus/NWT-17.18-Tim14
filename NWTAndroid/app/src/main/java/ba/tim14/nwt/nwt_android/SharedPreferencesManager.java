@@ -14,9 +14,9 @@ public class SharedPreferencesManager {
     private static final int PREF_MODE = MODE_PRIVATE;
 
     private static final String USERNAME_KEY = "username_key";
+    private static final String EMAIL_KEY = "email_key";
     private static final String USER_PASS_KEY = "user_pass_key";
     private static final String LOGGED_IN_KEY = "logged_in_key";
-
 
     private static SharedPreferencesManager sharedPreferencesManager;
     private SharedPreferences sharedPreferences = null;
@@ -46,16 +46,28 @@ public class SharedPreferencesManager {
         editor.apply();
     }
 
+    public void setUserEmail(String userEmail) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(EMAIL_KEY, userEmail);
+        editor.apply();
+    }
+
     public void setUserPass(String userPass) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(USER_PASS_KEY, userPass);
         editor.apply();
     }
 
-
     public String getUsername() {
         if(!sharedPreferences.getString(USERNAME_KEY, "").equals("")){
             return sharedPreferences.getString(USERNAME_KEY, "");
+        }
+        return "";
+    }
+
+    public String getUserEmail() {
+        if(!sharedPreferences.getString(EMAIL_KEY, "").equals("")){
+            return sharedPreferences.getString(EMAIL_KEY, "");
         }
         return "";
     }
@@ -74,4 +86,5 @@ public class SharedPreferencesManager {
     }
 
     public boolean isLoggedIn() { return sharedPreferences.getBoolean(LOGGED_IN_KEY,false); }
+
 }

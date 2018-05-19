@@ -23,8 +23,10 @@
 
     <string name="error_username_login">Wrong username</string>
     <string name="error_pass_login">Wrong password</string>
-    <string name="error_email_or_username_short">Too short</string>
+    <string name="error_email_or_username_short">Username is too short</string>
+    <string name="error_invalid_email">Wrong email</string>
     <string name="error_invalid_password">This password is too short</string>
+    <string name="error_invalid_password_again">Passwords do not match</string>
 
     <string name="btn_start_trip">Start trip</string>
     <string name="btn_trip_history">My trips</string>
@@ -36,16 +38,24 @@
     <string name="str_your_GPS_map">Your GPS seems to be disabled, do you want to enable it?</string>
     <string name="str_no">No</string>
     <string name="str_yes">Yes</string>
+    <string name="str_location_of">Location of %1$s</string>
 
     <string name="title_activity_trip">My trip</string>
-    <string name="txt_trip_date">Date: </string>
-    <string name="txt_trip_duration">Duration:</string>
-    <string name="txt_trip_kilometers"> km</string>
+    <string name="txt_trip_duration">Duration: </string>
+    <string name="txt_trip_duration_days"> days</string>
+    <string name="txt_trip_duration_hours"> h</string>
+    <string name="txt_trip_duration_minutes"> min</string>
+    <string name="txt_trip_duration_seconds"> sec</string>
+    <string name="txt_trip_distance_in_km"> km</string>
+
+
+    <string name="txt_no_elements_in_list">At the moment you do not have any trips!</string>
 
     <string name="title_activity_menu">Locator</string>
     <string name="title_activity_group">My group</string>
     <string name="title_activity_trips">My trips</string>
 
+    <string name="title_activity_trip_history">My trip from history</string>
 
 
 

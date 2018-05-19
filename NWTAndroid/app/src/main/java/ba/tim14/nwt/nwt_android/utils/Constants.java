@@ -14,9 +14,9 @@ public class Constants {
 
     public static final int USERS = 14;
     public static final int MY_TRIP = 15;
+    public static final int MY_TRIP_HISTORY = 16;
 
-
-
+    public static final String MY_TRIP_HISTORY_POSITION = "trip_position";
 
 
 

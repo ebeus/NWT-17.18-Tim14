@@ -9,7 +9,6 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
@@ -22,11 +21,10 @@
         android:paddingEnd="@dimen/activity_horizontal_margin" />
 
     <TextView
-        android:id="@+id/textView_date_c"
+        android:id="@+id/textView_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:text="@string/txt_trip_date"
         android:layout_toEndOf="@+id/imageView"
         android:layout_toRightOf="@+id/imageView"
         android:paddingBottom="@dimen/trip_history_spacing"
@@ -34,17 +32,6 @@
         android:textColor="@color/colorPrimaryDark"
         android:textSize="@dimen/edit_text_size"
         android:paddingEnd="@dimen/trip_history_spacing" />
-
-    <TextView
-        android:id="@+id/textView_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/textView_date_c"
-        android:layout_toRightOf="@+id/textView_date_c"
-        android:paddingBottom="@dimen/trip_history_spacing"
-        android:textColor="@color/colorPrimaryDark"
-        android:textSize="@dimen/edit_text_size"/>
 
     <TextView
         android:id="@+id/textView_duration_c"
@@ -84,7 +71,7 @@
         android:id="@+id/textView_kilometers_c"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/txt_trip_kilometers"
+        android:text="@string/txt_trip_distance_in_km"
         android:layout_below="@+id/textView_duration"
         android:layout_toEndOf="@+id/textView_kilometers"
         android:layout_toRightOf="@+id/textView_kilometers"
@@ -92,5 +79,14 @@
         android:textColor="@color/colorPrimaryDark"
         android:textSize="@dimen/text_size_small" />
 
+    <ImageButton
+        android:id="@+id/imageButtonShowOnMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/textView_duration"
+        android:src="@drawable/ic_map"
+        android:background="@null" />
 
 </RelativeLayout>

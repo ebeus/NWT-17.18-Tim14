@@ -12,7 +12,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import ba.tim14.nwt.nwt_android.R;
-import ba.tim14.nwt.nwt_android.activities.GroupActivity;
 import ba.tim14.nwt.nwt_android.activities.TripActivity;
 import ba.tim14.nwt.nwt_android.classes.User;
 import ba.tim14.nwt.nwt_android.utils.Constants;

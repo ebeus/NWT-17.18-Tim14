@@ -4,17 +4,16 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.TextView;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
-import ba.tim14.nwt.nwt_android.classes.CustomDialogClass;
+import ba.tim14.nwt.nwt_android.classes.CustomDialogSettingsClass;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 
 public class MenuActivity extends Activity implements View.OnClickListener{
 
-    ImageButton btnSettings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,18 +27,20 @@ public class MenuActivity extends Activity implements View.OnClickListener{
             if(getIntent().getIntExtra(Constants.STEP,0) != 0){
                 manageSettingsClick();
             }
-//            initViews();
-            setButtonActions();
+            initViews();
         }
     }
 
 
-    private void setButtonActions() {
+    private void initViews() {
+        ((TextView)findViewById(R.id.textView_title_start_trip)).setTypeface(Utils.getFont());
+        ((TextView)findViewById(R.id.textView_title_my_group)).setTypeface(Utils.getFont());
+        ((TextView)findViewById(R.id.textView_title_my_trips)).setTypeface(Utils.getFont());
+
         findViewById(R.id.layout_button_trip).setOnClickListener(this);
         findViewById(R.id.layout_button_trip_list).setOnClickListener(this);
         findViewById(R.id.layout_button_group).setOnClickListener(this);
         findViewById(R.id.btn_settings).setOnClickListener(this);
-
     }
 
     @Override
@@ -52,11 +53,11 @@ public class MenuActivity extends Activity implements View.OnClickListener{
                 startActivity(new Intent(this, TripHistoryActivity.class));
                 break;
             case R.id.layout_button_group:
-                Intent startMyGroup = new Intent(new Intent(this, GroupActivity.class));
+                Intent startMyGroup = new Intent(this, GroupActivity.class);
                 startActivity(startMyGroup);
                 break;
             case R.id.btn_settings:
-                CustomDialogClass settingsDialog=new CustomDialogClass(this);
+                CustomDialogSettingsClass settingsDialog=new CustomDialogSettingsClass(this);
                 settingsDialog.show();
                 break;
         }

@@ -3,17 +3,11 @@ package ba.tim14.nwt.nwt_android.classes;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -58,20 +52,9 @@ public class ManageLocation implements LocationListener {
     public void setLocation() {
         try {
             locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
-            if (networkEnabled) {
-                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {}
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 10, this);
-                if (locationManager != null) {
-                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                    if (location != null) {
-                        latitude = location.getLatitude();
-                        longitude = location.getLongitude();
-                        setLatitudeAndLongitude();
-                    }
-                }
-            }
             if (gpsEnabled) {
                 if (location == null) {
+                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {return;}
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 10, this);
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -80,6 +63,18 @@ public class ManageLocation implements LocationListener {
                             longitude = location.getLongitude();
                             setLatitudeAndLongitude();
                         }
+                    }
+                }
+            }
+            if (networkEnabled) {
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) { return;}
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 100, this);
+                if (locationManager != null) {
+                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    if (location != null) {
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                        setLatitudeAndLongitude();
                     }
                 }
             }
@@ -97,10 +92,6 @@ public class ManageLocation implements LocationListener {
         return latitude;
     }
 
-    public String getLatitudeString() {
-        return String.valueOf(latitude);
-    }
-
     private void setLatitude(double latitude) {
         if (latitude == 0) {
             this.latitude = 0;
@@ -110,10 +101,6 @@ public class ManageLocation implements LocationListener {
 
     public double getLongitude() {
         return longitude;
-    }
-
-    public String getLongitudeString() {
-        return String.valueOf(longitude);
     }
 
     private void setLongitude(double longitude) {
@@ -144,15 +131,4 @@ public class ManageLocation implements LocationListener {
     public void onProviderDisabled(String s) {
     }
 
-    public String getCityName() {
-        String cityName = "";
-        try {
-            Geocoder geocoder = new Geocoder(context, Locale.getDefault());
-            List<Address> addresses = geocoder.getFromLocation(getLatitude(), getLongitude(), 1);
-            cityName = addresses.get(0).getLocality();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return cityName;
-    }
 }

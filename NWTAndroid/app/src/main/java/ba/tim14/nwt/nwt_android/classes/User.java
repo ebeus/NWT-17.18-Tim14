@@ -1,12 +1,9 @@
 package ba.tim14.nwt.nwt_android.classes;
 
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
-
-import java.io.Serializable;
 
 public class User implements Parcelable{
 

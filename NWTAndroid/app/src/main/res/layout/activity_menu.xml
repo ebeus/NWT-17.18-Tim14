@@ -60,10 +60,10 @@
                 android:layout_marginStart="@dimen/button_margin" />
 
             <TextView
+                android:id="@+id/textView_title_start_trip"
                 style="@style/AppTheme.TextViewTitle"
+                android:textSize="@dimen/text_view_size_menu"
                 android:textColor="@color/colorPrimaryDark"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"
                 android:text="@string/btn_start_trip"
@@ -81,9 +81,9 @@
             android:layout_marginLeft="@dimen/button_settings_margin">
 
             <TextView
+                android:id="@+id/textView_title_my_group"
                 style="@style/AppTheme.TextViewTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_view_size_menu"
                 android:textColor="@color/colorPrimaryDark"
                 android:layout_centerVertical="true"
                 android:text="@string/btn_group"
@@ -120,10 +120,11 @@
                 android:src="@drawable/ic_maps_and_flags"
                 android:layout_marginLeft="@dimen/button_margin"
                 android:layout_marginStart="@dimen/button_margin" />
+
             <TextView
+                android:id="@+id/textView_title_my_trips"
                 style="@style/AppTheme.TextViewTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_view_size_menu"
                 android:textColor="@color/colorPrimaryDark"
                 android:layout_centerVertical="true"
                 android:layout_alignParentRight="true"

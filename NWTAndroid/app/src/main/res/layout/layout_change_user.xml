@@ -22,7 +22,8 @@
             <TextView
                 android:id="@+id/textView_title"
                 style="@style/AppTheme.TextViewTitle"
-                android:text="@string/change_str" />
+                android:text="@string/change_str"
+                android:textSize="@dimen/text_view_size" />
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/til_username"

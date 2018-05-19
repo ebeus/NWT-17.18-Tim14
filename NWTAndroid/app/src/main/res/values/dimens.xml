@@ -14,16 +14,18 @@
     <dimen name="button_settings_margin">15dp</dimen>
     <dimen name="settings_spacing">10dp</dimen>
     <dimen name="trip_history_spacing">5dp</dimen>
+    <dimen name="margin_bottom_trip">30dp</dimen>
 
 
     <!-- Simple Edit Text -->
-    <dimen name="edit_text_size">20sp</dimen>
+    <dimen name="edit_text_size">18sp</dimen>
     <dimen name="edit_text_margin">10dp</dimen>
     <dimen name="edit_text_margin_top">150dp</dimen>
-    <dimen name="text_size_small">15dp</dimen>
+    <dimen name="text_size_small">15sp</dimen>
 
     <!-- Title Text View -->
-    <dimen name="text_view_size">33sp</dimen>
+    <dimen name="text_view_size">80sp</dimen>
+    <dimen name="text_view_size_menu">50sp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>

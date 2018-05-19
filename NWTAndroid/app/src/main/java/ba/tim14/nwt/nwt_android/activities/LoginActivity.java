@@ -1,6 +1,7 @@
 package ba.tim14.nwt.nwt_android.activities;
 
 import android.app.Activity;
+import android.app.backup.SharedPreferencesBackupHelper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
@@ -9,6 +10,8 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.util.regex.Pattern;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
@@ -37,7 +40,7 @@ public class LoginActivity extends Activity {
             result = getIntent().getIntExtra(Constants.STEP, 0);
             if(result == Constants.LOGIN && !SharedPreferencesManager.instance().isLoggedIn()){
                 setContentView(R.layout.activity_login);
-//                ((TextView)findViewById(R.id.textView_title)).setTypeface(Utils.getFont());
+                ((TextView)findViewById(R.id.textView_title)).setTypeface(Utils.getFont());
 
                 setUsernameAndPassLogin();
                 setListenersUsernameAndPass();
@@ -46,19 +49,21 @@ public class LoginActivity extends Activity {
             else {
                 if(result == Constants.REGISTER) {
                     setContentView(R.layout.layout_register);
-//                    ((TextView)findViewById(R.id.textView_title)).setTypeface(Utils.getFont());
+                    ((TextView)findViewById(R.id.textView_title)).setTypeface(Utils.getFont());
 
                     setRegisterAndChangeViews();
                     setListenersUsernameAndPass();
+                    setListenersEmailAndPassAgain();
                     findViewById(R.id.action_button_register).setOnClickListener(view -> register());
                 }
                 else if (result == Constants.SETTINGS_CHANGE){
                     setContentView(R.layout.layout_change_user);
-//                    ((TextView)findViewById(R.id.textView_title)).setTypeface(Utils.getFont());
+                    ((TextView)findViewById(R.id.textView_title)).setTypeface(Utils.getFont());
 
                     setRegisterAndChangeViews();
                     setParamsChange();
                     setListenersUsernameAndPass();
+                    setListenersEmailAndPassAgain();
                     findViewById(R.id.action_button_change).setOnClickListener(view -> change());
                 }
             }
@@ -67,9 +72,9 @@ public class LoginActivity extends Activity {
 
     private void setParamsChange() {
         editTextName.setText(SharedPreferencesManager.instance().getUsername());
+        editTextEmail.setText(SharedPreferencesManager.instance().getUserEmail());
         editTextPass.setText(SharedPreferencesManager.instance().getUserPass());
         editTextPassAgain.setText(SharedPreferencesManager.instance().getUserPass());
-        editTextEmail.setText("");
     }
 
     private void setRegisterAndChangeViews() {
@@ -102,6 +107,7 @@ public class LoginActivity extends Activity {
     private void register() {
         if(valid()) {
             SharedPreferencesManager.instance().setUsername(editTextName.getText().toString());
+            SharedPreferencesManager.instance().setUserEmail(editTextEmail.getText().toString());
             SharedPreferencesManager.instance().setUserPass(editTextPass.getText().toString());
             Intent returnIntent = new Intent();
             setResult(Constants.VALID, returnIntent);
@@ -112,6 +118,7 @@ public class LoginActivity extends Activity {
     private void change() {
         if(valid()) {
             SharedPreferencesManager.instance().setUsername(editTextName.getText().toString());
+            SharedPreferencesManager.instance().setUserEmail(editTextEmail.getText().toString());
             SharedPreferencesManager.instance().setUserPass(editTextPass.getText().toString());
             Intent returnIntent = new Intent();
             setResult(Constants.VALID, returnIntent);
@@ -124,7 +131,6 @@ public class LoginActivity extends Activity {
             public void afterTextChanged(Editable s) {}
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                nameInputLayout.setError(null);
                 nameInputLayout.setErrorEnabled(false);
             }
         });
@@ -132,8 +138,24 @@ public class LoginActivity extends Activity {
             public void afterTextChanged(Editable s) {}
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                passInputLayout.setError(null);
                 passInputLayout.setErrorEnabled(false);
+            }
+        });
+    }
+
+    private void setListenersEmailAndPassAgain() {
+        editTextEmail.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                emailInputLayout.setErrorEnabled(false);
+            }
+        });
+        editTextPassAgain.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                passAgainInputLayout.setErrorEnabled(false);
             }
         });
     }
@@ -153,9 +175,12 @@ public class LoginActivity extends Activity {
             valid = false;
         if (!validPass())
             valid = false;
+        if (!validEmail())
+            valid = false;
+        if(!validPassAgain())
+            valid = false;
         return valid;
     }
-
 
     private boolean validNameLogin() {
         try {
@@ -224,8 +249,42 @@ public class LoginActivity extends Activity {
         }
     }
 
+    private boolean validEmail() {
+        try {
+            String email = editTextEmail.getText().toString();
+            Pattern pattern = Pattern.compile(Utils.EMAIL_REGEX);
+            if (pattern.matcher(email).find()) {
+                Log.i(TAG, "email: " + email);
+                SharedPreferencesManager.instance().setUserEmail(email);
+                return true;
+            } else{
+                emailInputLayout.setError(getString(R.string.error_invalid_email));
+                return false;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Constants.EXCEPTION_STRING + e);
+            return false;
+        }
+    }
+
+    private boolean validPassAgain() {
+        try {
+            String passAgain = editTextPassAgain.getText().toString();
+            if (passAgain.equals(editTextPass.getText().toString())) {
+                Log.i(TAG, "passAgain: " + passAgain);
+                return true;
+            } else{
+                passAgainInputLayout.setError(getString(R.string.error_invalid_password_again));
+                return false;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Constants.EXCEPTION_STRING + e);
+            return false;
+        }
+    }
+
     /**
-     * onBackPressed returns to main activity
+     * onBackPressed returns to other activity
      */
     @Override
     public void onBackPressed() {

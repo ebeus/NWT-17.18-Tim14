@@ -14,6 +14,8 @@ import ba.tim14.nwt.nwt_android.utils.Utils;
 
 public class GroupActivity extends AppCompatActivity {
 
+    private static final String TAG = GroupActivity.class.getSimpleName();
+
     ListView listViewUsers;
     ArrayList<User> users = new ArrayList<>();
 
@@ -34,7 +36,7 @@ public class GroupActivity extends AppCompatActivity {
     }
 
     private void performOnListClick(int position) {
-        Log.i("TAG","You Clicked at " + users.get(position).getUsername());
+        Log.i(TAG,"You Clicked at " + users.get(position).getUsername());
     }
 
 }
