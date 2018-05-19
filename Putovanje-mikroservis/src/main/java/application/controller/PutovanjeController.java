@@ -129,15 +129,21 @@ public class PutovanjeController {
 			@RequestParam long end_time) {
 		
 		Putovanje putovanje = putovanjeRepo.findById(id);
+		ApiError apiError;
 		
 		if(putovanje == null) {
-			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"Trip not found ", "Trip not found");
+			apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"Trip not found ", "Trip not found");
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
 		
 		
 		if(putovanje.getStart_time() > end_time) {
-			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid time ", "Invalid end");
+			apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid time ", "Invalid end");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+		}
+		
+		if(putovanje.getEnd_time() > 0) {
+			apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid end time ", "Invalid end time");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 		}
 		

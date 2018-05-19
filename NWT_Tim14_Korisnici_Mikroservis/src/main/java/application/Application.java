@@ -29,6 +29,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,7 +39,7 @@ import java.util.List;
 @EnableDiscoveryClient
 @ComponentScan()
 @SpringBootApplication
-@EnableAutoConfiguration
+@EnableResourceServer
 public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
@@ -89,10 +91,11 @@ public class Application {
         @Autowired
         GrupaKorisnikaRepository grupaKorisnikaRepository;
 
+       
         private final RabbitTemplate rabbitTemplate;
         private final Receiver receiver;
 
-        RestTemplate restTemplate = new RestTemplate();
+     //   RestTemplate restTemplate = new RestTemplate();
 
         public KorisniciCommandLineRunner(Receiver receiver,RabbitTemplate rabbitTemplate){
             this.receiver=receiver;
@@ -185,11 +188,11 @@ public class Application {
 
             String abc;
 
-            log.info("Sending message...");
-            rabbitTemplate.convertAndSend(Application.topicExchangeName,Constants.USERS_ROUTING_KEY,korisnici.get(0).toString());
+           // log.info("Sending message...");
+           // rabbitTemplate.convertAndSend(Application.topicExchangeName,Constants.USERS_ROUTING_KEY,korisnici.get(0).toString());
 
-            String response= restTemplate.getForObject("http://localhost:8080/users/9",String.class);
-            log.info("Rest template response: " + response);
+           // String response= restTemplate.getForObject("http://localhost:8080/users/9",String.class);
+           // log.info("Rest template response: " + response);
         }
     }
 

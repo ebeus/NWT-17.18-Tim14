@@ -9,7 +9,7 @@ networks:
                 gateway: 172.18.10.1
 services:
     korisnici-db:
-        image: mysql:5.5
+        image: mysql:5.7
         volumes:
             - /opt/data-korisnici:/var/lib/mysql
         environment:
@@ -26,7 +26,7 @@ services:
                 ipv4_address: 172.18.10.20
                 
     putovanja-db:
-        image: mysql:5.5
+        image: mysql:5.7
         volumes:
             - /opt/data-putovanja:/var/lib/mysql
         environment:
@@ -43,7 +43,7 @@ services:
                 ipv4_address: 172.18.10.21
                 
     log-db:
-        image: mysql:5.5
+        image: mysql:5.7
         volumes:
             - /opt/data-log:/var/lib/mysql
         environment:
@@ -92,6 +92,25 @@ services:
             - eureka-server
         logging:
             driver: json-file
+    auth-server:
+        container_name: auth-server
+        build:
+            context: .
+            dockerfile: Dockerfile-Auth
+        image: auth-server:latest
+        expose:
+            - 9999
+        ports:
+            - 9999:9999
+        networks:
+            tracking-network:
+                ipv4_address: 172.18.10.50
+        depends_on:
+            - eureka-server
+            - Gateway
+        logging:
+            driver: json-file
+            
     KorisniciService:
         container_name: KorisniciService
         restart: always

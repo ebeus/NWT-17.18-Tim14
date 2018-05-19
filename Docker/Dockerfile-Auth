@@ -1,0 +1,6 @@
+FROM anapsix/alpine-java
+MAINTAINER etf
+COPY files/AuthServer-1.0.0-SNAPSHOT.jar /opt/lib/
+#ENTRYPOINT ["/usr/bin/java"]
+CMD ["java", "-jar", "/opt/lib/AuthServer-1.0.0-SNAPSHOT.jar"]
+EXPOSE 9999

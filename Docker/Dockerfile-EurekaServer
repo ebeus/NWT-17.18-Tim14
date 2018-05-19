@@ -1,6 +1,6 @@
-FROM alpine-jdk:base
+FROM anapsix/alpine-java
 MAINTAINER etf
 COPY files/nwt_tim14_eureka_server-1.0-SNAPSHOT.jar /opt/lib/
-ENTRYPOINT ["/usr/bin/java"]
-CMD ["-jar", "/opt/lib/nwt_tim14_eureka_server-1.0-SNAPSHOT.jar"]
+#ENTRYPOINT ["/usr/bin/java"]
+CMD ["java", "-jar", "/opt/lib/nwt_tim14_eureka_server-1.0-SNAPSHOT.jar"]
 EXPOSE 8761
