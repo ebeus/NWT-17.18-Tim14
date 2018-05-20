@@ -31,11 +31,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Utils {
 
+    private static final String TAG = Utils.class.getSimpleName();
+
     @SuppressLint("SimpleDateFormat")
     public static final SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.US);
     public static final String EMAIL_REGEX = "^[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,4}$";
 
-    public static final String URL="http://192.168.0.18:8080";
+    private static final String URL="http://192.168.0.18:8080";
 
     public static ArrayList<Trip> tripList;
     private static Typeface customFont;
@@ -60,8 +62,6 @@ public class Utils {
         }
     }
 
-
-
     public static ArrayList<User> getPopulatedListWithUsers() {
         ArrayList<User> users = new ArrayList<>();
         users.add(new User("User 1", new LatLng(43.856259, 18.413076)));
@@ -75,8 +75,6 @@ public class Utils {
 
         return users;
     }
-
-
 
     public static void getKorisnike() {
         Retrofit.Builder builder = new Retrofit.Builder()
@@ -92,11 +90,11 @@ public class Utils {
             @Override
             public void onResponse(Call<List<Korisnik>> call, Response<List<Korisnik>> response) {
                 List<Korisnik> korisnici = response.body();
-                Log.i("AAAA", "Korisnici "+ korisnici);
+                Log.i(TAG, "Korisnici "+ korisnici);
             }
             @Override
             public void onFailure(Call<List<Korisnik>> call, Throwable t) {
-                Log.i("AAa", "Nesto nije okej:  " + t.toString());
+                Log.i(TAG, "Nesto nije okej:  " + t.toString());
 
             }
         });

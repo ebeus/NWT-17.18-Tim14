@@ -18,8 +18,6 @@ public class Constants {
 
     public static final String MY_TRIP_HISTORY_POSITION = "trip_position";
 
-
-
     public static final String EXCEPTION_STRING = "Exception ";
 
 }

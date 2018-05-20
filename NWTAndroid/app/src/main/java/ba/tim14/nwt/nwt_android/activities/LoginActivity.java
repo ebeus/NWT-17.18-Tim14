@@ -1,7 +1,6 @@
 package ba.tim14.nwt.nwt_android.activities;
 
 import android.app.Activity;
-import android.app.backup.SharedPreferencesBackupHelper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;

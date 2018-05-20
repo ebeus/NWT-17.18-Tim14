@@ -17,7 +17,7 @@ public class User implements Parcelable{
 
     public User() {    }
 
-    protected User(Parcel in) {
+    private User(Parcel in) {
         username = in.readString();
         location = in.readParcelable(LatLng.class.getClassLoader());
     }
