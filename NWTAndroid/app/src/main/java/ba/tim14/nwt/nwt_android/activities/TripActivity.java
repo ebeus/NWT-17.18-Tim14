@@ -119,7 +119,6 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
                     userPosition = getIntent().getIntExtra("user", 0);
                     break;
                 case Constants.MY_TRIP_HISTORY:
-                    Log.i(TAG,"trip 0: " + tripList.get(0).getPath().toString() + " trip 1: " + tripList.get(1).getPath().toString());
                     textViewTitle.setText(getString(R.string.title_activity_trip_history));
                     fabStart.setVisibility(View.GONE);
                     fabStop.setVisibility(View.GONE);
