@@ -25,6 +25,7 @@ public class GroupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_group);
 
         users = Utils.getPopulatedListWithUsers();
+        Utils.getKorisnike();
         setAdapter();
     }
 
