@@ -41,21 +41,18 @@ public class KorisnikController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Collection<Korisnik> korisnici() {
         log.info("Get all users");
-        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "getAll","Get all users");
         return (Collection<Korisnik>) this.korisnikRepository.findAll();
     }
 
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
     public Optional<Korisnik> korisnikWithId(@PathVariable Long userId) {
         log.info("Get user with id: " + userId);
-        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "getId","Get user with id: " + userId);
         this.userWithIdExists(userId);
         return this.korisnikRepository.findById(userId);
     }
 
     @RequestMapping(method = RequestMethod.GET)
     public Optional<Korisnik> korisnikWithUserName(@RequestParam("userName") String userName) {
-        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "getUsername","Get user with username: " + userName);
         this.userWithUserNameExists(userName);
         return this.korisnikRepository.findByUserName(userName);
     }

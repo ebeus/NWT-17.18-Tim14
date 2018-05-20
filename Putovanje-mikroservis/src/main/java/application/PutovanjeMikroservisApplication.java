@@ -8,12 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+//import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 import application.models.Lokacija;
 import application.models.Putovanje;
@@ -23,7 +24,7 @@ import application.repository.PutovanjeRepository;
 @EnableDiscoveryClient
 @ComponentScan()
 @SpringBootApplication
-@EnableResourceServer
+@EnableAutoConfiguration
 public class PutovanjeMikroservisApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(PutovanjeMikroservisApplication.class);

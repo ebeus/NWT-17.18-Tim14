@@ -16,6 +16,8 @@ public class Constants {
     public static final String USER_SIGNED_IN = "Korisnik signed-in";
     public static final String USER_SIGNED_OUT = "Korisnik signed-out";
 
+    public static final String ALL_USERS_CALLED = "Prikazi sve korisnike";
+
     public static final int MESSAGING_USER_SIGN_IN = 1;
     public static final int MESSAGING_USER_SIGN_OUT = 2;
     public static final int MESSAGING_USER_ADD = 3;
