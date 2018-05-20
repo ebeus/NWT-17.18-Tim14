@@ -184,11 +184,16 @@ public class LoginActivity extends Activity {
 
     private boolean validNameLogin() {
         try {
-            String name = editTextName.getText().toString();
-            if (name.equals(SharedPreferencesManager.instance().getUsername())) {
-                Log.i(TAG, "name: " + name);
+            String nameOrEmail = editTextName.getText().toString();
+            if (nameOrEmail.equals(SharedPreferencesManager.instance().getUsername())) {
+                Log.i(TAG, "name: " + nameOrEmail);
                 return true;
-            } else{
+            }
+            else if(nameOrEmail.equals(SharedPreferencesManager.instance().getUserEmail())){
+                Log.i(TAG, "email: " + nameOrEmail);
+                return true;
+            }
+            else{
                 nameInputLayout.setError(getString(R.string.error_username_login));
                 return false;
             }
