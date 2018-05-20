@@ -20,8 +20,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import application.DataValidation;
 import application.exceptions.ItemNotFoundException;
-import application.messaging.PutovanjeConfig;
+import application.messaging.ConstantMessages;
 import application.messaging.RestClient;
+import application.messaging.TripMessageReport;
 import application.messaging.TripService;
 import application.models.Korisnik;
 import application.models.Lokacija;
@@ -46,9 +47,8 @@ public class PutovanjeController {
 	@Autowired
 	private RabbitTemplate rabbitTemplate;
 	
-	@Autowired
-	private Queue queue;
-	
+	private TripMessageReport tripMessageReport = null;
+
 	
 	@RequestMapping(value = "/by-user/{userId}", method = RequestMethod.GET)
 	public List<Putovanje> getByUserId(@PathVariable long userId) {
@@ -84,6 +84,7 @@ public class PutovanjeController {
 		return lokacije;
 	}
 	
+	
 	@RequestMapping(value = "/start", method = RequestMethod.POST)
 	ResponseEntity<?> add_trip(@RequestParam String naziv,
 			@RequestParam long start_time,
@@ -94,32 +95,57 @@ public class PutovanjeController {
 		
 		RestClient restClient = new RestClient();
 		Korisnik korisnik = null;
+		TripService tripService = new TripService(rabbitTemplate);
+		ApiError apiError = null;
 		
 		try {
 			korisnik = restClient.getUserByID(korisnikId,eurekaClient);
 		} catch (Exception e) {
-			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"Problem in communication", "Problem in communication");
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_START, ConstantMessages.STATUS_FAILED, 
+					ConstantMessages.DESC_START_FAIL_USER_COMMUNICATION, ConstantMessages.MICROSERVICE_NAME, "", "");
+			tripService.tripStarted(tripMessageReport);
+
+			apiError = new ApiError(HttpStatus.NOT_FOUND
+					.value(),ConstantMessages.DESC_START_FAIL_USER_COMMUNICATION, 
+					ConstantMessages.DESC_START_FAIL_USER_COMMUNICATION);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
 		
 		if(korisnik == null) {
-			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"User does not exists", "User does not exists");
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_START, ConstantMessages.STATUS_FAILED, 
+					ConstantMessages.DESC_START_FAIL_USER_NOT_FOUND, ConstantMessages.MICROSERVICE_NAME, "", "");
+			tripService.tripStarted(tripMessageReport);
+
+			apiError = new ApiError(HttpStatus.NOT_FOUND
+					.value(),ConstantMessages.DESC_START_FAIL_USER_NOT_FOUND, 
+					ConstantMessages.DESC_START_FAIL_USER_NOT_FOUND);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
 
 	
 		if(start_time < 0) {
-			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid start time ", "Invalid start time");
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_START, ConstantMessages.STATUS_FAILED, 
+					ConstantMessages.DESC_START_FAIL_INVALID_START_TIME, 
+					ConstantMessages.MICROSERVICE_NAME, 
+					korisnik.getUserName(), naziv);
+			tripService.tripStarted(tripMessageReport);
+
+			apiError = new ApiError(HttpStatus.BAD_REQUEST
+					.value(),ConstantMessages.DESC_START_FAIL_INVALID_START_TIME, 
+					ConstantMessages.DESC_START_FAIL_INVALID_START_TIME);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 		}
 		
 		
 		Putovanje putovanje = new Putovanje(naziv, start_time, korisnikId);
 		putovanjeRepo.save(putovanje);
-		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "Trip started", putovanje);
 		
-		TripService tripService = new TripService(rabbitTemplate, queue);
-		tripService.tripStarted(putovanje);
+		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), ConstantMessages.TYPE_TRIP_START, putovanje);
+		
+		tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_START, ConstantMessages.STATUS_SUCCESS,
+				ConstantMessages.DESC_SUCCESS, ConstantMessages.MICROSERVICE_NAME, 
+				korisnik.getUserName(), putovanje.getNaziv());
+		tripService.tripStarted(tripMessageReport);
 		
 		return ResponseEntity.ok(apiSuccess);
 	}
@@ -129,21 +155,63 @@ public class PutovanjeController {
 			@RequestParam long end_time) {
 		
 		Putovanje putovanje = putovanjeRepo.findById(id);
-		ApiError apiError;
+		ApiError apiError = null;
+		RestClient restClient = new RestClient();
+		TripService tripService = new TripService(rabbitTemplate);
+		
+		Korisnik korisnik = null;
 		
 		if(putovanje == null) {
-			apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"Trip not found ", "Trip not found");
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_END,
+					ConstantMessages.STATUS_FAILED, 
+					ConstantMessages.DESC_STOP_FAIL_TRIP_NOT_FOUND, 
+					ConstantMessages.MICROSERVICE_NAME, "", "");
+			tripService.tripEnded(tripMessageReport);
+
+			apiError = new ApiError(HttpStatus.NOT_FOUND
+					.value(),ConstantMessages.DESC_STOP_FAIL_TRIP_NOT_FOUND,
+					ConstantMessages.DESC_STOP_FAIL_TRIP_NOT_FOUND);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
 		
+		try {
+			korisnik = restClient.getUserByID(putovanje.getIdKorisnika(),eurekaClient);
+		} catch (Exception e) {
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_END, ConstantMessages.STATUS_FAILED, 
+					ConstantMessages.DESC_START_FAIL_USER_NOT_FOUND, ConstantMessages.MICROSERVICE_NAME, "", "");
+			tripService.tripStarted(tripMessageReport);
+
+			apiError = new ApiError(HttpStatus.NOT_FOUND
+					.value(),ConstantMessages.DESC_START_FAIL_USER_COMMUNICATION, 
+					ConstantMessages.DESC_START_FAIL_USER_COMMUNICATION);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+		}
 		
 		if(putovanje.getStart_time() > end_time) {
-			apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid time ", "Invalid end");
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_END, 
+					ConstantMessages.STATUS_FAILED, 
+					ConstantMessages.DESC_STOP_FAIL_INVALID_END_TIME, 
+					ConstantMessages.MICROSERVICE_NAME,
+					korisnik.getUserName(), putovanje.getNaziv());
+			tripService.tripEnded(tripMessageReport);
+
+			apiError = new ApiError(HttpStatus.BAD_REQUEST
+					.value(),ConstantMessages.DESC_STOP_FAIL_INVALID_END_TIME, 
+					ConstantMessages.DESC_STOP_FAIL_INVALID_END_TIME);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 		}
 		
 		if(putovanje.getEnd_time() > 0) {
-			apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid end time ", "Invalid end time");
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_END, 
+					ConstantMessages.STATUS_FAILED, 
+					ConstantMessages.DESC_STOP_ALREADY_ENDED,
+					ConstantMessages.MICROSERVICE_NAME, 
+					korisnik.getUserName(), putovanje.getNaziv());
+			tripService.tripEnded(tripMessageReport);
+
+			apiError = new ApiError(HttpStatus.BAD_REQUEST
+					.value(),ConstantMessages.DESC_STOP_ALREADY_ENDED, 
+					ConstantMessages.DESC_STOP_ALREADY_ENDED);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 		}
 		
@@ -151,9 +219,13 @@ public class PutovanjeController {
 		putovanjeRepo.save(putovanje);
 		
 		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "OK", putovanje);
+		tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_END,
+				ConstantMessages.STATUS_SUCCESS, 
+				ConstantMessages.DESC_SUCCESS,
+				ConstantMessages.MICROSERVICE_NAME,
+				korisnik.getUserName(), putovanje.getNaziv());
 		
-		TripService tripService = new TripService(rabbitTemplate, queue);
-		tripService.tripStarted(putovanje);
+		tripService.tripEnded(tripMessageReport);
 		
 		return ResponseEntity.ok(apiSuccess);
 	}
@@ -164,20 +236,61 @@ public class PutovanjeController {
 			@RequestParam Double lat,
 			@RequestParam Double lng) {
 		
-		if(!DataValidation.validateCoordinates(lat, lng)) {
-			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Invalid coordinates ", "Invalid coordinates");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
-		}
-		
+		TripService tripService = new TripService(rabbitTemplate);
 		Putovanje putovanje = putovanjeRepo.findById(id_putovanja);
-		
+		Korisnik korisnik = null;
+		RestClient restClient = new RestClient();
+
 		if(putovanje == null) {
-			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"Trip not found ", "Trip not found");
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_END,
+					ConstantMessages.STATUS_FAILED, 
+					ConstantMessages.DESC_LOC_TRIP_NOT_FOUND, 
+					ConstantMessages.MICROSERVICE_NAME, "", "");
+			tripService.tripEnded(tripMessageReport);
+			
+			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),
+					ConstantMessages.DESC_LOC_TRIP_NOT_FOUND,
+					ConstantMessages.DESC_LOC_TRIP_NOT_FOUND);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
 		
+		try {
+			korisnik = restClient.getUserByID(putovanje.getIdKorisnika(),eurekaClient);
+		} catch (Exception e) {
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_LOCATION_ERROR, ConstantMessages.STATUS_FAILED, 
+					ConstantMessages.DESC_START_FAIL_USER_NOT_FOUND, ConstantMessages.MICROSERVICE_NAME, "", "");
+			tripService.tripStarted(tripMessageReport);
+
+			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND
+					.value(),ConstantMessages.DESC_START_FAIL_USER_COMMUNICATION, 
+					ConstantMessages.DESC_START_FAIL_USER_COMMUNICATION);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+		}
+		
+		if(!DataValidation.validateCoordinates(lat, lng)) {
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_LOCATION_ERROR,
+					ConstantMessages.STATUS_FAILED,
+					ConstantMessages.DESC_LOC_INVALID_COORDS,
+					ConstantMessages.MICROSERVICE_NAME, korisnik.getUserName(), putovanje.getNaziv());
+			tripService.tripStarted(tripMessageReport);
+
+			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST
+					.value(),ConstantMessages.DESC_LOC_INVALID_COORDS,
+					ConstantMessages.DESC_LOC_INVALID_COORDS);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+		}
+		
+		
 		if(putovanje.getEnd_time() != 0) {
-			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(),"Trip already ended ", "Trip already ended");
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_LOCATION_ERROR,
+					ConstantMessages.STATUS_FAILED,
+					ConstantMessages.DESC_LOC_TRIP_ENDED,
+					ConstantMessages.MICROSERVICE_NAME, korisnik.getUserName(), putovanje.getNaziv());
+			tripService.tripStarted(tripMessageReport);
+
+			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST
+					.value(), ConstantMessages.DESC_LOC_TRIP_ENDED,
+					ConstantMessages.DESC_LOC_TRIP_ENDED);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 		}
 		
@@ -193,14 +306,28 @@ public class PutovanjeController {
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete_trip(@PathVariable("id") long id) {
 		Putovanje putovanje = putovanjeRepo.findById(id);
-		
+		TripService tripService = new TripService(rabbitTemplate);
+
 		if(putovanje == null){
-			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(),"Trip not found ", "Trip not found");
+			ApiError apiError = new ApiError(HttpStatus.NOT_FOUND
+					.value(), ConstantMessages.DESC_TRIP_DEL_USER_NOT_FOUND, 
+					ConstantMessages.DESC_TRIP_DEL_USER_NOT_FOUND);
+			
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_DELETE,
+					ConstantMessages.STATUS_FAILED,
+					ConstantMessages.DESC_TRIP_DEL_NOT_FOUND,
+					ConstantMessages.MICROSERVICE_NAME, "", "");
+			tripService.tripDelete(tripMessageReport);
+
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
 		
 		putovanjeRepo.delete(putovanje);
-		
+		tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_DELETE,
+				ConstantMessages.STATUS_SUCCESS,
+				ConstantMessages.DESC_SUCCESS,
+				ConstantMessages.MICROSERVICE_NAME, "", putovanje.getNaziv());
+		tripService.tripDelete(tripMessageReport);
 		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "DELETED", putovanje);
 		return ResponseEntity.ok(apiSuccess);
 	}

@@ -11,25 +11,37 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
+import application.PutovanjeMikroservisApplication;
 import application.models.Korisnik;
 import application.models.Putovanje;
 
 @Component
 public class TripService{
 	private final RabbitTemplate rabbitTemplate;
-	private final Queue queue;
 	
-	public TripService(RabbitTemplate rabbitTemplate, Queue queue) {
+	public TripService(RabbitTemplate rabbitTemplate) {
 		this.rabbitTemplate = rabbitTemplate;
-		this.queue = queue;
 	}
 	
-	public void tripStarted(Putovanje putovanje) {
-		String routingKey = "trip.started";
+	public void tripStarted(TripMessageReport tripMessageReport) {
+		String routingKey = PutovanjeMikroservisApplication.ROUTING_KEY;
 		String message = "";
 		
 		try {
-			message = serializeToJson(putovanje);
+			message = serializeToJson(tripMessageReport);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+		
+	    rabbitTemplate.convertAndSend(routingKey,message);
+	}
+	
+	public void tripEnded(TripMessageReport tripMessageReport) {
+		String routingKey = PutovanjeMikroservisApplication.ROUTING_KEY;
+		String message = "";
+		
+		try {
+			message = serializeToJson(tripMessageReport);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
@@ -37,25 +49,25 @@ public class TripService{
 	    rabbitTemplate.convertAndSend(routingKey, message);
 	}
 	
-	public void tripEnded(Putovanje putovanje) {
-		String routingKey = "trip.ended";
+	public void tripDelete(TripMessageReport tripMessageReport) {
+		String routingKey = PutovanjeMikroservisApplication.ROUTING_KEY;
 		String message = "";
 		
 		try {
-			message = serializeToJson(putovanje);
+			message = serializeToJson(tripMessageReport);
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
 		
-	    rabbitTemplate.convertAndSend(routingKey, message);
+	    rabbitTemplate.convertAndSend(routingKey, message);	
 	}
 	
-	private String serializeToJson(Putovanje putovanje) throws JsonProcessingException {
+	private String serializeToJson(TripMessageReport tripMessageReport) throws JsonProcessingException {
 		ObjectMapper mapper = new ObjectMapper();
 		String jsonString = "";
 		
 		try {
-			jsonString = mapper.writeValueAsString(putovanje);
+			jsonString = mapper.writeValueAsString(tripMessageReport);
 		} catch (JsonParseException e) {
 			e.printStackTrace();
 		}

@@ -6,6 +6,10 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -29,11 +33,29 @@ import application.repository.PutovanjeRepository;
 public class PutovanjeMikroservisApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(PutovanjeMikroservisApplication.class);
-	 
+    public static final String ROUTING_KEY="trip.";
+    public static final String QUEUE_NAME="putovanja.queue";
+    public static final String TOPIC_EXCHANGE_NAME="putovanja-exchange";
+    
 	public static void main(String[] args) {
 		SpringApplication.run(PutovanjeMikroservisApplication.class, args);
 	}
 
+    @Bean
+    Queue queue(){
+        return new Queue(QUEUE_NAME,false);
+    }
+
+    @Bean
+    TopicExchange exchange(){
+        return new TopicExchange(TOPIC_EXCHANGE_NAME);
+    }
+
+    @Bean
+    Binding binding(Queue queue,TopicExchange topicExchange){
+        return BindingBuilder.bind(queue).to(topicExchange).with(ROUTING_KEY+"*");
+    }
+    
 	@Bean
 	public CommandLineRunner init(PutovanjeRepository putovanjeRepository, LokacijaRepository lokacijaRepo) {
 		return (args) -> {
