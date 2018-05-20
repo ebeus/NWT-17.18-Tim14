@@ -1,5 +1,5 @@
 package application;
-
+/*
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -12,4 +12,4 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     public void configure(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeRequests().anyRequest().authenticated();
     }
-}
+}*/

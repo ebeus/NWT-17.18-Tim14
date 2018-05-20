@@ -94,5 +94,7 @@ public class Runner implements CommandLineRunner {
 
         log.info("Listening for messages...");
 
+
+
     }
 }
