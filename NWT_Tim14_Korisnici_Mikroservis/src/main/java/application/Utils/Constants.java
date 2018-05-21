@@ -21,7 +21,7 @@ public class Constants {
     public static final int MESSAGING_USER_SIGN_IN = 1;
     public static final int MESSAGING_USER_SIGN_OUT = 2;
     public static final int MESSAGING_USER_ADD = 3;
-    public static final int MESSAGING_USER_DELETE = 6;
+    public static final int MESSAGING_USER_DELETE = 4;
     public static final int MESSAGING_EVERYTHING_OK = 1;
     public static final int MESSAGING_SOMETHING_WRONG = 2;
 

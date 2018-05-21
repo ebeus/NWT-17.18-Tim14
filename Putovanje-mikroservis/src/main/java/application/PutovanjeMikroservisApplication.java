@@ -36,7 +36,7 @@ public class PutovanjeMikroservisApplication {
     public static final String ROUTING_KEY="trip.";
     public static final String QUEUE_NAME="putovanja.queue";
     public static final String TOPIC_EXCHANGE_NAME="putovanja-exchange";
-    
+
 	public static void main(String[] args) {
 		SpringApplication.run(PutovanjeMikroservisApplication.class, args);
 	}

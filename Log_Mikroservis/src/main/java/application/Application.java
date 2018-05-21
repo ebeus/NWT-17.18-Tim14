@@ -1,19 +1,18 @@
 package application;
 
-import application.MScommunication.Receiver;
-
+import application.model.LogClass;
+import application.repositories.LogClassRepository;
+import application.utils.Constants;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
-import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 //import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,13 +28,65 @@ import java.util.concurrent.CountDownLatch;
 @EnableAutoConfiguration
 public class Application {
 
-    private static final String topicExchangeName = "users-exchange";
+    @Autowired
+    LogClassRepository logClassRepository;
 
-    private static final String queueName = "users-queue"; //putovanjeStart.queue "users-queue";
-   // private static final String queueName = "putovanjeStart.queue"; //putovanjeStart.queue "users-queue";
+    @Component
+    public class EventListener {
 
-    private static final String routingKey = "user."; //trip.started i trip.ended "user."
-    //private static final String routingKey = "trip.started."; //trip.started i trip.ended "user."
+        private Logger LOG = LoggerFactory.getLogger(EventListener.class);
+        private CountDownLatch latch = new CountDownLatch(1);
+
+        @RabbitListener(queues = Constants.USERS_QUEUE)
+        public void processUsersMessage(Object message) {
+            if(!(message instanceof byte[])) message = ((Message) message).getBody();
+            String recievedMessage = new String((byte[])message, StandardCharsets.UTF_8);
+            LOG.info("KORISNICI MS | Received [" + recievedMessage + "]");
+            logClassRepository.save(getRecievedLog(recievedMessage));
+            //Receiver.receiveMessage(recievedMessage);
+            latch.countDown();
+        }
+
+        @RabbitListener(queues = Constants.TRIPS_QUEUE)
+        public void processTripsMessage(Object message) {
+            if(!(message instanceof byte[])) message = ((Message) message).getBody();
+            String recievedMessage = new String((byte[])message, StandardCharsets.UTF_8);
+            LOG.info("PUTOVANJA MS | Received [" + recievedMessage + "]");
+            logClassRepository.save(getRecievedLog(recievedMessage));
+            // Receiver.receiveMessage(recievedMessage);
+            latch.countDown();
+        }
+
+        private LogClass getRecievedLog(String message) {
+            JSONObject obj = new JSONObject(message);
+
+            int messageType = obj.getInt("messageType");
+            int messageStatus = obj.getInt("messageStatus");
+            String messageDescription = obj.getString("messageDescription");
+            String messageMicroservice = obj.getString("messageMicroservice");
+            String username = obj.getString("username");
+            String tripName = "NO DATA";
+            if(messageType > 3 && messageType < 6)
+                tripName = obj.getString("tripName");
+
+            return new LogClass((long) messageType,(long) messageStatus,messageDescription, messageMicroservice,username,tripName);
+        }
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+
+    /*  Test Listener
+
+   // private static final String topicExchangeName = "users-exchange";
+    private static final String topicExchangeName = "putovanja-exchange";
+
+    //private static final String queueName = "users-queue"; //putovanjeStart.queue "users-queue";
+   private static final String queueName = "putovanja.queue"; //putovanjeStart.queue "users-queue";
+
+    //private static final String routingKey = "user."; //trip.started i trip.ended "user."
+    private static final String routingKey = "trip."; //trip.started i trip.ended "user."
 
     @Bean
     Queue queue() {
@@ -66,46 +117,6 @@ public class Application {
     MessageListenerAdapter listenerAdapter(Receiver receiver) {
         return new MessageListenerAdapter(receiver, "receiveMessage");
     }
-
-   /* @Component
-    public class EventListener {
-
-        private Logger LOG = LoggerFactory.getLogger(EventListener.class);
-        private CountDownLatch latch = new CountDownLatch(1);
-
-        @RabbitListener(queues = "users-queue")
-        public void processPaymentMessage(Object message) {
-            LOG.info("Message is of type: " + message.getClass().getName());
-            if(!(message instanceof byte[])) message = ((Message) message).getBody();
-            String content = new String((byte[])message, StandardCharsets.UTF_8);
-            LOG.info("Received on users-queue: " + content);
-            latch.countDown();
-        }
-
-        @RabbitListener(queues = "putovanjeStart.queue")
-        public void processOrderMessage(Object message) {
-            LOG.info("Message is of type: " + message.getClass().getName());
-            if(!(message instanceof byte[])) message = ((Message) message).getBody();
-            String content = new String((byte[])message, StandardCharsets.UTF_8);
-            LOG.info("Received on putovanjeStart.queue: " + content);
-            latch.countDown();
-        }
-    } */
-
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
-
-    String getRoutingKey(int n){
-        switch (n) {
-            case 1:
-                return "user.";
-            case 2:
-                return "trip.started";
-            case 3:
-                return "trip.ended";
-        }
-        return "";
-    }
+*/
 
 }

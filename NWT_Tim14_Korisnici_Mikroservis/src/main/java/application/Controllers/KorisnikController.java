@@ -76,13 +76,13 @@ public class KorisnikController {
 
                 lm=new LogMessage(Constants.MESSAGING_USER_ADD,Constants.MESSAGING_EVERYTHING_OK,Constants.USER_REGISTERED, Constants.MESSAGING_MICROSERVICE, k.getUserName());
 
-                rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "added",lm.toString());
+                rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY, lm.toString());
                 korisnikRepository.save(k);
                 ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "User added", k);
                 return ResponseEntity.ok(apiSuccess);
             } else {
                 lm=new LogMessage(Constants.MESSAGING_USER_ADD, Constants.MESSAGING_SOMETHING_WRONG, Constants.USER_NOT_REGISTERED, Constants.MESSAGING_MICROSERVICE,Constants.MESSAGING_USER_EXISTS + ": "+ userName);
-                rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "errorExists",lm.toString());
+                rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY, lm.toString());
                 ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), "Already Exists", "User with that username already exists");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
             }
@@ -108,7 +108,7 @@ public class KorisnikController {
             Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
             LogMessage lm = new LogMessage(Constants.MESSAGING_USER_ADD, Constants.MESSAGING_EVERYTHING_OK, Constants.USER_CHANGED, Constants.MESSAGING_MICROSERVICE, whatHasChanged(stari,k));
             stari.updateFields(k);
-            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "updated",lm.toString());
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY ,lm.toString());
             korisnikRepository.save(stari);
             ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "User updated", stari);
             return ResponseEntity.ok(apiSuccess);
@@ -162,7 +162,7 @@ public class KorisnikController {
             message.append("@").append(e.getField().toUpperCase()).append(":").append(e.getDefaultMessage());
         }
 
-        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "errorValidation","Validation error");
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY,"Validation error");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST.value(),"Validation error",message.toString()));
     }
 
@@ -174,13 +174,13 @@ public class KorisnikController {
         if (!korisnik.isPresent()) {
             log.error("Unable to delete. User with id {} not found.", id);
             lm = new LogMessage(Constants.MESSAGING_USER_DELETE, Constants.MESSAGING_SOMETHING_WRONG, Constants.USER_NOT_DELETED, Constants.MESSAGING_MICROSERVICE, "User id: " + id);
-            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "errorDelete",lm.toString());
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY, lm.toString());
             ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), "Unable to delete", "Unable to delete. User with id: " + id + " not found." );
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
         }
         korisnikRepository.delete(korisnik.get());
         lm = new LogMessage(Constants.MESSAGING_USER_DELETE, Constants.MESSAGING_EVERYTHING_OK, Constants.USER_DELETED, Constants.MESSAGING_MICROSERVICE, korisnik.get().getUserName());
-        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY + "deleted",lm.toString());
+        rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY, lm.toString());
         ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"User deleted",korisnik.get());
         return ResponseEntity.ok(apiSuccess);
     }

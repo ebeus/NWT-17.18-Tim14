@@ -3,13 +3,14 @@ package application.messaging;
 public class ConstantMessages {
 	public static String MICROSERVICE_NAME = "Putovanje";
 	
-	public static String TYPE_TRIP_START = "Start trip";
-	public static String TYPE_TRIP_END = "End trip";
-	public static String TYPE_LOCATION_ERROR = "Location error";
-	public static String TYPE_TRIP_DELETE = "Delete error";
-	
-	public static String STATUS_SUCCESS = "Success";
-	public static String STATUS_FAILED = "Failed";
+	public static int TYPE_TRIP_START = 5;
+	public static int TYPE_TRIP_END = 6;
+    public static int TYPE_TRIP_DELETE = 7;
+
+    public static String TYPE_TRIP_START_STRING = "Trip started";
+
+	public static int STATUS_SUCCESS = 1;
+	public static int STATUS_FAILED = 2;
 	
 	public static String DESC_SUCCESS = "Trip started successfully";
 	public static String DESC_START_FAIL_USER_NOT_FOUND = "User not found";

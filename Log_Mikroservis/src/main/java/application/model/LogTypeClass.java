@@ -8,8 +8,10 @@ import java.io.Serializable;
       1        |      Sign in
       2        |      Sign up
       3        |      Register
-      4        |     Started trips
-      5        |     Stopped trips   */
+      4        |      Delete user
+
+      5        |     Started trips
+      6        |     Stopped trips   */
 @Entity
 @Table(name="log_type")
 public class LogTypeClass implements Serializable{

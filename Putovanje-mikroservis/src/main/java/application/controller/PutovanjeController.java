@@ -140,7 +140,7 @@ public class PutovanjeController {
 		Putovanje putovanje = new Putovanje(naziv, start_time, korisnikId);
 		putovanjeRepo.save(putovanje);
 		
-		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), ConstantMessages.TYPE_TRIP_START, putovanje);
+		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), ConstantMessages.TYPE_TRIP_START_STRING, putovanje);
 		
 		tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_START, ConstantMessages.STATUS_SUCCESS,
 				ConstantMessages.DESC_SUCCESS, ConstantMessages.MICROSERVICE_NAME, 
@@ -257,7 +257,7 @@ public class PutovanjeController {
 		try {
 			korisnik = restClient.getUserByID(putovanje.getIdKorisnika(),eurekaClient);
 		} catch (Exception e) {
-			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_LOCATION_ERROR, ConstantMessages.STATUS_FAILED, 
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_START, ConstantMessages.STATUS_FAILED,
 					ConstantMessages.DESC_START_FAIL_USER_NOT_FOUND, ConstantMessages.MICROSERVICE_NAME, "", "");
 			tripService.tripStarted(tripMessageReport);
 
@@ -268,11 +268,6 @@ public class PutovanjeController {
 		}
 		
 		if(!DataValidation.validateCoordinates(lat, lng)) {
-			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_LOCATION_ERROR,
-					ConstantMessages.STATUS_FAILED,
-					ConstantMessages.DESC_LOC_INVALID_COORDS,
-					ConstantMessages.MICROSERVICE_NAME, korisnik.getUserName(), putovanje.getNaziv());
-			tripService.tripStarted(tripMessageReport);
 
 			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST
 					.value(),ConstantMessages.DESC_LOC_INVALID_COORDS,
@@ -282,7 +277,7 @@ public class PutovanjeController {
 		
 		
 		if(putovanje.getEnd_time() != 0) {
-			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_LOCATION_ERROR,
+			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_END,
 					ConstantMessages.STATUS_FAILED,
 					ConstantMessages.DESC_LOC_TRIP_ENDED,
 					ConstantMessages.MICROSERVICE_NAME, korisnik.getUserName(), putovanje.getNaziv());

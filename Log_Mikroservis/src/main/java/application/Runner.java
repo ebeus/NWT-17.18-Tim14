@@ -30,20 +30,17 @@ public class Runner implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         logTypeClassRepository.save(new LogTypeClass("Sign in"));
-        logTypeClassRepository.save(new LogTypeClass("Sign in"));
         logTypeClassRepository.save(new LogTypeClass("Sign out"));
         logTypeClassRepository.save(new LogTypeClass("Register"));
+        logTypeClassRepository.save(new LogTypeClass("Delete user"));
         logTypeClassRepository.save(new LogTypeClass("Started trips"));
         logTypeClassRepository.save(new LogTypeClass("Stopped trips"));
 
-        logStatusClassRepository.save(new LogStatusClass("Uspjesno"));
-        logStatusClassRepository.save(new LogStatusClass("Neuspjesno"));
-
+        logStatusClassRepository.save(new LogStatusClass("Success"));
+        logStatusClassRepository.save(new LogStatusClass("Failed"));
 
         logClassRepository.save(new LogClass((long) 1,(long) 1,"msg1", "korisnik","user1","null"));
         logClassRepository.save(new LogClass((long) 2,(long) 1,"msg2", "korisnik","user2","null"));
-        logClassRepository.save(new LogClass((long) 2,(long) 1,"msg3", "korisnik", "user2","null"));
-        logClassRepository.save(new LogClass((long) 3,(long) 1,"msg4", "korisnik", "user3","null"));
         logClassRepository.save(new LogClass((long) 4,(long) 1,"msg5", "trips", "user3","trip1"));
         logClassRepository.save(new LogClass((long) 5,(long) 1,"msg5", "trips","user3","trip1"));
 
@@ -93,8 +90,6 @@ public class Runner implements CommandLineRunner {
         log.info("------------------------------------------- END -----------------------------------------");
 
         log.info("Listening for messages...");
-
-
 
     }
 }

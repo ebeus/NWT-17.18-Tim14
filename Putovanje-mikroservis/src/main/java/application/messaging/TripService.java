@@ -32,8 +32,9 @@ public class TripService{
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		
-	    rabbitTemplate.convertAndSend(routingKey,message);
+        rabbitTemplate.convertAndSend(PutovanjeMikroservisApplication.TOPIC_EXCHANGE_NAME, routingKey, message);
+
+        //rabbitTemplate.convertAndSend(routingKey,message);
 	}
 	
 	public void tripEnded(TripMessageReport tripMessageReport) {
@@ -58,8 +59,10 @@ public class TripService{
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-		
-	    rabbitTemplate.convertAndSend(routingKey, message);	
+
+        rabbitTemplate.convertAndSend(PutovanjeMikroservisApplication.TOPIC_EXCHANGE_NAME, routingKey, message);
+
+//        rabbitTemplate.convertAndSend(routingKey, message);
 	}
 	
 	private String serializeToJson(TripMessageReport tripMessageReport) throws JsonProcessingException {

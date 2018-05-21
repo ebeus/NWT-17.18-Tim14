@@ -13,7 +13,7 @@ import javax.validation.constraints.Size;
 public class GrupaKorisnika {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long id;
     @NotNull
     @NotEmpty

@@ -12,7 +12,7 @@ import javax.validation.constraints.*;
 public class Korisnik {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
     @NotNull
     @NotEmpty
