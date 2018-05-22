@@ -37,8 +37,8 @@ public class Utils {
     public static final SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.US);
     public static final String EMAIL_REGEX = "^[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,4}$";
 
-    //private static final String URL="http://192.168.0.18:8080";
-    public static final String URL="http://192.168.0.27:8080";
+    public static final String URL="http://192.168.0.18:8080";
+//    public static final String URL="http://192.168.0.27:8080";
 
 
     public static ArrayList<Trip> tripList;
