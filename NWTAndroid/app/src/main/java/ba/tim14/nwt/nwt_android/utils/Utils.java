@@ -37,10 +37,12 @@ public class Utils {
     public static final SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.US);
     public static final String EMAIL_REGEX = "^[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,4}$";
 
-    private static final String URL="http://192.168.0.18:8080";
+    //private static final String URL="http://192.168.0.18:8080";
+    public static final String URL="http://192.168.0.27:8080";
+
 
     public static ArrayList<Trip> tripList;
-    public static ArrayList<Korisnik> users = new ArrayList<>();
+    private static ArrayList<Korisnik> users = new ArrayList<>();
     public static ArrayList<LatLng> usersLoc = new ArrayList<>();
 
     private static Typeface customFont;
@@ -66,6 +68,7 @@ public class Utils {
     }
 
     public static ArrayList<Korisnik> getPopulatedListWithUsers() {
+        users = new ArrayList<>();
         // TODO: 22.05.2018. Ovo radi za samo 8 razlicitih lokacija, za ostale mi bilo glupo da su jedni
         // na drugima pa ovo treba preko location da Users trazi location za usera ili nesto sl.
         usersLoc.add(new LatLng(43.856259, 18.413076));
@@ -76,7 +79,11 @@ public class Utils {
         usersLoc.add(new  LatLng(43.859342, 18.423951));
         usersLoc.add(new  LatLng(43.861988, 18.412428));
         usersLoc.add(new  LatLng(43.845642, 18.361547));
-
+        if(users.size() > 7){
+            for (int i = 7; i < users.size(); i++){
+                usersLoc.add(new LatLng(0,0));
+            }
+        }
         return users;
     }
 
@@ -87,7 +94,7 @@ public class Utils {
 
         Retrofit retrofit = builder.build();
 
-        LocatorService locatorService = retrofit.create(LocatorService.class);
+               LocatorService locatorService = retrofit.create(LocatorService.class);
         Call<List<Korisnik>> korisniciDobijeni = locatorService.listaKorisnika();
 
         korisniciDobijeni.enqueue(new Callback<List<Korisnik>>() {

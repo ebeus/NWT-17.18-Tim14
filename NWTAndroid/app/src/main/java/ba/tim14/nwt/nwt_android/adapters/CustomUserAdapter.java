@@ -14,8 +14,10 @@ import java.util.ArrayList;
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.activities.TripActivity;
 import ba.tim14.nwt.nwt_android.classes.Korisnik;
-import ba.tim14.nwt.nwt_android.classes.User;
 import ba.tim14.nwt.nwt_android.utils.Constants;
+import ba.tim14.nwt.nwt_android.utils.Utils;
+
+import static ba.tim14.nwt.nwt_android.utils.Utils.usersLoc;
 
 public class CustomUserAdapter  extends ArrayAdapter<Korisnik> {
 
@@ -39,12 +41,19 @@ public class CustomUserAdapter  extends ArrayAdapter<Korisnik> {
             txtUsername.setText(user.getUserName());
             txtEmail.setText(user.getEmail());
             ImageButton imageViewPin = rowView.findViewById(R.id.imageViewPin);
-            imageViewPin.setOnClickListener(view1 -> {
-                Intent startUserTrip = new Intent(new Intent(context, TripActivity.class));
-                startUserTrip.putExtra("user", position);
-                startUserTrip.putExtra(Constants.STEP, Constants.USERS);
-                context.startActivity(startUserTrip);
-            });
+
+            if(usersLoc.get(position).longitude == 0){
+                imageViewPin.setVisibility(View.GONE);
+            }
+            else {
+                imageViewPin.setVisibility(View.VISIBLE);
+                imageViewPin.setOnClickListener(view1 -> {
+                    Intent startUserTrip = new Intent(new Intent(context, TripActivity.class));
+                    startUserTrip.putExtra("user", position);
+                    startUserTrip.putExtra(Constants.STEP, Constants.USERS);
+                    context.startActivity(startUserTrip);
+                });
+            }
         }
         return rowView;
     }

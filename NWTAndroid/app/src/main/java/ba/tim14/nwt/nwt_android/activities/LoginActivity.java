@@ -14,8 +14,12 @@ import java.util.regex.Pattern;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
+import ba.tim14.nwt.nwt_android.api.LocatorService;
+import ba.tim14.nwt.nwt_android.classes.Korisnik;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoginActivity extends Activity {
 
@@ -109,9 +113,24 @@ public class LoginActivity extends Activity {
             SharedPreferencesManager.instance().setUserEmail(editTextEmail.getText().toString());
             SharedPreferencesManager.instance().setUserPass(editTextPass.getText().toString());
             Intent returnIntent = new Intent();
+            saveinDBKorisika();
             setResult(Constants.VALID, returnIntent);
             finish();
         }
+    }
+
+    private void saveinDBKorisika() {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URL)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Korisnik korisnik = new Korisnik();
+        korisnik.setUserName(SharedPreferencesManager.instance().getUsername());
+        korisnik.setPassword(SharedPreferencesManager.instance().getUserPass());
+        korisnik.setEmail(SharedPreferencesManager.instance().getUserEmail());
+        locatorService.add(korisnik);
     }
 
     private void change() {
