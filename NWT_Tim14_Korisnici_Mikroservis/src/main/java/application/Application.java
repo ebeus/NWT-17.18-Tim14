@@ -117,9 +117,9 @@ public class Application {
             grupaKorisnikaRepository.save(new GrupaKorisnika("Grupa1"));
             grupaKorisnikaRepository.save(new GrupaKorisnika("Grupa2"));
 
-            korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer","1234",0L,0L, 3L));
-            korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian","1234",0L, 0L, 4L));
-            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer","1234",0L, 0L, 5L));
+            korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer","1234", "jack.bau@gmail.com",0L,0L, 3L));
+            korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian","1234", "chlo.o.b@gmail.com",0L, 0L, 4L));
+            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer","1234", "kim.bau@gmail.com",0L, 0L, 5L));
 
 
 

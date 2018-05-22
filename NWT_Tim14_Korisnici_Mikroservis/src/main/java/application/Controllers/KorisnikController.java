@@ -62,6 +62,7 @@ public class KorisnikController {
                           @RequestParam String lastName,
                           @RequestParam String userName,
                           @RequestParam String password,
+                          @RequestParam String email,
                           @RequestParam Long userTypeId,
                           @RequestParam Long userGroupId,
                           @RequestParam Long deviceId, @Valid Korisnik k1,BindingResult bindingResult) {
@@ -72,7 +73,7 @@ public class KorisnikController {
 
             LogMessage lm;
             if (this.checkExistingUsername(userName)) {
-                Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
+                Korisnik k = new Korisnik(firstName, lastName, userName, password, email, userTypeId, userGroupId, deviceId);
 
                 lm=new LogMessage(Constants.MESSAGING_USER_ADD,Constants.MESSAGING_EVERYTHING_OK,Constants.USER_REGISTERED, Constants.MESSAGING_MICROSERVICE, k.getUserName());
 
@@ -95,6 +96,7 @@ public class KorisnikController {
                                  @RequestParam String lastName,
                                  @RequestParam String userName,
                                  @RequestParam String password,
+                                 @RequestParam String email,
                                  @RequestParam Long userTypeId,
                                  @RequestParam Long userGroupId,
                                  @RequestParam Long deviceId, @Valid Korisnik k2,BindingResult bindingResult) {
@@ -105,7 +107,7 @@ public class KorisnikController {
             Korisnik stari = korisnikRepository.findById(userId).orElseThrow(
                     () -> new ItemNotFoundException(userId, "user"));
 
-            Korisnik k = new Korisnik(firstName, lastName, userName, password, userTypeId, userGroupId, deviceId);
+            Korisnik k = new Korisnik(firstName, lastName, userName, password, email, userTypeId, userGroupId, deviceId);
             LogMessage lm = new LogMessage(Constants.MESSAGING_USER_ADD, Constants.MESSAGING_EVERYTHING_OK, Constants.USER_CHANGED, Constants.MESSAGING_MICROSERVICE, whatHasChanged(stari,k));
             stari.updateFields(k);
             rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY ,lm.toString());

@@ -13,14 +13,15 @@ import java.util.ArrayList;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.activities.TripActivity;
+import ba.tim14.nwt.nwt_android.classes.Korisnik;
 import ba.tim14.nwt.nwt_android.classes.User;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 
-public class CustomUserAdapter  extends ArrayAdapter<User> {
+public class CustomUserAdapter  extends ArrayAdapter<Korisnik> {
 
     private final Activity context;
 
-    public CustomUserAdapter(Activity context, ArrayList<User> userList) {
+    public CustomUserAdapter(Activity context, ArrayList<Korisnik> userList) {
         super(context, R.layout.user_list_item, userList);
         this.context = context;
     }
@@ -29,12 +30,14 @@ public class CustomUserAdapter  extends ArrayAdapter<User> {
     public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
 
-        User user = getItem(position);
+        Korisnik user = getItem(position);
         View rowView = inflater.inflate(R.layout.user_list_item, null, true);
 
         if (user != null){
             TextView txtUsername = rowView.findViewById(R.id.textView_username);
-            txtUsername.setText(user.getUsername());
+            TextView txtEmail = rowView.findViewById(R.id.textView_email);
+            txtUsername.setText(user.getUserName());
+            txtEmail.setText(user.getEmail());
             ImageButton imageViewPin = rowView.findViewById(R.id.imageViewPin);
             imageViewPin.setOnClickListener(view1 -> {
                 Intent startUserTrip = new Intent(new Intent(context, TripActivity.class));

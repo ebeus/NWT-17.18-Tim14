@@ -33,6 +33,7 @@ import java.util.Date;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
+import ba.tim14.nwt.nwt_android.classes.Korisnik;
 import ba.tim14.nwt.nwt_android.classes.ManageLocation;
 import ba.tim14.nwt.nwt_android.classes.Trip;
 import ba.tim14.nwt.nwt_android.classes.User;
@@ -40,6 +41,7 @@ import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 
 import static ba.tim14.nwt.nwt_android.utils.Utils.tripList;
+import static ba.tim14.nwt.nwt_android.utils.Utils.usersLoc;
 
 public class TripActivity extends FragmentActivity implements CompoundButton.OnCheckedChangeListener, View.OnClickListener, OnMapReadyCallback {//LocationListener {
 
@@ -47,7 +49,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
 
     private GoogleMap mMap;
 
-    ArrayList<User> users = new ArrayList<>();
+    ArrayList<Korisnik> users = new ArrayList<>();
 
     FloatingActionButton fabStart;
     FloatingActionButton fabStop;
@@ -59,7 +61,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     private boolean firstTime = true;
     private Marker myLocationMarker;
 
-    private User clickedUser;
+    private Korisnik clickedUser;
     private boolean fabUsersClicked = false;
     private Dialog openDialog;
     private int userPosition = 0;
@@ -91,6 +93,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     }
 
     private void initViews() {
+        Utils.getKorisnike();
         users = Utils.getPopulatedListWithUsers();
         points = new ArrayList<>();
 
@@ -171,7 +174,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     private void fabUsersClick() {
         if (fabUsersClicked){
             if(step == Constants.MY_TRIP) textViewTitle.setText(getString(R.string.title_activity_trip));
-            if(step == Constants.USERS) textViewTitle.setText(String.format(getString(R.string.str_location_of), clickedUser.getUsername()));
+            if(step == Constants.USERS) textViewTitle.setText(String.format(getString(R.string.str_location_of), clickedUser.getUserName()));
             fabUsersClicked = false;
             deleteMarkers();
             setUpMap();
@@ -314,11 +317,13 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
 
     private void setOneUserOnMap() {
         clickedUser = users.get(userPosition);
-        addMarkerOnMap(clickedUser.getLocation(), clickedUser.getUsername(), userPosition, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
+        LatLng userLoc = new LatLng(43.856259, 18.413086);
+        if(userPosition < 8) userLoc = usersLoc.get(userPosition);
+        addMarkerOnMap(userLoc, clickedUser.getUserName(), userPosition, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
         //Zoom to clicked user location
-        animateCamera(clickedUser.getLocation(),20);
+        animateCamera(userLoc,20);
 
-        textViewTitle.setText(String.format(getString(R.string.str_location_of), clickedUser.getUsername()));
+        textViewTitle.setText(String.format(getString(R.string.str_location_of), clickedUser.getUserName()));
     }
 
     private void searchLocation() {
@@ -340,10 +345,11 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     private void showAllUsersOnMapAndZoom() {
         //Show all users
         for (int i = 0; i < users.size(); i++) {
-            addMarkerOnMap(users.get(i).getLocation(), users.get(i).getUsername(), i, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
+            addMarkerOnMap(usersLoc.get(i), users.get(i).getUserName(), i, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
         }
         if(step == Constants.USERS){ //Zoom to user
-            animateCamera(clickedUser.getLocation(), 13);
+            int loc = Integer.valueOf(String.valueOf(clickedUser.getId()));
+            animateCamera(usersLoc.get(loc), 13);
         }
         else { //Zoom to my location
             if(!tripStarted) animateCamera(myLocationMarker.getPosition(),13);

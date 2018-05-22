@@ -11,6 +11,7 @@ public class Korisnik {
     private String lastName;
     private String userName;
     private String password;
+    private String email;
     private Long userTypeId;
     private Long userGroupId;
     private Long deviceId;
@@ -20,11 +21,12 @@ public class Korisnik {
 
     public Korisnik(){}
 
-    public Korisnik(String firstName, String lastName, String userName, String password, Long userTypeId, Long userGroupId, Long deviceId) {
+    public Korisnik(String firstName, String lastName, String userName, String password, String email, Long userTypeId, Long userGroupId, Long deviceId) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
         this.password = password;
+        this.email = email;
         this.userTypeId = userTypeId;
         this.userGroupId = userGroupId;
         this.deviceId = deviceId;
@@ -35,6 +37,7 @@ public class Korisnik {
         this.lastName = k.lastName;
         this.userName = k.userName;
         this.password = k.password;
+        this.email = k.email;
         this.userTypeId = k.userTypeId;
         this.userGroupId = k.userGroupId;
         this.deviceId = k.deviceId;
@@ -79,6 +82,10 @@ public class Korisnik {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public String getEmail() {        return email; }
+
+    public void setEmail(String email) {        this.email = email; }
 
     public Long getUserTypeId() {
         return userTypeId;
@@ -136,6 +143,7 @@ public class Korisnik {
                 ", lastName='" + lastName + '\'' +
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +
+                ", email='" + email + '\'' +
                 ", userTypeId=" + userTypeId +
                 ", userGroupId=" + userGroupId +
                 ", deviceId=" + deviceId +

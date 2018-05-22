@@ -40,6 +40,9 @@ public class Utils {
     private static final String URL="http://192.168.0.18:8080";
 
     public static ArrayList<Trip> tripList;
+    public static ArrayList<Korisnik> users = new ArrayList<>();
+    public static ArrayList<LatLng> usersLoc = new ArrayList<>();
+
     private static Typeface customFont;
 
     public static BitmapDescriptor getBitmapDescriptor(Context applicationContext, int id) {
@@ -62,16 +65,17 @@ public class Utils {
         }
     }
 
-    public static ArrayList<User> getPopulatedListWithUsers() {
-        ArrayList<User> users = new ArrayList<>();
-        users.add(new User("User 1", new LatLng(43.856259, 18.413076)));
-        users.add(new User("User 2", new  LatLng(43.857657, 18.416134)));
-        users.add(new User("User 3", new  LatLng(43.859143, 18.412014)));
-        users.add(new User("User 4", new  LatLng(43.855859, 18.396404)));
-        users.add(new User("User 5", new  LatLng(43.847683, 18.387619)));
-        users.add(new User("User 6", new  LatLng(43.859342, 18.423951)));
-        users.add(new User("User 7", new  LatLng(43.861988, 18.412428)));
-        users.add(new User("User 8", new  LatLng(43.845642, 18.361547)));
+    public static ArrayList<Korisnik> getPopulatedListWithUsers() {
+        // TODO: 22.05.2018. Ovo radi za samo 8 razlicitih lokacija, za ostale mi bilo glupo da su jedni
+        // na drugima pa ovo treba preko location da Users trazi location za usera ili nesto sl.
+        usersLoc.add(new LatLng(43.856259, 18.413076));
+        usersLoc.add(new  LatLng(43.857657, 18.416134));
+        usersLoc.add(new  LatLng(43.859143, 18.412014));
+        usersLoc.add(new  LatLng(43.855859, 18.396404));
+        usersLoc.add(new  LatLng(43.847683, 18.387619));
+        usersLoc.add(new  LatLng(43.859342, 18.423951));
+        usersLoc.add(new  LatLng(43.861988, 18.412428));
+        usersLoc.add(new  LatLng(43.845642, 18.361547));
 
         return users;
     }
@@ -91,13 +95,17 @@ public class Utils {
             public void onResponse(Call<List<Korisnik>> call, Response<List<Korisnik>> response) {
                 List<Korisnik> korisnici = response.body();
                 Log.i(TAG, "Korisnici "+ korisnici);
+                setListOfUsers(korisnici);
             }
             @Override
             public void onFailure(Call<List<Korisnik>> call, Throwable t) {
                 Log.i(TAG, "Nesto nije okej:  " + t.toString());
-
             }
         });
+    }
+
+    private static void setListOfUsers(List<Korisnik> korisnici) {
+        users.addAll(korisnici);
     }
 
 
