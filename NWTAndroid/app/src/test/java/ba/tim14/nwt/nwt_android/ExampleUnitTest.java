@@ -1,6 +1,24 @@
 package ba.tim14.nwt.nwt_android;
 
+import android.util.Log;
+
 import org.junit.Test;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.List;
+
+import ba.tim14.nwt.nwt_android.api.LocatorService;
+import ba.tim14.nwt.nwt_android.classes.Korisnik;
+import ba.tim14.nwt.nwt_android.classes.Lokacija;
+import ba.tim14.nwt.nwt_android.classes.Trip;
+import ba.tim14.nwt.nwt_android.utils.Utils;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static org.junit.Assert.*;
 
@@ -11,7 +29,234 @@ import static org.junit.Assert.*;
  */
 public class ExampleUnitTest {
     @Test
-    public void addition_isCorrect() {
-        assertEquals(4, 2 + 2);
+    public void getUsersWithGroupTest() {
+
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<List<Korisnik>> korisniciDobijeni = locatorService.getAllUsersFromGroup(2L);
+
+        korisniciDobijeni.enqueue(new Callback<List<Korisnik>>() {
+            @Override
+            public void onResponse(Call<List<Korisnik>> call, Response<List<Korisnik>> response) {
+                List<Korisnik> korisnici = response.body();
+                System.out.println("TEST" + "Korisnici "+ korisnici);
+                assertNotNull(korisnici);
+            }
+            @Override
+            public void onFailure(Call<List<Korisnik>> call, Throwable t) {
+                System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
+
+    @Test
+    public void startTripTest() {
+
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLPutovanja)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<ResponseBody> tripStarted = locatorService.start("test123", Calendar.getInstance().getTimeInMillis(),1L);
+
+        tripStarted.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody>  call, Response<ResponseBody> response) {
+                String responseString;
+                try {
+                    if(response.isSuccessful()) {
+                        responseString = response.body().string();
+                        System.out.println("TEST: " + "trip " + responseString);
+                        assertNotNull(responseString);
+                    }
+                    else {
+                        String errorResponse = response.errorBody().string();
+                        System.out.println("TEST" + "trip " + errorResponse);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
+    public void stopTripTest() {
+
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLPutovanja)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<ResponseBody> tripStopped = locatorService.stop(7L, Calendar.getInstance().getTimeInMillis());
+
+        tripStopped.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody>  call, Response<ResponseBody> response) {
+                String responseString;
+                try {
+                    if(response.isSuccessful()) {
+                        responseString = response.body().string();
+                        System.out.println("TEST: " + "trip " + responseString);
+                        assertNotNull(responseString);
+                    }
+                    else {
+                        String errorResponse = response.errorBody().string();
+                        System.out.println("TEST: " + "trip " + errorResponse);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void addLocationTest() {
+
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLPutovanja)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<ResponseBody> addedLocation = locatorService.addLocation(7L, Calendar.getInstance().getTimeInMillis(),47.232345,19.23332);
+
+        addedLocation.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody>  call, Response<ResponseBody> response) {
+                String responseString;
+                try {
+                    if(response.isSuccessful()) {
+                        responseString = response.body().string();
+                        System.out.println("TEST: " + "trip " + responseString);
+                        assertNotNull(responseString);
+                    }
+                    else {
+                        String errorResponse = response.errorBody().string();
+                        System.out.println("TEST:" + "trip " + errorResponse);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void getTripsByUserTest() {
+
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLPutovanja)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<List<Trip>> returnedTrips = locatorService.geAllTripsByUser(1L);
+
+        returnedTrips.enqueue(new Callback<List<Trip>>() {
+            @Override
+            public void onResponse(Call<List<Trip>> call, Response<List<Trip>> response) {
+                List<Trip> trips = response.body();
+                System.out.println("TEST: " + "trips "+ trips);
+                assertNotNull(trips);
+            }
+            @Override
+            public void onFailure(Call<List<Trip>> call, Throwable t) {
+                System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getLocationsByTripTest() {
+
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLPutovanja)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<List<Lokacija>> returnedLocations = locatorService.getAllLocationsInATrip(7L);
+
+        returnedLocations.enqueue(new Callback<List<Lokacija>>() {
+            @Override
+            public void onResponse(Call<List<Lokacija>> call, Response<List<Lokacija>> response) {
+                List<Lokacija> locations = response.body();
+                System.out.println("TEST: " + "Lokacije "+ locations);
+                assertNotNull(locations);
+            }
+            @Override
+            public void onFailure(Call<List<Lokacija>> call, Throwable t) {
+                System.out.println("TEST: " + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

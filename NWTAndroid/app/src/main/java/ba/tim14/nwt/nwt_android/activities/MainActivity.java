@@ -55,6 +55,7 @@ public class MainActivity extends Activity {
         if(!SharedPreferencesManager.instance().isLoggedIn() && !SharedPreferencesManager.instance().getUsername().equals("")) {
             //Login
             startNewActivityForResult(LoginActivity.class, Constants.LOGIN);
+            tripList = new ArrayList<>();//TODO bez ovoga se lista nije instancirala
         }
         else {
             //Register

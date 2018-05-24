@@ -44,6 +44,12 @@ public class KorisnikController {
         return (Collection<Korisnik>) this.korisnikRepository.findAll();
     }
 
+    @RequestMapping(value = "/group/{userGroupId}", method = RequestMethod.GET)
+    public Collection<Korisnik> korisniciWithGroupId(@PathVariable Long userGroupId) {
+        log.info("Get users in group");
+        return (Collection<Korisnik>) this.korisnikRepository.findByUserGroupId(userGroupId);
+    }
+
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
     public Optional<Korisnik> korisnikWithId(@PathVariable Long userId) {
         log.info("Get user with id: " + userId);
@@ -65,7 +71,7 @@ public class KorisnikController {
                           @RequestParam String email,
                           @RequestParam Long userTypeId,
                           @RequestParam Long userGroupId,
-                          @RequestParam Long deviceId, @Valid Korisnik k1,BindingResult bindingResult) {
+                          @Valid Korisnik k1,BindingResult bindingResult) {
 
         if(bindingResult.hasErrors()){
             return validationErrorHandling(bindingResult);
@@ -73,7 +79,7 @@ public class KorisnikController {
 
             LogMessage lm;
             if (this.checkExistingUsername(userName)) {
-                Korisnik k = new Korisnik(firstName, lastName, userName, password, email, userTypeId, userGroupId, deviceId);
+                Korisnik k = new Korisnik(firstName, lastName, userName, password, email, userTypeId, userGroupId);
 
                 lm=new LogMessage(Constants.MESSAGING_USER_ADD,Constants.MESSAGING_EVERYTHING_OK,Constants.USER_REGISTERED, Constants.MESSAGING_MICROSERVICE, k.getUserName());
 
@@ -99,7 +105,7 @@ public class KorisnikController {
                                  @RequestParam String email,
                                  @RequestParam Long userTypeId,
                                  @RequestParam Long userGroupId,
-                                 @RequestParam Long deviceId, @Valid Korisnik k2,BindingResult bindingResult) {
+                                 @Valid Korisnik k2,BindingResult bindingResult) {
 
         if(bindingResult.hasErrors()){
             return validationErrorHandling(bindingResult);
@@ -107,7 +113,7 @@ public class KorisnikController {
             Korisnik stari = korisnikRepository.findById(userId).orElseThrow(
                     () -> new ItemNotFoundException(userId, "user"));
 
-            Korisnik k = new Korisnik(firstName, lastName, userName, password, email, userTypeId, userGroupId, deviceId);
+            Korisnik k = new Korisnik(firstName, lastName, userName, password, email, userTypeId, userGroupId);
             LogMessage lm = new LogMessage(Constants.MESSAGING_USER_ADD, Constants.MESSAGING_EVERYTHING_OK, Constants.USER_CHANGED, Constants.MESSAGING_MICROSERVICE, whatHasChanged(stari,k));
             stari.updateFields(k);
             rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY ,lm.toString());
@@ -147,11 +153,6 @@ public class KorisnikController {
         if(!k1.getUserGroupId().equals(k2.getUserGroupId())){
             changed+="userGroupId-";
         }
-
-        if(!k1.getDeviceId().equals(k2.getDeviceId())){
-            changed+="deviceId-";
-        }
-
         return  changed;
     }
 

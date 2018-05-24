@@ -3,11 +3,9 @@ package application;
 import application.Models.GrupaKorisnika;
 import application.Models.Korisnik;
 import application.Models.TipKorisnika;
-import application.Models.Uredjaj;
 import application.Repositories.GrupaKorisnikaRepository;
 import application.Repositories.KorisnikRepository;
 import application.Repositories.TipKorisnikaRepository;
-import application.Repositories.UredjajRepository;
 import application.Utils.Constants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -88,8 +86,6 @@ public class Application {
         @Autowired
         TipKorisnikaRepository tipKorisnikaRepository;
         @Autowired
-        UredjajRepository uredjajRepository;
-        @Autowired
         GrupaKorisnikaRepository grupaKorisnikaRepository;
 
        
@@ -106,43 +102,37 @@ public class Application {
         @Override
         public void run(String... args) throws Exception {
 
-            tipKorisnikaRepository.save(new TipKorisnika("Administrator"));
-            tipKorisnikaRepository.save(new TipKorisnika("Obicni"));
+            TipKorisnika administrator=new TipKorisnika("Administrator");
+            TipKorisnika obicni=new TipKorisnika("Obicni");
+            tipKorisnikaRepository.save(administrator);
+            tipKorisnikaRepository.save(obicni);
 
-            uredjajRepository.save(new Uredjaj("Mobitel",(long) 0));
-            uredjajRepository.save(new Uredjaj("Tramvaj",(long) 1));
-            uredjajRepository.save(new Uredjaj("Trola",(long) 2));
-            uredjajRepository.save(new Uredjaj("Minibus",(long) 3));
+            GrupaKorisnika grupa1=new GrupaKorisnika("Grupa1");
+            GrupaKorisnika grupa2=new GrupaKorisnika("Grupa2");
+            grupaKorisnikaRepository.save(grupa1);
+            grupaKorisnikaRepository.save(grupa2);
 
-            grupaKorisnikaRepository.save(new GrupaKorisnika("Grupa1"));
-            grupaKorisnikaRepository.save(new GrupaKorisnika("Grupa2"));
-
-            korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer","1234", "jack.bau@gmail.com",0L,0L, 3L));
-            korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian","1234", "chlo.o.b@gmail.com",0L, 0L, 4L));
-            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer","1234", "kim.bau@gmail.com",0L, 0L, 5L));
-
-
+            korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer","1234", "jack.bau@gmail.com",0L,0L));
+            korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian","1234", "chlo.o.b@gmail.com",0L, 0L));
+            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer","1234", "kim.bau@gmail.com",0L, 0L));
 
             List<TipKorisnika> tipoviKorisnika= (List<TipKorisnika>) tipKorisnikaRepository.findAll();
-            List<Uredjaj> uredjaji= (List<Uredjaj>) uredjajRepository.findAll();
             List<GrupaKorisnika> grupeKorisnika = (List<GrupaKorisnika>) grupaKorisnikaRepository.findAll();
 
-            Long admin=tipoviKorisnika.get(0).getId();
-            Long obicni=tipoviKorisnika.get(1).getId();
+            Long adminId=tipoviKorisnika.get(0).getId();
+            Long obicniId=tipoviKorisnika.get(1).getId();
 
-            Long mobitel=uredjaji.get(0).getDeviceTypeId();
-            Long tramvaj=uredjaji.get(1).getDeviceTypeId();
+            Long grupa1Id=grupeKorisnika.get(0).getId();
+            Long grupa2Id=grupeKorisnika.get(1).getId();
 
-            Long grupa1=grupeKorisnika.get(0).getId();
-            Long grupa2=grupeKorisnika.get(1).getId();
-
-            log.info("Admin: " + admin);
-            log.info("Obicni: " + obicni);
+            log.info("Admin: " + adminId);
+            log.info("Obicni: " + obicniId);
 
             for (Korisnik korisnik : korisnikRepository.findAll()) {
-                korisnik.setUserTypeId(admin);
-                korisnik.setDeviceId(tramvaj);
-                korisnik.setUserGroupId(grupa2);
+                korisnik.setUserTypeId(adminId);
+                korisnik.setUserGroupId(grupa2Id);
+                korisnik.setUserGroup(grupa2);
+                korisnik.setUserType(administrator);
                 korisnikRepository.save(korisnik);
             }
 
