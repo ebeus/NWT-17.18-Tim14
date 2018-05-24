@@ -3,7 +3,11 @@ package application.controllers;
 import application.Responses.ApiError;
 import application.Responses.ApiSuccess;
 import application.model.LogClass;
+import application.model.LogStatusClass;
+import application.model.LogTypeClass;
 import application.repositories.LogClassRepository;
+import application.repositories.LogStatusClassRepository;
+import application.repositories.LogTypeClassRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +23,16 @@ public class LogClassController {
 
     private static final Logger logController = LoggerFactory.getLogger(LogClassController.class);
     private final LogClassRepository logClassRepository;
+    private final LogTypeClassRepository logTypeClassRepository;
+    private final LogStatusClassRepository logStatusClassRepository;
 
     @Autowired
-    public LogClassController(LogClassRepository logClassRepository) {
+    public LogClassController(LogClassRepository logClassRepository, LogTypeClassRepository logTypeClassRepository, LogStatusClassRepository logStatusClassRepository) {
         this.logClassRepository = logClassRepository;
+        this.logTypeClassRepository = logTypeClassRepository;
+        this.logStatusClassRepository = logStatusClassRepository;
     }
+
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Collection<LogClass> logs(){
@@ -31,18 +40,42 @@ public class LogClassController {
         return (Collection<LogClass>) this.logClassRepository.findAll();
     }
 
-    //Pretraga po tipu (1-5)
+   /* //Pretraga po tipu (1-5)
     @RequestMapping(value = "type/{typeId}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithType(@PathVariable Long typeId){
         logController.info("LogClassRestController: logsWithType() "+ typeId);
         return this.logClassRepository.findByLogTypeId(typeId);
+    }*/
+
+    //Pretraga po tipu (string)
+    @RequestMapping(value = "type/{typeName}" , method = RequestMethod.GET)
+    public Collection<LogClass> logsWithType(@PathVariable String typeName){
+        logController.info("LogClassRestController: logsWithType() "+ typeName);
+        final LogTypeClass[] logTypeClass = {new LogTypeClass()};
+        logTypeClassRepository.findByTypeName(typeName).ifPresent(logTypeElement -> {
+            logController.info("LogClassRestController: findByTypeName() "+ logTypeElement.getId());
+            logTypeClass[0] = logTypeElement;
+        });
+        return this.logClassRepository.findByLogTypeId(logTypeClass[0].getId());
     }
 
     // - statusu (1, 0)
-    @RequestMapping(value = "status/{status}" , method = RequestMethod.GET)
+  /*  @RequestMapping(value = "status/{status}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithStatus(@PathVariable Long status){
         logController.info("LogClassRestController: logsWithType() "+ status);
         return this.logClassRepository.findByStatus(status);
+    } */
+
+    // - statusu (String)
+    @RequestMapping(value = "status/{statusName}" , method = RequestMethod.GET)
+    public Collection<LogClass> logsWithStatus(@PathVariable String statusName){
+        logController.info("LogClassRestController: logsWithType() "+ statusName);
+        final LogStatusClass[] logStatusClass = {new LogStatusClass()};
+        logStatusClassRepository.findByStatusName(statusName).ifPresent(logStatusElement -> {
+            logController.info("LogClassRestController: findByTypeName() "+ logStatusElement.getId());
+            logStatusClass[0] = logStatusElement;
+        });
+        return this.logClassRepository.findByStatusId(logStatusClass[0].getId());
     }
 
     // - mikroservisu
@@ -68,16 +101,15 @@ public class LogClassController {
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> add(@RequestParam Long logTypeId,
-                          @RequestParam String logTypeName,
-                          @RequestParam Long status,
+                          @RequestParam Long statusId,
                           @RequestParam String message,
                           @RequestParam String logSource,
                           @RequestParam String user,
                           @RequestParam String tripName) {
 
-        String validation = this.validateNewLogClass(logTypeId, status, message, logSource, user, tripName);
+        String validation = this.validateNewLogClass(logTypeId, statusId, message, logSource, user, tripName);
         if (("").equals(validation)) {
-            LogClass logic = new LogClass(logTypeId, status, message, logSource, user, tripName);
+            LogClass logic = new LogClass(logTypeId, statusId, message, logSource, user, tripName);
 
             logClassRepository.save(logic);
             ApiSuccess apiSuccess=new ApiSuccess(HttpStatus.OK.value(),"Log added: ",logic);

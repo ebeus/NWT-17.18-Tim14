@@ -43,6 +43,8 @@ public class Runner implements CommandLineRunner {
         logClassRepository.save(new LogClass((long) 2,(long) 1,"msg2", "korisnik","user2","null"));
         logClassRepository.save(new LogClass((long) 4,(long) 1,"msg5", "trips", "user3","trip1"));
         logClassRepository.save(new LogClass((long) 5,(long) 1,"msg5", "trips","user3","trip1"));
+        logClassRepository.save(new LogClass((long) 1,(long) 1,"msg6", "korisnik","user6","null"));
+
 
 
         log.info("------------------------------------------ START ----------------------------------------");
@@ -52,40 +54,63 @@ public class Runner implements CommandLineRunner {
         for (LogTypeClass type : logTypeClassRepository.findAll()) {
             log.info(type.toString());
         }
+        log.info("--------------------------------------------");
         log.info("");
 
-        // fetch all log types
+        // fetch all log statuses
         log.info("Statuses found with findAll():");
-        log.info("-------------------------------");
         for (LogStatusClass status : logStatusClassRepository.findAll()) {
             log.info(status.toString());
         }
+        log.info("--------------------------------------------");
         log.info("");
 
         // fetch all logs
         log.info("Logs found with findAll():");
-        log.info("-------------------------------");
         for (LogClass logic : logClassRepository.findAll()) {
             log.info(logic.toString());
         }
         log.info("");
+        log.info("--------------------------------------------");
+
 
         // fetch an individual log by ID
         logClassRepository.findById(4L)
                 .ifPresent(logic -> {
                     log.info("Logs found with findById(4L):");
-                    log.info("--------------------------------");
                     log.info(logic.toString());
                     log.info("");
                 });
+        log.info("--------------------------------------------");
+        log.info("");
+
+        // fetch all logs with typeName Sign in
+        log.info("LogTypeClass found with findIdByTypeName('Sign in'):");
+        logTypeClassRepository.findByTypeName("Sign in").ifPresent(logTypeClass -> {
+            log.info("Type found findIdByTypeName('Sign in'):");
+            log.info(logTypeClass.toString());
+            log.info("");
+        });
+        log.info("--------------------------------------------");
+        log.info("");
+
+        // fetch all logs with Status name Success
+        log.info("LogStatusClass found with findByStatusName('Success'):");
+        logStatusClassRepository.findByStatusName("Success").ifPresent(logStatusClass -> {
+            log.info("Status found findByStatusName('Success'):");
+            log.info(logStatusClass.toString());
+            log.info("");
+        });
+        log.info("--------------------------------------------");
+        log.info("");
+
 
         // fetch application by application source
         log.info("LogClass found with findBySource('app'):");
-        log.info("--------------------------------------------");
         logClassRepository.findBySource("app").forEach(l -> {
             log.info(l.toString());
         });
-
+        log.info("--------------------------------------------");
         log.info("");
         log.info("------------------------------------------- END -----------------------------------------");
 

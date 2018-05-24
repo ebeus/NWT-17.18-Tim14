@@ -16,7 +16,7 @@ public class LogClass {
 
     private Long logTypeId;
 
-    private Long status;
+    private Long statusId;
 
     @NotNull
     @Size(min=1,max=50,message="Message must be min=1 and max=50 chars long")
@@ -41,14 +41,14 @@ public class LogClass {
 
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity = LogStatusClass.class)
-    @JoinColumn(name = "status", insertable = false, updatable = false)
+    @JoinColumn(name = "statusId", insertable = false, updatable = false)
     private LogStatusClass logStatus;
 
     protected LogClass(){}
 
-    public LogClass(Long logTypeId, Long status, String message, String source, String user, String tripName) {
+    public LogClass(Long logTypeId, Long statusId, String message, String source, String user, String tripName) {
         this.logTypeId = logTypeId;
-        this.status = status;
+        this.statusId = statusId;
         this.message = message;
         this.source = source;
         this.date = Calendar.getInstance().getTime();
@@ -60,13 +60,13 @@ public class LogClass {
     public String toString() {
         return String.format(
                 "Log[id=%d, logTypeId=%d, " +
-                        "status=%d," +
+                        "statusId=%d," +
                         "message='%s'," +
                         "source='%s'," +
                         "date='%s'," +
                         "user='%s'," +
                         "tripName='%s']",
-                id,logTypeId,status, message, source, date, user , tripName);
+                id,logTypeId, statusId, message, source, date, user , tripName);
     }
 
     public Long getId() {   return id;   }
@@ -77,9 +77,9 @@ public class LogClass {
 
     public void setLogTypeId(Long logTypeId) {        this.logTypeId = logTypeId;    }
 
-    public Long getStatus() {        return status;    }
+    public Long getStatusId() {        return statusId;    }
 
-    public void setStatus(Long status) {        this.status = status;    }
+    public void setStatusId(Long statusId) {        this.statusId = statusId;    }
 
     public String getMessage() {        return message;    }
 
