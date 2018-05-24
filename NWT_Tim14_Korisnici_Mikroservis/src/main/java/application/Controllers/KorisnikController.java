@@ -57,6 +57,30 @@ public class KorisnikController {
         return this.korisnikRepository.findById(userId);
     }
 
+    @RequestMapping(value = "/exists/{userId}", method = RequestMethod.GET)
+    public ResponseEntity<?> doesUserWithIdExist(@PathVariable Long userId){
+        ApiSuccess apiSuccess;
+        if(korisnikRepository.findById(userId).isPresent()){
+            apiSuccess= new ApiSuccess(HttpStatus.OK.value(), "User exists", true);
+        }
+        else
+            apiSuccess= new ApiSuccess(HttpStatus.OK.value(), "User doesn't exist", false);
+
+        return ResponseEntity.ok(apiSuccess);
+    }
+
+    @RequestMapping(value = "/exists", method = RequestMethod.GET)
+    public ResponseEntity<?> doesUserWithUserNameExist(@RequestParam("userName") String userName){
+        ApiSuccess apiSuccess;
+        if(korisnikRepository.findByUserName(userName).isPresent()){
+            apiSuccess= new ApiSuccess(HttpStatus.OK.value(), "User exists", true);
+        }
+        else
+            apiSuccess= new ApiSuccess(HttpStatus.OK.value(), "User doesn't exist", false);
+
+        return ResponseEntity.ok(apiSuccess);
+    }
+
     @RequestMapping(method = RequestMethod.GET)
     public Optional<Korisnik> korisnikWithUserName(@RequestParam("userName") String userName) {
         this.userWithUserNameExists(userName);

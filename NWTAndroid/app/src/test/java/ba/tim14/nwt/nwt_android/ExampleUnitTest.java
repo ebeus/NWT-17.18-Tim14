@@ -62,6 +62,136 @@ public class ExampleUnitTest {
     }
 
     @Test
+    public void getUserWithIdTest() {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<Korisnik> dobijeniKorisnik = locatorService.getUserWithId(2L);
+        dobijeniKorisnik.enqueue(new Callback<Korisnik>() {
+            @Override
+            public void onResponse(Call<Korisnik> call, Response<Korisnik> response) {
+                Korisnik korisnik = response.body();
+                System.out.println("TEST" + "Korisnici "+ korisnik);
+                assertNotNull(korisnik);
+            }
+            @Override
+            public void onFailure(Call<Korisnik> call, Throwable t) {
+                System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void doesUserWithIdExist() {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<ResponseBody> dobijeniKorisnik = locatorService.doesUserWithIdExist(2L);
+        dobijeniKorisnik.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    String userExists = response.body().string();
+                    System.out.println("TEST" + "Korisnici "+ userExists);
+                    assertNotNull(userExists);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void doesUserWithUserNameExist() {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<ResponseBody> dobijeniKorisnik = locatorService.doesUserWithUsernameExist("jBauer");
+        dobijeniKorisnik.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    String userExists = response.body().string();
+                    System.out.println("TEST" + "Korisnici "+ userExists);
+                    assertNotNull(userExists);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getUserWithUserNameTest() {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<Korisnik> dobijeniKorisnik = locatorService.getUserWithUserName("coBrian");
+
+        dobijeniKorisnik.enqueue(new Callback<Korisnik>() {
+            @Override
+            public void onResponse(Call<Korisnik> call, Response<Korisnik> response) {
+                Korisnik korisnik = response.body();
+                System.out.println("TEST" + "Korisnici "+ korisnik);
+                assertNotNull(korisnik);
+            }
+            @Override
+            public void onFailure(Call<Korisnik> call, Throwable t) {
+                System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Test
     public void startTripTest() {
 
         Retrofit.Builder builder = new Retrofit.Builder()

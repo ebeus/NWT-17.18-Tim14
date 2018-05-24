@@ -14,6 +14,7 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by elvedin on 20/05/2018.
@@ -26,6 +27,18 @@ public interface LocatorService {
 
     @GET("/users/group/{userGroupId}")
     Call<List<Korisnik>> getAllUsersFromGroup(@Path("userGroupId") Long userGroupId);
+
+    @GET("/users/{userId}")
+    Call<Korisnik> getUserWithId(@Path("userId") Long userId);
+
+    @GET("/users?")
+    Call<Korisnik> getUserWithUserName(@Query("userName") String userName);
+
+    @GET("/users/exists/{userId}")
+    Call<ResponseBody> doesUserWithIdExist(@Path("userId") Long userId);
+
+    @GET("/users/exists?")
+    Call<ResponseBody> doesUserWithUsernameExist(@Query("userName") String userName);
 
     @FormUrlEncoded
     @POST("/users/add")
