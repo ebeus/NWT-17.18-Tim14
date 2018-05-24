@@ -43,7 +43,6 @@ public class Application {
             String recievedMessage = new String((byte[])message, StandardCharsets.UTF_8);
             LOG.info("KORISNICI MS | Received [" + recievedMessage + "]");
             logClassRepository.save(getRecievedLog(recievedMessage));
-            //Receiver.receiveMessage(recievedMessage);
             latch.countDown();
         }
 
@@ -53,7 +52,6 @@ public class Application {
             String recievedMessage = new String((byte[])message, StandardCharsets.UTF_8);
             LOG.info("PUTOVANJA MS | Received [" + recievedMessage + "]");
             logClassRepository.save(getRecievedLog(recievedMessage));
-            // Receiver.receiveMessage(recievedMessage);
             latch.countDown();
         }
 

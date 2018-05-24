@@ -1,9 +1,7 @@
 package application.repositories;
 
 import application.model.LogClass;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
@@ -20,8 +18,5 @@ public interface LogClassRepository extends CrudRepository<LogClass,Long> {
     Collection<LogClass> findByUser(String user);
 
     Collection<LogClass> findByTripName(String tripName);
-
- //   @Query("SELECT t.title FROM Todo t where t.id = :id")
-  //  Collection<LogClass> findLogsByLogType(@Param("id") Long typeId);
 
 }
