@@ -12,7 +12,6 @@ import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.adapters.CustomUserAdapter;
 import ba.tim14.nwt.nwt_android.api.LocatorService;
 import ba.tim14.nwt.nwt_android.classes.Korisnik;
-import ba.tim14.nwt.nwt_android.classes.User;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -52,13 +51,13 @@ public class GroupActivity extends AppCompatActivity {
 //TODO Kopirao api poziv ovdje da se može adapter refreshat
     public void getKorisnike() {
         Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl(Utils.URL)
+                .baseUrl(Utils.URLKorisnici)
                 .addConverterFactory(GsonConverterFactory.create());
 
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<List<Korisnik>> korisniciDobijeni = locatorService.listaKorisnika();
+        Call<List<Korisnik>> korisniciDobijeni = locatorService.getAllUsersFromGroup(2L);
 
         korisniciDobijeni.enqueue(new Callback<List<Korisnik>>() {
             @Override

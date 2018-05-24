@@ -33,7 +33,6 @@ public class Korisnik {
     private String email;
     private Long userTypeId;
     private Long userGroupId;
-    private Long deviceId;
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity=TipKorisnika.class )
     @JoinColumn(name = "tip_korisnika_id")
     private TipKorisnika userType;
@@ -42,13 +41,9 @@ public class Korisnik {
     @JoinColumn(name = "grupa_korisnika_id")
     private GrupaKorisnika userGroup;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity=Uredjaj.class )
-    @JoinColumn(name = "uredjaj_id")
-    private Uredjaj device;
-
     public Korisnik(){}
 
-    public Korisnik(String firstName, String lastName, String userName, String password, String email, Long userTypeId, Long userGroupId, Long deviceId) {
+    public Korisnik(String firstName, String lastName, String userName, String password, String email, Long userTypeId, Long userGroupId) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
@@ -56,7 +51,6 @@ public class Korisnik {
         this.email = email;
         this.userTypeId = userTypeId;
         this.userGroupId = userGroupId;
-        this.deviceId = deviceId;
     }
 
     public void updateFields(Korisnik k){
@@ -67,7 +61,6 @@ public class Korisnik {
         this.email = k.email;
         this.userTypeId = k.userTypeId;
         this.userGroupId = k.userGroupId;
-        this.deviceId = k.deviceId;
     }
     @Override
     public String toString() {
@@ -141,14 +134,6 @@ public class Korisnik {
         this.userGroupId = userGroupId;
     }
 
-    public Long getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(Long deviceId) {
-        this.deviceId = deviceId;
-    }
-
     public TipKorisnika getUserType() {
         return userType;
     }
@@ -163,14 +148,6 @@ public class Korisnik {
 
     public void setUserGroup(GrupaKorisnika userGroup) {
         this.userGroup = userGroup;
-    }
-
-    public Uredjaj getDevice() {
-        return device;
-    }
-
-    public void setDevice(Uredjaj device) {
-        this.device = device;
     }
 
 }

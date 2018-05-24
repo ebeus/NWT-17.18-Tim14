@@ -17,11 +17,10 @@ public class Korisnik {
     private Long deviceId;
     private TipKorisnika userType;
     private GrupaKorisnika userGroup;
-    private Uredjaj device;
 
     public Korisnik(){}
 
-    public Korisnik(String firstName, String lastName, String userName, String password, String email, Long userTypeId, Long userGroupId, Long deviceId) {
+    public Korisnik(String firstName, String lastName, String userName, String password, String email, Long userTypeId, Long userGroupId) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
@@ -29,7 +28,6 @@ public class Korisnik {
         this.email = email;
         this.userTypeId = userTypeId;
         this.userGroupId = userGroupId;
-        this.deviceId = deviceId;
     }
 
     public void updateFields(Korisnik k){
@@ -40,7 +38,6 @@ public class Korisnik {
         this.email = k.email;
         this.userTypeId = k.userTypeId;
         this.userGroupId = k.userGroupId;
-        this.deviceId = k.deviceId;
     }
 
     public Long getId() {
@@ -127,14 +124,6 @@ public class Korisnik {
         this.userGroup = userGroup;
     }
 
-    public Uredjaj getDevice() {
-        return device;
-    }
-
-    public void setDevice(Uredjaj device) {
-        this.device = device;
-    }
-
     @Override
     public String toString() {
         return "Korisnik{" +
@@ -146,7 +135,6 @@ public class Korisnik {
                 ", email='" + email + '\'' +
                 ", userTypeId=" + userTypeId +
                 ", userGroupId=" + userGroupId +
-                ", deviceId=" + deviceId +
                 '}';
     }
 }

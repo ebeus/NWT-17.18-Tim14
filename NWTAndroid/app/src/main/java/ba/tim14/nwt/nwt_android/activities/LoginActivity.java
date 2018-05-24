@@ -3,6 +3,7 @@ package ba.tim14.nwt.nwt_android.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -10,6 +11,10 @@ import android.util.Log;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 import ba.tim14.nwt.nwt_android.R;
@@ -18,6 +23,10 @@ import ba.tim14.nwt.nwt_android.api.LocatorService;
 import ba.tim14.nwt.nwt_android.classes.Korisnik;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -103,6 +112,7 @@ public class LoginActivity extends Activity {
             SharedPreferencesManager.instance().setLoggedIn(true);
             Intent returnIntent = new Intent();
             setResult(Constants.VALID, returnIntent);
+            saveUserInDB();
             finish();
         }
     }
@@ -113,24 +123,54 @@ public class LoginActivity extends Activity {
             SharedPreferencesManager.instance().setUserEmail(editTextEmail.getText().toString());
             SharedPreferencesManager.instance().setUserPass(editTextPass.getText().toString());
             Intent returnIntent = new Intent();
-            saveinDBKorisika();
+            saveUserInDB();
             setResult(Constants.VALID, returnIntent);
             finish();
         }
     }
 
-    private void saveinDBKorisika() {
+    private void saveUserInDB() {
         Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl(Utils.URL)
+                .baseUrl(Utils.URLKorisnici)
                 .addConverterFactory(GsonConverterFactory.create());
 
         Retrofit retrofit = builder.build();
         LocatorService locatorService = retrofit.create(LocatorService.class);
         Korisnik korisnik = new Korisnik();
+        korisnik.setFirstName("test");
+        korisnik.setLastName("testovic");
         korisnik.setUserName(SharedPreferencesManager.instance().getUsername());
         korisnik.setPassword(SharedPreferencesManager.instance().getUserPass());
         korisnik.setEmail(SharedPreferencesManager.instance().getUserEmail());
-        locatorService.add(korisnik);
+        korisnik.setUserTypeId(1L);
+        korisnik.setUserGroupId(0L);
+        Call<ResponseBody> addedUser=locatorService.add(korisnik.getFirstName(),korisnik.getLastName(),korisnik.getUserName(),korisnik.getPassword(),korisnik.getEmail(),korisnik.getUserTypeId(),korisnik.getUserGroupId());
+
+        addedUser.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                try {
+                    if(response.isSuccessful()) {
+                        String responseString = response.body().string();
+                        JSONObject jsonObject=new JSONObject(responseString);
+                        String message=jsonObject.get("message").toString();
+                        Log.i(TAG, "Response string: " + message);
+                    }
+                    else {
+                        String errorResponse = response.errorBody().string();
+                        JSONObject jsonObject=new JSONObject(errorResponse);
+                        String message=jsonObject.get("message").toString();
+                        Log.i(TAG, "Response string: " + message);
+                    }
+                } catch (IOException | JSONException e) {
+                    Log.e(TAG,"IO/JSOn Exception: ",e);
+                }
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.i(TAG, "Nesto nije okej:  " + t.toString());
+            }
+        });
     }
 
     private void change() {

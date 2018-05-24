@@ -22,6 +22,5 @@ public class ValidationExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpHeaders headers, HttpStatus status, WebRequest request) {
         ApiError apiError = new ApiError(status.value(),"Validation failed",ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
-
     }
 }

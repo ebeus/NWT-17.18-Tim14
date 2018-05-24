@@ -4,6 +4,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import ba.tim14.nwt.nwt_android.utils.Utils;
 
@@ -17,6 +18,21 @@ public class Trip {
     private Date startDateTime;
     private Date stopDateTime;
     private ArrayList<LatLng> path;
+
+
+    private long id;
+    private long start_time;
+    private long end_time;
+    private long idKorisnika;
+    private List<Lokacija> listaLokacija;
+
+
+    public Trip(long id, long start_time, long end_time, long idKorisnika) {
+        this.id = id;
+        this.start_time = start_time;
+        this.end_time = end_time;
+        this.idKorisnika = idKorisnika;
+    }
 
     public Trip(Date startDateTime) {
         this.path = new ArrayList<>();
@@ -72,4 +88,46 @@ public class Trip {
     public ArrayList<LatLng> getPath() {        return path;    }
 
     public void setPath(ArrayList<LatLng> path) {        this.path = path;    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public long getStart_time() {
+        return start_time;
+    }
+
+    public void setStart_time(long start_time) {
+        this.start_time = start_time;
+    }
+
+    public long getEnd_time() {
+        return end_time;
+    }
+
+    public void setEnd_time(long end_time) {
+        this.end_time = end_time;
+    }
+
+    public long getIdKorisnika() {
+        return idKorisnika;
+    }
+
+    public void setIdKorisnika(long idKorisnika) {
+        this.idKorisnika = idKorisnika;
+    }
+
+    @Override
+    public String toString() {
+        return "Trip{" +
+                "id=" + id +
+                ", start_time=" + start_time +
+                ", end_time=" + end_time +
+                ", idKorisnika=" + idKorisnika +
+                '}';
+    }
 }
