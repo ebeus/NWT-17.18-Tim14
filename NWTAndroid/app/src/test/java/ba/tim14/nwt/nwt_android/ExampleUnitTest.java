@@ -90,7 +90,7 @@ public class ExampleUnitTest {
             e.printStackTrace();
         }
     }
-
+/*
     @Test
     public void doesUserWithIdExist() {
         Retrofit.Builder builder = new Retrofit.Builder()
@@ -157,7 +157,7 @@ public class ExampleUnitTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
+    }   */
 
     @Test
     public void getUserWithUserNameTest() {
@@ -385,6 +385,44 @@ public class ExampleUnitTest {
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void doesUserWithIdExist() {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<ResponseBody> dobijeniKorisnik = locatorService.doesUserWithIdExist(2L);
+
+        try {
+            Response<ResponseBody> response = dobijeniKorisnik.execute();
+            System.out.println("TEST" + "Korisnici "+ response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void doesUserWithUserNameExist() {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<ResponseBody> dobijeniKorisnik = locatorService.doesUserWithUsernameExist("jBauer");
+
+        try {
+            Response<ResponseBody> response = dobijeniKorisnik.execute();
+            System.out.println("TEST" + "Korisnici "+ response.body().string());
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

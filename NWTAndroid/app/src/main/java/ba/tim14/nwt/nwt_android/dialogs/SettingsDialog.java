@@ -1,4 +1,4 @@
-package ba.tim14.nwt.nwt_android.classes;
+package ba.tim14.nwt.nwt_android.dialogs;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -16,11 +16,11 @@ import ba.tim14.nwt.nwt_android.utils.Constants;
  * Created by ena on 5/16/18.
  */
 
-public class CustomDialogSettingsClass extends Dialog implements android.view.View.OnClickListener {
+public class SettingsDialog extends Dialog implements android.view.View.OnClickListener {
 
     private Activity activity;
 
-    public CustomDialogSettingsClass(Activity activity) {
+    public SettingsDialog(Activity activity) {
         super(activity);
         this.activity = activity;
     }

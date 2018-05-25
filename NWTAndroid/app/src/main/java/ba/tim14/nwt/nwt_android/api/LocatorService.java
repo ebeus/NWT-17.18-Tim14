@@ -22,6 +22,7 @@ import retrofit2.http.Query;
  */
 
 public interface LocatorService {
+
     @GET("/users/")
     Call<List<Korisnik>> getAllUsers();
 
@@ -43,12 +44,23 @@ public interface LocatorService {
     @FormUrlEncoded
     @POST("/users/add")
     Call<ResponseBody> add(@Field("firstName")   String firstName,
-                       @Field("lastName")    String lastName,
-                       @Field("userName")    String userName,
-                       @Field("password")    String password,
-                       @Field("email")       String email,
-                       @Field("userTypeId")  Long userTypeId,
-                       @Field("userGroupId") Long userGroupId);
+                           @Field("lastName")    String lastName,
+                           @Field("userName")    String userName,
+                           @Field("password")    String password,
+                           @Field("email")       String email,
+                           @Field("userTypeId")  Long userTypeId,
+                           @Field("userGroupId") Long userGroupId);
+
+    @FormUrlEncoded
+    @POST("/users/update/{userId}")
+    Call<ResponseBody> update(@Path("userId") Long userId,
+                              @Field("firstName")   String firstName,
+                              @Field("lastName")    String lastName,
+                              @Field("userName")    String userName,
+                              @Field("password")    String password,
+                              @Field("email")       String email,
+                              @Field("userTypeId")  Long userTypeId,
+                              @Field("userGroupId") Long userGroupId);
 
     @FormUrlEncoded
     @POST("/trip/start")

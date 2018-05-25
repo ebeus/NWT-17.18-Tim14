@@ -30,10 +30,16 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static junit.framework.Assert.assertNotNull;
+
 public class LoginActivity extends Activity {
 
     private static String TAG = LoginActivity.class.getSimpleName();
 
+    private TextInputLayout firstNameInputLayout;
+    private EditText editTextFirstName;
+    private TextInputLayout lastNameInputLayout;
+    private EditText editTextLastName;
     private TextInputLayout nameInputLayout;
     private EditText editTextName;
     private TextInputLayout emailInputLayout;
@@ -43,6 +49,9 @@ public class LoginActivity extends Activity {
     private TextInputLayout passAgainInputLayout;
     private EditText editTextPassAgain;
 
+    Korisnik korisnikProvjera = new Korisnik();
+
+    String nameOrEmailLogin;
     int result;
 
     @Override
@@ -65,7 +74,7 @@ public class LoginActivity extends Activity {
 
                     setRegisterAndChangeViews();
                     setListenersUsernameAndPass();
-                    setListenersEmailAndPassAgain();
+                    setListenersRegisterAndChange();
                     findViewById(R.id.action_button_register).setOnClickListener(view -> register());
                 }
                 else if (result == Constants.SETTINGS_CHANGE){
@@ -75,7 +84,7 @@ public class LoginActivity extends Activity {
                     setRegisterAndChangeViews();
                     setParamsChange();
                     setListenersUsernameAndPass();
-                    setListenersEmailAndPassAgain();
+                    setListenersRegisterAndChange();
                     findViewById(R.id.action_button_change).setOnClickListener(view -> change());
                 }
             }
@@ -83,6 +92,8 @@ public class LoginActivity extends Activity {
     }
 
     private void setParamsChange() {
+        editTextFirstName.setText(SharedPreferencesManager.instance().getUserFirstName());
+        editTextLastName.setText(SharedPreferencesManager.instance().getUserLastName());
         editTextName.setText(SharedPreferencesManager.instance().getUsername());
         editTextEmail.setText(SharedPreferencesManager.instance().getUserEmail());
         editTextPass.setText(SharedPreferencesManager.instance().getUserPass());
@@ -90,6 +101,10 @@ public class LoginActivity extends Activity {
     }
 
     private void setRegisterAndChangeViews() {
+        firstNameInputLayout = findViewById(R.id.til_first_name);
+        editTextFirstName = findViewById(R.id.first_name);
+        lastNameInputLayout = findViewById(R.id.til_last_name);
+        editTextLastName = findViewById(R.id.last_name);
         nameInputLayout = findViewById(R.id.til_username);
         editTextName = findViewById(R.id.username);
         passInputLayout = findViewById(R.id.til_pass);
@@ -108,80 +123,52 @@ public class LoginActivity extends Activity {
     }
 
     private void login() {
-        if(validLogin()) {
+        if(validLogin() && checkIfUserExists()) {
             SharedPreferencesManager.instance().setLoggedIn(true);
             Intent returnIntent = new Intent();
             setResult(Constants.VALID, returnIntent);
-            saveUserInDB();
             finish();
         }
     }
+
+    private boolean checkIfUserExists() {
+        // TODO: 25.05.2018. SINHRONOOOO
+        korisnikProvjera = getUserWithUserName(nameOrEmailLogin);
+        if(korisnikProvjera == null){
+            return false;
+        }
+        else if(korisnikProvjera.getUserName().equals(editTextName.getText().toString()) ||
+                korisnikProvjera.getEmail().equals(editTextName.getText().toString())){
+            SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
+            return true;
+        }
+        return false;
+    }
+
 
     private void register() {
         if(valid()) {
-            SharedPreferencesManager.instance().setUsername(editTextName.getText().toString());
-            SharedPreferencesManager.instance().setUserEmail(editTextEmail.getText().toString());
-            SharedPreferencesManager.instance().setUserPass(editTextPass.getText().toString());
-            Intent returnIntent = new Intent();
+            addRegisterAndChangeParams();
             saveUserInDB();
-            setResult(Constants.VALID, returnIntent);
-            finish();
         }
-    }
-
-    private void saveUserInDB() {
-        Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl(Utils.URLKorisnici)
-                .addConverterFactory(GsonConverterFactory.create());
-
-        Retrofit retrofit = builder.build();
-        LocatorService locatorService = retrofit.create(LocatorService.class);
-        Korisnik korisnik = new Korisnik();
-        korisnik.setFirstName("test");
-        korisnik.setLastName("testovic");
-        korisnik.setUserName(SharedPreferencesManager.instance().getUsername());
-        korisnik.setPassword(SharedPreferencesManager.instance().getUserPass());
-        korisnik.setEmail(SharedPreferencesManager.instance().getUserEmail());
-        korisnik.setUserTypeId(1L);
-        korisnik.setUserGroupId(0L);
-        Call<ResponseBody> addedUser=locatorService.add(korisnik.getFirstName(),korisnik.getLastName(),korisnik.getUserName(),korisnik.getPassword(),korisnik.getEmail(),korisnik.getUserTypeId(),korisnik.getUserGroupId());
-
-        addedUser.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                try {
-                    if(response.isSuccessful()) {
-                        String responseString = response.body().string();
-                        JSONObject jsonObject=new JSONObject(responseString);
-                        String message=jsonObject.get("message").toString();
-                        Log.i(TAG, "Response string: " + message);
-                    }
-                    else {
-                        String errorResponse = response.errorBody().string();
-                        JSONObject jsonObject=new JSONObject(errorResponse);
-                        String message=jsonObject.get("message").toString();
-                        Log.i(TAG, "Response string: " + message);
-                    }
-                } catch (IOException | JSONException e) {
-                    Log.e(TAG,"IO/JSOn Exception: ",e);
-                }
-            }
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Log.i(TAG, "Nesto nije okej:  " + t.toString());
-            }
-        });
     }
 
     private void change() {
         if(valid()) {
-            SharedPreferencesManager.instance().setUsername(editTextName.getText().toString());
-            SharedPreferencesManager.instance().setUserEmail(editTextEmail.getText().toString());
-            SharedPreferencesManager.instance().setUserPass(editTextPass.getText().toString());
-            Intent returnIntent = new Intent();
-            setResult(Constants.VALID, returnIntent);
-            finish();
+            addRegisterAndChangeParams();
+            updateUserInDB();
+
         }
+    }
+
+    private void addRegisterAndChangeParams() {
+        SharedPreferencesManager.instance().setFirstName(editTextFirstName.getText().toString());
+        SharedPreferencesManager.instance().setLastName(editTextLastName.getText().toString());
+        SharedPreferencesManager.instance().setUsername(editTextName.getText().toString());
+        SharedPreferencesManager.instance().setUserEmail(editTextEmail.getText().toString());
+        SharedPreferencesManager.instance().setUserPass(editTextPass.getText().toString());
+        SharedPreferencesManager.instance().setUserGroupId(0L);
+        SharedPreferencesManager.instance().setUserTypeId(1L);
     }
 
     private void setListenersUsernameAndPass() {
@@ -201,7 +188,21 @@ public class LoginActivity extends Activity {
         });
     }
 
-    private void setListenersEmailAndPassAgain() {
+    private void setListenersRegisterAndChange() {
+        editTextFirstName.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                firstNameInputLayout.setErrorEnabled(false);
+            }
+        });
+        editTextLastName.addTextChangedListener(new TextWatcher() {
+            public void afterTextChanged(Editable s) {}
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                lastNameInputLayout.setErrorEnabled(false);
+            }
+        });
         editTextEmail.addTextChangedListener(new TextWatcher() {
             public void afterTextChanged(Editable s) {}
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -229,7 +230,11 @@ public class LoginActivity extends Activity {
 
     private boolean valid() {
         boolean valid = true;
-        if (!validName())
+        if (!validFirstName())
+            valid = false;
+        if (!validLastName())
+            valid = false;
+        if (!validUserName())
             valid = false;
         if (!validPass())
             valid = false;
@@ -242,17 +247,25 @@ public class LoginActivity extends Activity {
 
     private boolean validNameLogin() {
         try {
-            String nameOrEmail = editTextName.getText().toString();
-            if (nameOrEmail.equals(SharedPreferencesManager.instance().getUsername())) {
-                Log.i(TAG, "name: " + nameOrEmail);
+            nameOrEmailLogin = editTextName.getText().toString();
+            // TODO: 25.05.2018. SINHRONOOOO
+            korisnikProvjera = getUserWithUserName(nameOrEmailLogin);
+            if (nameOrEmailLogin.equals(korisnikProvjera.getUserName())) {
+                //if (nameOrEmail.equals(SharedPreferencesManager.instance().getUsername())) {
+                SharedPreferencesManager.instance().setUsername(nameOrEmailLogin);
+                SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
+                Log.i(TAG, "name: " + nameOrEmailLogin);
                 return true;
             }
-            else if(nameOrEmail.equals(SharedPreferencesManager.instance().getUserEmail())){
-                Log.i(TAG, "email: " + nameOrEmail);
+            else if(nameOrEmailLogin.equals(korisnikProvjera.getEmail())){
+           // else if(nameOrEmail.equals(SharedPreferencesManager.instance().getUserEmail())){
+                SharedPreferencesManager.instance().setUserEmail(nameOrEmailLogin);
+                Log.i(TAG, "email: " + nameOrEmailLogin);
+                SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
                 return true;
             }
             else{
-                nameInputLayout.setError(getString(R.string.error_username_login));
+                nameInputLayout.setError(getText(R.string.error_username_login));
                 return false;
             }
         } catch (Exception e) {
@@ -264,12 +277,13 @@ public class LoginActivity extends Activity {
     private boolean validPassLogin() {
         try {
             String pass = editTextPass.getText().toString();
-            if (pass.equals(SharedPreferencesManager.instance().getUserPass())) {
+            if (pass.equals(korisnikProvjera.getPassword())) {
+            //if (pass.equals(SharedPreferencesManager.instance().getUserPass())) {
                 Log.i(TAG, "pass: " + pass);
                 SharedPreferencesManager.instance().setUserPass(pass);
                 return true;
             } else{
-                passInputLayout.setError(getString(R.string.error_pass_login));
+                passInputLayout.setError(getText(R.string.error_pass_login));
                 return false;
             }
         } catch (Exception e) {
@@ -278,21 +292,85 @@ public class LoginActivity extends Activity {
         }
     }
 
-    private boolean validName() {
+    private boolean validFirstName() {
         try {
-            String name = editTextName.getText().toString();
-            if (name.length() > 2 && name.length()< 51) {
-                Log.i(TAG, "name: " + name);
-                SharedPreferencesManager.instance().setUsername(name);
+            String firstName = editTextFirstName.getText().toString();
+            Pattern pattern = Pattern.compile(Utils.NAME_REGEX);
+            if (firstName.length() > 2 && firstName.length()< 51 && pattern.matcher(firstName).find()) {
+                SharedPreferencesManager.instance().setFirstName(firstName);
+                Log.i(TAG, "firstName: " + firstName);
                 return true;
             } else{
-                nameInputLayout.setError(getString(R.string.error_email_or_username_short));
+                firstNameInputLayout.setError(getText(R.string.error_first_name));
                 return false;
             }
         } catch (Exception e) {
             Log.e(TAG, Constants.EXCEPTION_STRING + e);
             return false;
         }
+    }
+    private boolean validLastName() {
+        try {
+            String lastName = editTextLastName.getText().toString();
+            Pattern pattern = Pattern.compile(Utils.NAME_REGEX);
+            if (lastName.length() > 2 && lastName.length()< 51 && pattern.matcher(lastName).find()) {
+                SharedPreferencesManager.instance().setLastName(lastName);
+                Log.i(TAG, "lastName: " + lastName);
+                return true;
+            } else{
+                lastNameInputLayout.setError(getText(R.string.error_last_name));
+                return false;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Constants.EXCEPTION_STRING + e);
+            return false;
+        }
+    }
+
+    private boolean validUserName() {
+        try {
+            String userName = editTextName.getText().toString();
+            if (userName.length() > 2 && userName.length()< 20 ) {
+                Log.i(TAG, "name: " + userName);//TODO pokrenuti u threadu
+                if(!doesUserWithUserNameExist(userName)){
+                    Log.i(TAG, "userExists: false" );
+                    SharedPreferencesManager.instance().setUsername(userName);
+                    return true;
+                }
+                else {
+                    Log.i(TAG, "userExists: true" );
+                    nameInputLayout.setError(getText(R.string.error_username_exists));
+                    return false;
+                }
+            } else{
+                nameInputLayout.setError(getText(R.string.error_email_or_username_short));
+                return false;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, Constants.EXCEPTION_STRING + e);
+            return false;
+        }
+    }
+
+    public boolean doesUserWithUserNameExist(String userName) {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Boolean userExists = false;
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<ResponseBody> dobijeniKorisnik = locatorService.doesUserWithUsernameExist(userName);
+
+        try {
+            Response<ResponseBody> response = dobijeniKorisnik.execute();
+            Log.i( TAG, "doesUserWithUserNameExist - Exists:  "+ response.body().string());
+            userExists = Boolean.valueOf(response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return userExists;
     }
 
     private boolean validPass() {
@@ -303,7 +381,7 @@ public class LoginActivity extends Activity {
                 SharedPreferencesManager.instance().setUserPass(pass);
                 return true;
             } else{
-                passInputLayout.setError(getString(R.string.error_invalid_password));
+                passInputLayout.setError(getText(R.string.error_invalid_password));
                 return false;
             }
         } catch (Exception e) {
@@ -321,7 +399,7 @@ public class LoginActivity extends Activity {
                 SharedPreferencesManager.instance().setUserEmail(email);
                 return true;
             } else{
-                emailInputLayout.setError(getString(R.string.error_invalid_email));
+                emailInputLayout.setError(getText(R.string.error_invalid_email));
                 return false;
             }
         } catch (Exception e) {
@@ -337,7 +415,7 @@ public class LoginActivity extends Activity {
                 Log.i(TAG, "passAgain: " + passAgain);
                 return true;
             } else{
-                passAgainInputLayout.setError(getString(R.string.error_invalid_password_again));
+                passAgainInputLayout.setError(getText(R.string.error_invalid_password_again));
                 return false;
             }
         } catch (Exception e) {
@@ -345,6 +423,111 @@ public class LoginActivity extends Activity {
             return false;
         }
     }
+
+    public void saveUserInDB() {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Korisnik korisnik = SharedPreferencesManager.instance().getParamsForUser();
+//        korisnik.setFirstName(SharedPreferencesManager.instance().getUserFirstName());
+//        korisnik.setLastName(SharedPreferencesManager.instance().getUserLastName());
+//        korisnik.setUserName(SharedPreferencesManager.instance().getUsername());
+//        korisnik.setPassword(SharedPreferencesManager.instance().getUserPass());
+//        korisnik.setEmail(SharedPreferencesManager.instance().getUserEmail());
+//        korisnik.setUserTypeId(1L);
+//        korisnik.setUserGroupId(0L);
+        Call<ResponseBody> addedUser=locatorService.add(korisnik.getFirstName(),korisnik.getLastName(),korisnik.getUserName(),korisnik.getPassword(),korisnik.getEmail(),korisnik.getUserTypeId(),korisnik.getUserGroupId());
+
+        addedUser.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                try {
+                    if(response.isSuccessful()) {
+                        String responseString = response.body().string();
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        String message=jsonObject.get("message").toString();
+                        Log.i(TAG, "addedUser - Response string: " + message);
+                        finishRegisterUser();
+                    }
+                    else {
+                        String errorResponse = response.errorBody().string();
+                        JSONObject jsonObject = new JSONObject(errorResponse);
+                        String message=jsonObject.get("message").toString();
+                        Log.i(TAG, "addedUser - Response string: " + message);
+                    }
+                } catch (IOException | JSONException e) {
+                    Log.e(TAG,"IO/JSOn Exception: ",e);
+                }
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.i(TAG, "addedUser - Nesto nije okej:  " + t.toString());
+            }
+        });
+    }
+
+    private void finishRegisterUser() {
+        Intent returnIntent = new Intent();
+        setResult(Constants.VALID, returnIntent);
+        finish();
+    }
+
+
+    public void updateUserInDB() {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Korisnik korisnik = SharedPreferencesManager.instance().getParamsForUser();
+
+//        korisnik.setFirstName(SharedPreferencesManager.instance().getUserFirstName());
+//        korisnik.setLastName(SharedPreferencesManager.instance().getUserLastName());
+//        korisnik.setUserName(SharedPreferencesManager.instance().getUsername());
+//        korisnik.setPassword(SharedPreferencesManager.instance().getUserPass());
+//        korisnik.setEmail(SharedPreferencesManager.instance().getUserEmail());
+//        korisnik.setUserTypeId(1L);
+//        korisnik.setUserGroupId(0L);
+        Call<ResponseBody> updateUser = locatorService.update(korisnik.getId(),korisnik.getFirstName(),korisnik.getLastName(),korisnik.getUserName(),korisnik.getPassword(),korisnik.getEmail(),korisnik.getUserTypeId(),korisnik.getUserGroupId());
+        updateUser.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                try {
+                    if(response.isSuccessful()) {
+                        String responseString = response.body().string();
+                        JSONObject jsonObject=new JSONObject(responseString);
+                        String message=jsonObject.get("message").toString();
+                        Log.i(TAG, "updateUserInDB - Response string: " + message);
+                        finishUpdateUser();
+                    }
+                    else {
+                        String errorResponse = response.errorBody().string();
+                        JSONObject jsonObject=new JSONObject(errorResponse);
+                        String message=jsonObject.get("message").toString();
+                        Log.i(TAG, "updateUserInDB - Response string: " + message);
+                    }
+                } catch (IOException | JSONException e) {
+                    Log.e(TAG,"IO/JSOn Exception: ",e);
+                }
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.i(TAG, "updateUserInDB - Nesto nije okej:  " + t.toString());
+            }
+        });
+    }
+
+    private void finishUpdateUser() {
+        Intent returnIntent = new Intent();
+        setResult(Constants.VALID, returnIntent);
+        finish();
+    }
+
 
     /**
      * onBackPressed returns to other activity
@@ -359,5 +542,38 @@ public class LoginActivity extends Activity {
         else{
             startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }
+    }
+
+
+    public Korisnik getUserWithUserName(String nameOrEmailLogin) {
+        final Korisnik[] korisnikProvjera = {new Korisnik()};
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLKorisnici)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<Korisnik> dobijeniKorisnik = locatorService.getUserWithUserName(nameOrEmailLogin);
+
+        dobijeniKorisnik.enqueue(new Callback<Korisnik>() {
+            @Override
+            public void onResponse(Call<Korisnik> call, Response<Korisnik> response) {
+                korisnikProvjera[0] = response.body();
+                Log.i( TAG, "getUserWithUserName - Korisnik "+ korisnikProvjera[0]);
+                assertNotNull(korisnikProvjera[0]);
+            }
+            @Override
+            public void onFailure(Call<Korisnik> call, Throwable t) {
+                Log.i( TAG, "getUserWithUserName - Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return korisnikProvjera[0];
     }
 }

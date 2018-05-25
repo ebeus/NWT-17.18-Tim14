@@ -4,11 +4,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
-import ba.tim14.nwt.nwt_android.classes.CustomDialogSettingsClass;
+import ba.tim14.nwt.nwt_android.dialogs.SettingsDialog;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 
@@ -39,7 +40,14 @@ public class MenuActivity extends Activity implements View.OnClickListener{
 
         findViewById(R.id.layout_button_trip).setOnClickListener(this);
         findViewById(R.id.layout_button_trip_list).setOnClickListener(this);
-        findViewById(R.id.layout_button_group).setOnClickListener(this);
+        RelativeLayout buttonGroup = findViewById(R.id.layout_button_group);
+        if(SharedPreferencesManager.instance().getUserGroupId() == 0L){
+            buttonGroup.setVisibility(View.GONE);
+        }
+        else {
+            buttonGroup.setVisibility(View.VISIBLE);
+            findViewById(R.id.layout_button_group).setOnClickListener(this);
+        }
         findViewById(R.id.btn_settings).setOnClickListener(this);
     }
 
@@ -57,7 +65,7 @@ public class MenuActivity extends Activity implements View.OnClickListener{
                 startActivity(startMyGroup);
                 break;
             case R.id.btn_settings:
-                CustomDialogSettingsClass settingsDialog=new CustomDialogSettingsClass(this);
+                SettingsDialog settingsDialog=new SettingsDialog(this);
                 settingsDialog.show();
                 break;
         }

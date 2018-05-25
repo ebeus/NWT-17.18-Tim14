@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ba.tim14.nwt.nwt_android.R;
+import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
 import ba.tim14.nwt.nwt_android.adapters.CustomUserAdapter;
 import ba.tim14.nwt.nwt_android.api.LocatorService;
 import ba.tim14.nwt.nwt_android.classes.Korisnik;
@@ -48,7 +49,6 @@ public class GroupActivity extends AppCompatActivity {
         Log.i(TAG,"You Clicked at " + users.get(position).getUserName());
     }
 
-//TODO Kopirao api poziv ovdje da se može adapter refreshat
     public void getKorisnike() {
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(Utils.URLKorisnici)
@@ -57,7 +57,7 @@ public class GroupActivity extends AppCompatActivity {
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<List<Korisnik>> korisniciDobijeni = locatorService.getAllUsersFromGroup(2L);
+        Call<List<Korisnik>> korisniciDobijeni = locatorService.getAllUsersFromGroup(SharedPreferencesManager.instance().getUserGroupId());
 
         korisniciDobijeni.enqueue(new Callback<List<Korisnik>>() {
             @Override
@@ -75,7 +75,7 @@ public class GroupActivity extends AppCompatActivity {
 
     private void setListOfUsers(List<Korisnik> korisnici) {
         users.addAll(korisnici);
-        listAdapter.notifyDataSetChanged();//TODO adapter refresh
+        listAdapter.notifyDataSetChanged();
     }
 
 }

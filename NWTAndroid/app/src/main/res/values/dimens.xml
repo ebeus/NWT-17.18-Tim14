@@ -26,6 +26,7 @@
     <!-- Title Text View -->
     <dimen name="text_view_size">80sp</dimen>
     <dimen name="text_view_size_menu">50sp</dimen>
+    <dimen name="text_view_size_dialog">30sp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>

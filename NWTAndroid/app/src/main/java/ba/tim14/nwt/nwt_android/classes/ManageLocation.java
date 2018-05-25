@@ -55,7 +55,7 @@ public class ManageLocation implements LocationListener {
             if (gpsEnabled) {
                 if (location == null) {
                     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {return;}
-                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 10, this);
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 5, this);
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                         if (location != null) {
@@ -75,6 +75,40 @@ public class ManageLocation implements LocationListener {
                         latitude = location.getLatitude();
                         longitude = location.getLongitude();
                         setLatitudeAndLongitude();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setLocationFirst() {
+        try {
+            locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
+            if (networkEnabled) {
+                if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) { return;}
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 500, 100, this);
+                if (locationManager != null) {
+                    location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                    if (location != null) {
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                        setLatitudeAndLongitude();
+                    }
+                }
+            }
+            if (gpsEnabled) {
+                if (location == null) {
+                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {return;}
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 10, this);
+                    if (locationManager != null) {
+                        location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+                        if (location != null) {
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                            setLatitudeAndLongitude();
+                        }
                     }
                 }
             }

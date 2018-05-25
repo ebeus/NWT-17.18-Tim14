@@ -11,6 +11,8 @@
     <string name="prompt_email_or_username">Email or username</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_username">Username</string>
+    <string name="prompt_first_name">First Name</string>
+    <string name="prompt_last_name">Last Name</string>
 
     <string name="prompt_password">Password</string>
     <string name="prompt_password_again">Repeat password</string>
@@ -21,12 +23,16 @@
     <string name="action_change">Change</string>
 
 
-    <string name="error_username_login">Wrong username</string>
+    <string name="error_username_login">User with this username does not exist.</string>
+    <string name="error_first_name">First name must contain only letters.</string>
+    <string name="error_last_name">Last name must contain only letters.</string>
     <string name="error_pass_login">Wrong password</string>
     <string name="error_email_or_username_short">Username is too short</string>
+    <string name="error_username_exists">Username exists. Choose another one.</string>
+
     <string name="error_invalid_email">Wrong email</string>
     <string name="error_invalid_password">This password is too short</string>
-    <string name="error_invalid_password_again">Passwords do not match</string>
+    <string name="error_invalid_password_again">Passwords do not match!</string>
 
     <string name="btn_start_trip">Start trip</string>
     <string name="btn_trip_history">My trips</string>
@@ -40,13 +46,17 @@
     <string name="str_yes">Yes</string>
     <string name="str_location_of">Location of %1$s</string>
 
+    <string name="str_trip_start">Start Trip</string>
+    <string name="str_trip_name">Trip name</string>
+    <string name="str_trip_exit">Exit</string>
+
     <string name="title_activity_trip">My trip</string>
     <string name="txt_trip_duration">Duration: </string>
     <string name="txt_trip_duration_days"> days</string>
     <string name="txt_trip_duration_hours"> h</string>
     <string name="txt_trip_duration_minutes"> min</string>
     <string name="txt_trip_duration_seconds"> sec</string>
-    <string name="txt_trip_distance_in_km"> km</string>
+    <string name="txt_trip_distance_in_km"> m</string>
 
 
     <string name="txt_no_elements_in_list">At the moment you do not have any trips!</string>

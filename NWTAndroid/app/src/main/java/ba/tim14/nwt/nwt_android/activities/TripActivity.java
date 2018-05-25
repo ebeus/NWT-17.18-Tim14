@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +27,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -36,7 +38,8 @@ import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
 import ba.tim14.nwt.nwt_android.classes.Korisnik;
 import ba.tim14.nwt.nwt_android.classes.ManageLocation;
 import ba.tim14.nwt.nwt_android.classes.Trip;
-import ba.tim14.nwt.nwt_android.classes.User;
+import ba.tim14.nwt.nwt_android.dialogs.SettingsDialog;
+import ba.tim14.nwt.nwt_android.dialogs.TripNameDialog;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 
@@ -59,11 +62,14 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
 
     private ManageLocation manageLocation = null;
     private boolean firstTime = true;
+    private boolean startedActivity = true;
+
     private Marker myLocationMarker;
 
     private Korisnik clickedUser;
     private boolean fabUsersClicked = false;
-    private Dialog openDialog;
+    private Dialog gpsDialog;
+
     private int userPosition = 0;
     private int step = 0;
 
@@ -102,6 +108,12 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         fabStop = findViewById(R.id.floatingActionButtonStop);
         fabUsers = findViewById(R.id.floatingActionButtonUsers);
         fabFindMe = findViewById(R.id.floatingActionButtonLocateMe);
+        if(SharedPreferencesManager.instance().getUserGroupId() == 0L){
+            fabUsers.setVisibility(View.GONE);
+        }
+        else {
+            fabUsers.setVisibility(View.VISIBLE);
+        }
     }
 
     private void setMainViews() {
@@ -127,6 +139,10 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
                     fabStop.setVisibility(View.GONE);
                     fabUsers.setVisibility(View.GONE);
                     fabFindMe.setVisibility(View.GONE);
+                    break;
+                case Constants.START_TRIP:
+                    String title = getIntent().getStringExtra(Constants.TRIP_NAME);
+                    textViewTitle.setText(title);
                     break;
             }
         }
@@ -154,7 +170,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
             case R.id.floatingActionButtonStart:
                 fabStart.setVisibility(View.GONE);
                 fabStop.setVisibility(View.VISIBLE);
-                startTrip();
+                buildStartTripDialog();
                 break;
             case R.id.floatingActionButtonStop:
                 fabStart.setVisibility(View.VISIBLE);
@@ -199,6 +215,12 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         handler.removeCallbacks(runnable);
         handler.postDelayed(runnable, 5000);
     }
+
+    private void buildStartTripDialog() {
+        TripNameDialog tripNameDialog=new TripNameDialog(this);
+        tripNameDialog.show();
+    }
+
 
     final Runnable runnable = new Runnable() {
         public void run() {
@@ -255,6 +277,9 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
             setMyLocationMarker();
             if(step == Constants.USERS){
                 setOneUserOnMap();
+                if(step == Constants.START_TRIP){
+                    startTrip();
+                }
             }
             else if(firstTime){
                 animateCamera(myLocationMarker.getPosition(),20);
@@ -281,9 +306,11 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
             if(tripStarted){
                 Log.i(TAG, "trip Started location changed");
                 if(!points.get(points.size()-1).toString().equals(tmpLatLng.toString())){
-                    Log.i(TAG, "trip diferent " + points.get(points.size()-1).toString().equals(tmpLatLng));
+                    Log.i(TAG, "trip DISTANCE " + SphericalUtil.computeDistanceBetween(points.get(points.size()-1), tmpLatLng));
+                    distance = distance + SphericalUtil.computeDistanceBetween(points.get(points.size()-1), tmpLatLng);
                     points.add(tmpLatLng);
-                    measureDistance(points.get(points.size()-1), tmpLatLng);
+                    Log.i(TAG, "trip DISTANCE " + distance);
+//                    measureDistance(points.get(points.size()-1), tmpLatLng);
                     redrawLine();
                     animateCamera(myLocationMarker.getPosition(),20);
                 }
@@ -295,7 +322,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
             showAllUsersOnMapAndZoom();
         }
     }
-
+/*
     private void measureDistance(LatLng latLng, LatLng tmpLatLng) {
         final int R = 6371; // Radius of the earth
 
@@ -313,7 +340,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
 
         distance += Math.sqrt(distanceNew);
         Log.i(TAG,"DISTANCE " + distance);
-    }
+    }*/
 
     private void setOneUserOnMap() {
         clickedUser = users.get(userPosition);
@@ -331,7 +358,13 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
                 if (Looper.myLooper() == null)
                     Looper.prepare();
                 while (manageLocation.getLocationValue() == null) {
-                    manageLocation.setLocation();
+                    if(startedActivity){
+                        manageLocation.setLocationFirst();
+                        startedActivity = false;
+                    }
+                    else{
+                        manageLocation.setLocation();
+                    }
                     Log.i(TAG,"LOCATION " + getString(R.string.str_searching_location));
                 }
                 if (manageLocation.getLocationValue() != null) {
@@ -382,19 +415,23 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     }
 
     private void buildAlertMessageNoGps() {
-        openDialog = new Dialog(this);
-        openDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        openDialog.setContentView(R.layout.custom_location_dialog);
-        openDialog.setCancelable(false);
-        openDialog.setCanceledOnTouchOutside(false);
-        ((TextView) openDialog.findViewById(R.id.textView_title)).setText(getResources().getText(R.string.str_GPS));
-        ((TextView) openDialog.findViewById(R.id.textView_text)).setText(getResources().getText(R.string.str_your_GPS_map));
-        openDialog.findViewById(R.id.button_no).setOnClickListener(v -> openDialog.dismiss());
-        openDialog.findViewById(R.id.button_yes).setOnClickListener(v -> {
-            openDialog.dismiss();
+        gpsDialog = new Dialog(this);
+        gpsDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        gpsDialog.setContentView(R.layout.custom_location_dialog);
+        gpsDialog.setCanceledOnTouchOutside(false);
+        ((TextView) gpsDialog.findViewById(R.id.textView_title)).setText(getResources().getText(R.string.str_GPS));
+        ((TextView) gpsDialog.findViewById(R.id.textView_text)).setText(getResources().getText(R.string.str_your_GPS_map));
+
+        gpsDialog.findViewById(R.id.button_no).setOnClickListener(v ->  {
+                gpsDialog.dismiss();
+                gpsDialog.cancel();
+        });
+        gpsDialog.findViewById(R.id.button_yes).setOnClickListener(v -> {
+            gpsDialog.dismiss();
+            gpsDialog.cancel();
             this.startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 1);
         });
-        openDialog.show();
+        gpsDialog.show();
     }
 
 
