@@ -2,6 +2,7 @@ package ba.tim14.nwt.nwt_android.activities;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
@@ -327,21 +328,52 @@ public class LoginActivity extends Activity {
         }
     }
 
+
     private boolean validUserName() {
         try {
             String userName = editTextName.getText().toString();
             if (userName.length() > 2 && userName.length()< 20 ) {
-                Log.i(TAG, "name: " + userName);//TODO pokrenuti u threadu
-                if(!doesUserWithUserNameExist(userName)){
-                    Log.i(TAG, "userExists: false" );
+                final boolean[] a = {false};
+//                new Thread( () -> {
+
+                new AsyncTask<Void, Void, Void>() {
+
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        Log.i(TAG, "name: " + userName);//TODO pokrenuti u threadu
+                        boolean doesItExist=doesUserWithUserNameExist(userName);
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if(!doesItExist){
+                            Log.i(TAG, "userExists: false" );
+                            SharedPreferencesManager.instance().setUsername(userName);
+                            a[0] =true;
+                        }
+                        else {
+                            Log.i(TAG, "userExists: true" );
+                            runOnUiThread(() -> nameInputLayout.setError(getText(R.string.error_username_exists)));
+                            a[0]=false;
+                        }
+                        return null;
+                    }
+                }.execute();
+
+
+                Thread.sleep(1000);
+//                });
+
+
+
+                if(a[0]){
+                    Log.i(TAG, "validUsername: " + a[0] + userName);
                     SharedPreferencesManager.instance().setUsername(userName);
-                    return true;
                 }
-                else {
-                    Log.i(TAG, "userExists: true" );
-                    nameInputLayout.setError(getText(R.string.error_username_exists));
-                    return false;
-                }
+
+                return a[0];
+
             } else{
                 nameInputLayout.setError(getText(R.string.error_email_or_username_short));
                 return false;
@@ -365,8 +397,8 @@ public class LoginActivity extends Activity {
 
         try {
             Response<ResponseBody> response = dobijeniKorisnik.execute();
-            Log.i( TAG, "doesUserWithUserNameExist - Exists:  "+ response.body().string());
             userExists = Boolean.valueOf(response.body().string());
+            Log.i( TAG, "doesUserWithUserNameExist - Exists:  "+ userExists);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -439,8 +471,14 @@ public class LoginActivity extends Activity {
 //        korisnik.setEmail(SharedPreferencesManager.instance().getUserEmail());
 //        korisnik.setUserTypeId(1L);
 //        korisnik.setUserGroupId(0L);
+
+        String abc=SharedPreferencesManager.instance().getUsername();
+        System.out.println("ABC: -------------: " + abc);
+        korisnik.setUserName(abc);
+
         Call<ResponseBody> addedUser=locatorService.add(korisnik.getFirstName(),korisnik.getLastName(),korisnik.getUserName(),korisnik.getPassword(),korisnik.getEmail(),korisnik.getUserTypeId(),korisnik.getUserGroupId());
 
+        Log.i(TAG, "ADDing user" + korisnik);
         addedUser.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
@@ -453,10 +491,15 @@ public class LoginActivity extends Activity {
                         finishRegisterUser();
                     }
                     else {
+
+                        Log.i(TAG, "error response" + response);
+                        Log.i(TAG, "error response body" + response.errorBody());
                         String errorResponse = response.errorBody().string();
-                        JSONObject jsonObject = new JSONObject(errorResponse);
-                        String message=jsonObject.get("message").toString();
-                        Log.i(TAG, "addedUser - Response string: " + message);
+                        System.out.println("asdughasuidgasuidg" + errorResponse);
+                        Log.i(TAG, errorResponse);
+//                        JSONObject jsonObject = new JSONObject(errorResponse);
+//                        String message=jsonObject.get("message").toString();
+//                        Log.i(TAG, "addedUser - Response string: " + message);
                     }
                 } catch (IOException | JSONException e) {
                     Log.e(TAG,"IO/JSOn Exception: ",e);

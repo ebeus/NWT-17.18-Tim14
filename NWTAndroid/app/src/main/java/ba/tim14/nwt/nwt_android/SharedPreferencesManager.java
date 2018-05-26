@@ -81,6 +81,7 @@ public class SharedPreferencesManager {
     public void setUsername(String username) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(USERNAME_KEY, username);
+        System.out.println("SHARED usernameeee" + username);
         editor.apply();
     }
 
