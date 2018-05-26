@@ -69,7 +69,7 @@ public class PutovanjeController {
 		return p;
 	}
 
-	@RequestMapping(value = "/{tripName}", method = RequestMethod.GET)
+	@RequestMapping(value = "/by-name/{tripName}", method = RequestMethod.GET)
 	public Putovanje getTripByName(@PathVariable String tripName) {
 		Putovanje p = putovanjeRepo.findByNaziv(tripName);
 		if(p == null)

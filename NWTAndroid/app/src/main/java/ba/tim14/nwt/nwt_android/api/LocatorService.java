@@ -70,8 +70,8 @@ public interface LocatorService {
                              @Field("korisnikId") Long korisnikId);
 
 
-    @GET("/{tripName}")
-    Call<Putovanje> getTripByName(@Path("naziv") String tripName);
+    @GET("/trip/by-name/{tripName}")
+    Call<Putovanje> getTripByName(@Path("tripName") String tripName);
 
     @FormUrlEncoded
     @POST("/trip/stop")

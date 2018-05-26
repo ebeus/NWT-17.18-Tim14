@@ -11,6 +11,7 @@ import java.util.List;
 import ba.tim14.nwt.nwt_android.api.LocatorService;
 import ba.tim14.nwt.nwt_android.classes.Korisnik;
 import ba.tim14.nwt.nwt_android.classes.Lokacija;
+import ba.tim14.nwt.nwt_android.classes.Putovanje;
 import ba.tim14.nwt.nwt_android.classes.Trip;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 import okhttp3.ResponseBody;
@@ -246,7 +247,7 @@ public class ExampleUnitTest {
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<ResponseBody> tripStopped = locatorService.stop(7L, Calendar.getInstance().getTimeInMillis());
+        Call<ResponseBody> tripStopped = locatorService.stop(7L, Calendar.getInstance().getTimeInMillis(),26);
 
         tripStopped.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -270,6 +271,36 @@ public class ExampleUnitTest {
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void getTripByNameTest(){
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLPutovanja)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+        final Putovanje[] currentTrip = new Putovanje[1];
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<Putovanje> putovanjeCall = locatorService.getTripByName("P1");
+
+        putovanjeCall.enqueue(new Callback<Putovanje>() {
+            @Override
+            public void onResponse(Call<Putovanje> call, Response<Putovanje> response) {
+                currentTrip[0] = response.body();
+                System.out.println( "TEST" + "getTripByName - Trip "+ currentTrip[0].getDistance());
+            }
+            @Override
+            public void onFailure(Call<Putovanje> call, Throwable t) {
+                System.out.println( "TEST" + "getTripByName - Nesto nije okej:  " + t.toString());
             }
         });
 
@@ -335,17 +366,17 @@ public class ExampleUnitTest {
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<List<Trip>> returnedTrips = locatorService.geAllTripsByUser(1L);
+        Call<List<Putovanje>> returnedTrips = locatorService.geAllTripsByUser(1L);
 
-        returnedTrips.enqueue(new Callback<List<Trip>>() {
+        returnedTrips.enqueue(new Callback<List<Putovanje>>() {
             @Override
-            public void onResponse(Call<List<Trip>> call, Response<List<Trip>> response) {
-                List<Trip> trips = response.body();
+            public void onResponse(Call<List<Putovanje>> call, Response<List<Putovanje>> response) {
+                List<Putovanje> trips = response.body();
                 System.out.println("TEST: " + "trips "+ trips);
                 assertNotNull(trips);
             }
             @Override
-            public void onFailure(Call<List<Trip>> call, Throwable t) {
+            public void onFailure(Call<List<Putovanje>> call, Throwable t) {
                 System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
             }
         });

@@ -67,9 +67,9 @@ public class PutovanjeMikroservisApplication {
 			
 
 			putovanjeRepository.save(new Putovanje("P1", 1521579640L ,  1));
-			putovanjeRepository.save(new Putovanje("P2", 1521579659L , 1521581659L , 2));
-			putovanjeRepository.save(new Putovanje("P3", 1521579659L , 1521581659L , 3));
-			putovanjeRepository.save(new Putovanje("P4", 1521579936L  , 1521581659L , 1));
+			putovanjeRepository.save(new Putovanje("P2", 1521579659L , 1521581659L , 1, 2d));
+			putovanjeRepository.save(new Putovanje("P3", 1521579659L , 1521581659L , 2,3d));
+			putovanjeRepository.save(new Putovanje("P4", 1521579936L  , 1521581659L , 2,1d));
 			
 			lokacijaRepo.save(new Lokacija(ts1, 47.232345, 19.23332, putovanjeRepository.findById(1)));
 			lokacijaRepo.save(new Lokacija(ts2, 47.232445, 19.23352, putovanjeRepository.findById(1)));

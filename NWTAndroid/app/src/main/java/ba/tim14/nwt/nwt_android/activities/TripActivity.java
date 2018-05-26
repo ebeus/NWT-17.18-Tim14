@@ -26,7 +26,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
 import com.google.maps.android.SphericalUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -493,15 +497,20 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
                 try {
                     if(response.isSuccessful()) {
                         responseString = response.body().string();
-                        Log.i(TAG, "startTripSaveInDB: " + responseString);
-                        assertNotNull(responseString);
-                        getCurrentTrip();
+                        JSONObject jsonObject = new JSONObject(responseString);
+                        String responseObject= jsonObject.getString("responseObject");
+                        Gson gson = new Gson();
+                        currentTrip=gson.fromJson(responseObject,Putovanje.class);
+                        Log.i(TAG, "startTripSaveInDB: " + currentTrip);
+//                        getCurrentTrip();
                     }
                     else {
                         String errorResponse = response.errorBody().string();
                         Log.i(TAG,"startTripSaveInDB: " + errorResponse);
                     }
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
@@ -528,18 +537,18 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
+        System.out.println("Get Current trip: " + "title: " + tripTitle);
         Call<Putovanje> putovanjeCall = locatorService.getTripByName(tripTitle);
 
         putovanjeCall.enqueue(new Callback<Putovanje>() {
             @Override
             public void onResponse(Call<Putovanje> call, Response<Putovanje> response) {
                 currentTrip = response.body();
-                Log.i( TAG, "getUserWithUserName - Korisnik "+ currentTrip);
-                assertNotNull(currentTrip);
+                Log.i( TAG, "Get Current trip:  - Trip "+ currentTrip);
             }
             @Override
             public void onFailure(Call<Putovanje> call, Throwable t) {
-                Log.i( TAG, "getUserWithUserName - Nesto nije okej:  " + t.toString());
+                Log.i( TAG, "Get Current trip:  - Nesto nije okej:  " + t.toString());
             }
         });
 
@@ -568,7 +577,6 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
                     if(response.isSuccessful()) {
                         responseString = response.body().string();
                         Log.i(TAG,"stopTripSaveInDB - trip " + responseString);
-                        assertNotNull(responseString);
                     }
                     else {
                         String errorResponse = response.errorBody().string();
