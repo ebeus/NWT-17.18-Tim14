@@ -44,7 +44,7 @@ public class TripNameDialog extends Dialog implements android.view.View.OnClickL
                 break;
             case R.id.button_start_trip:
                 Intent startTrip = new Intent(activity, TripActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startTrip.putExtra(Constants.TRIP_NAME, tripName.toString());
+                startTrip.putExtra(Constants.TRIP_NAME, tripName.getText().toString());
                 startTrip.putExtra(Constants.STEP, Constants.START_TRIP);
                 activity.startActivity(startTrip);
                 dismiss();

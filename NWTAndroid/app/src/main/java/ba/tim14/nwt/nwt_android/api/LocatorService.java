@@ -4,6 +4,7 @@ import java.util.List;
 
 import ba.tim14.nwt.nwt_android.classes.Korisnik;
 import ba.tim14.nwt.nwt_android.classes.Lokacija;
+import ba.tim14.nwt.nwt_android.classes.Putovanje;
 import ba.tim14.nwt.nwt_android.classes.Trip;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -68,10 +69,15 @@ public interface LocatorService {
                              @Field("start_time") Long start_time,
                              @Field("korisnikId") Long korisnikId);
 
+
+    @GET("/{tripName}")
+    Call<Putovanje> getTripByName(@Path("naziv") String tripName);
+
     @FormUrlEncoded
     @POST("/trip/stop")
     Call<ResponseBody> stop(@Field("id") Long id,
-                            @Field("end_time") Long end_time);
+                            @Field("end_time") Long end_time,
+                            @Field("distance") double distance);
 
     @FormUrlEncoded
     @POST("/trip/locations/add")
@@ -81,7 +87,7 @@ public interface LocatorService {
                                    @Field("lng") Double lng);
 
     @GET("/trip/by-user/{userId}")
-    Call<List<Trip>> geAllTripsByUser(@Path("userId") Long userId);
+    Call<List<Putovanje>> geAllTripsByUser(@Path("userId") Long userId);
 
     @GET("/trip/locations/{tripId}")
     Call<List<Lokacija>> getAllLocationsInATrip(@Path("tripId") Long tripId);

@@ -12,4 +12,5 @@ public interface PutovanjeRepository extends CrudRepository<Putovanje, Long> {
 	List<Putovanje> findAll();
 	List<Putovanje> findAllByidKorisnika(long idKorisnika);
 	Putovanje findById(long id);
+	Putovanje findByNaziv(String tripName);
 }

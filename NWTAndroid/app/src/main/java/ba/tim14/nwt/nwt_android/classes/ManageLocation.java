@@ -27,7 +27,6 @@ public class ManageLocation implements LocationListener {
     private boolean networkEnabled = false;
 
     public ManageLocation(Context context) {
-
         this.context = context;
         this.latitude = getLongitude();
         this.longitude = getLatitude();

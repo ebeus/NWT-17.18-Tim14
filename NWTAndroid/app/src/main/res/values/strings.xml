@@ -8,7 +8,7 @@
     <string name="sign_out_str">Sign Out</string>
 
 
-    <string name="prompt_email_or_username">Email or username</string>
+    <string name="prompt_email_or_username">Username</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_first_name">First Name</string>

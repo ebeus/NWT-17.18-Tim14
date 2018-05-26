@@ -68,6 +68,15 @@ public class PutovanjeController {
 		
 		return p;
 	}
+
+	@RequestMapping(value = "/{tripName}", method = RequestMethod.GET)
+	public Putovanje getTripByName(@PathVariable String tripName) {
+		Putovanje p = putovanjeRepo.findByNaziv(tripName);
+		if(p == null)
+			throw new ItemNotFoundException(tripName, "Trip");
+
+		return p;
+	}
 	
 	@RequestMapping(value = "/locations/{tripId}", method = RequestMethod.GET)
 	public List<Lokacija> getLocations(@PathVariable long tripId) {
@@ -152,7 +161,8 @@ public class PutovanjeController {
 	
 	@RequestMapping(value = "/stop", method = RequestMethod.POST)
 	ResponseEntity<?> add_trip(@RequestParam long id,
-			@RequestParam long end_time) {
+							   @RequestParam long end_time,
+							   @RequestParam double distance) {
 		
 		Putovanje putovanje = putovanjeRepo.findById(id);
 		ApiError apiError = null;
@@ -216,6 +226,7 @@ public class PutovanjeController {
 		}
 		
 		putovanje.setEnd_time(end_time);
+        putovanje.setDistance(distance);
 		putovanjeRepo.save(putovanje);
 		
 		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "OK", putovanje);

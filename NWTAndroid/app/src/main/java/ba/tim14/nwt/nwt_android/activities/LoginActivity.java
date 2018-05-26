@@ -1,5 +1,6 @@
 package ba.tim14.nwt.nwt_android.activities;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -52,7 +53,6 @@ public class LoginActivity extends Activity {
 
     Korisnik korisnikProvjera = new Korisnik();
 
-    String nameOrEmailLogin;
     int result;
 
     @Override
@@ -124,28 +124,13 @@ public class LoginActivity extends Activity {
     }
 
     private void login() {
-        if(validLogin() && checkIfUserExists()) {
+        if(validLogin()) {
             SharedPreferencesManager.instance().setLoggedIn(true);
             Intent returnIntent = new Intent();
             setResult(Constants.VALID, returnIntent);
             finish();
         }
     }
-
-    private boolean checkIfUserExists() {
-        // TODO: 25.05.2018. SINHRONOOOO
-        korisnikProvjera = getUserWithUserName(nameOrEmailLogin);
-        if(korisnikProvjera == null){
-            return false;
-        }
-        else if(korisnikProvjera.getUserName().equals(editTextName.getText().toString()) ||
-                korisnikProvjera.getEmail().equals(editTextName.getText().toString())){
-            SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
-            return true;
-        }
-        return false;
-    }
-
 
     private void register() {
         if(valid()) {
@@ -246,21 +231,67 @@ public class LoginActivity extends Activity {
         return valid;
     }
 
+    @SuppressLint("StaticFieldLeak")
     private boolean validNameLogin() {
         try {
-            nameOrEmailLogin = editTextName.getText().toString();
-            // TODO: 25.05.2018. SINHRONOOOO
+            String nameOrEmailLogin = editTextName.getText().toString();
+            if (nameOrEmailLogin.length() > 2 && nameOrEmailLogin.length()< 20 ) {
+                final boolean[] check = {false};
+//                new Thread( () -> {
+
+                new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        Log.i(TAG, "name: " + nameOrEmailLogin);
+                        korisnikProvjera = getUserWithUserName(nameOrEmailLogin);
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        if (nameOrEmailLogin.equals(korisnikProvjera.getUserName())) {
+                            //if (nameOrEmail.equals(SharedPreferencesManager.instance().getUsername())) {
+                            //SharedPreferencesManager.instance().setId(korisnikProvjera.getId());
+                            //SharedPreferencesManager.instance().setUsername(nameOrEmailLogin);
+                            //SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
+                            SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
+
+                            Log.i(TAG, "name: " + nameOrEmailLogin);
+                            check[0] = true;
+                        }
+                        return null;
+                    }
+                }.execute();
+
+                Thread.sleep(1000);
+//                });
+                if(check[0]){
+                    Log.i(TAG, "validUsername: " + check[0] + " " + korisnikProvjera.getUserName());
+                    SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
+                }
+
+                return check[0];
+
+            } else{
+                nameInputLayout.setError(getText(R.string.error_email_or_username_short));
+                return false;
+            }
+           /* nameOrEmailLogin = editTextName.getText().toString();
+
+
             korisnikProvjera = getUserWithUserName(nameOrEmailLogin);
             if (nameOrEmailLogin.equals(korisnikProvjera.getUserName())) {
                 //if (nameOrEmail.equals(SharedPreferencesManager.instance().getUsername())) {
-                SharedPreferencesManager.instance().setUsername(nameOrEmailLogin);
+                //SharedPreferencesManager.instance().setId(korisnikProvjera.getId());
+                //SharedPreferencesManager.instance().setUsername(nameOrEmailLogin);
+                //SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
                 SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
+
                 Log.i(TAG, "name: " + nameOrEmailLogin);
                 return true;
             }
             else if(nameOrEmailLogin.equals(korisnikProvjera.getEmail())){
-           // else if(nameOrEmail.equals(SharedPreferencesManager.instance().getUserEmail())){
-                SharedPreferencesManager.instance().setUserEmail(nameOrEmailLogin);
+                //SharedPreferencesManager.instance().setUserEmail(nameOrEmailLogin);
                 Log.i(TAG, "email: " + nameOrEmailLogin);
                 SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
                 return true;
@@ -268,7 +299,7 @@ public class LoginActivity extends Activity {
             else{
                 nameInputLayout.setError(getText(R.string.error_username_login));
                 return false;
-            }
+            }*/
         } catch (Exception e) {
             Log.e(TAG, Constants.EXCEPTION_STRING + e);
             return false;
@@ -329,6 +360,7 @@ public class LoginActivity extends Activity {
     }
 
 
+    @SuppressLint("StaticFieldLeak")
     private boolean validUserName() {
         try {
             String userName = editTextName.getText().toString();
@@ -337,10 +369,9 @@ public class LoginActivity extends Activity {
 //                new Thread( () -> {
 
                 new AsyncTask<Void, Void, Void>() {
-
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        Log.i(TAG, "name: " + userName);//TODO pokrenuti u threadu
+                        Log.i(TAG, "name: " + userName);
                         boolean doesItExist=doesUserWithUserNameExist(userName);
                         try {
                             Thread.sleep(500);
@@ -361,12 +392,8 @@ public class LoginActivity extends Activity {
                     }
                 }.execute();
 
-
                 Thread.sleep(1000);
 //                });
-
-
-
                 if(a[0]){
                     Log.i(TAG, "validUsername: " + a[0] + userName);
                     SharedPreferencesManager.instance().setUsername(userName);
@@ -587,9 +614,8 @@ public class LoginActivity extends Activity {
         }
     }
 
-
     public Korisnik getUserWithUserName(String nameOrEmailLogin) {
-        final Korisnik[] korisnikProvjera = {new Korisnik()};
+
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(Utils.URLKorisnici)
                 .addConverterFactory(GsonConverterFactory.create());
@@ -599,24 +625,14 @@ public class LoginActivity extends Activity {
         LocatorService locatorService = retrofit.create(LocatorService.class);
         Call<Korisnik> dobijeniKorisnik = locatorService.getUserWithUserName(nameOrEmailLogin);
 
-        dobijeniKorisnik.enqueue(new Callback<Korisnik>() {
-            @Override
-            public void onResponse(Call<Korisnik> call, Response<Korisnik> response) {
-                korisnikProvjera[0] = response.body();
-                Log.i( TAG, "getUserWithUserName - Korisnik "+ korisnikProvjera[0]);
-                assertNotNull(korisnikProvjera[0]);
-            }
-            @Override
-            public void onFailure(Call<Korisnik> call, Throwable t) {
-                Log.i( TAG, "getUserWithUserName - Nesto nije okej:  " + t.toString());
-            }
-        });
-
         try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
+            Response<Korisnik> response = dobijeniKorisnik.execute();
+            korisnikProvjera = response.body();
+            Log.i( TAG, "doesUserWithUserNameExist - Provjera:  "+ korisnikProvjera.getUserName());
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return korisnikProvjera[0];
+        return korisnikProvjera;
     }
+
 }

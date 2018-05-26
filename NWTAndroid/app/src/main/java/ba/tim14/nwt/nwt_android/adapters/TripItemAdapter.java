@@ -13,16 +13,17 @@ import java.util.ArrayList;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.activities.TripActivity;
+import ba.tim14.nwt.nwt_android.classes.Putovanje;
 import ba.tim14.nwt.nwt_android.classes.Trip;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 
-public class TripItemAdapter extends ArrayAdapter<Trip> {
+public class TripItemAdapter extends ArrayAdapter<Putovanje> {
 
     private final Activity context;
 
-    private Trip trip = null;
+    private Putovanje trip = null;
 
-    public TripItemAdapter(Activity context, ArrayList<Trip> tripList) {
+    public TripItemAdapter(Activity context, ArrayList<Putovanje> tripList) {
         super(context, R.layout.trip_history_list_item, tripList);
         this.context = context;
     }
@@ -36,13 +37,15 @@ public class TripItemAdapter extends ArrayAdapter<Trip> {
 
         if (trip != null){
             TextView txtDate = rowView.findViewById(R.id.textView_date);
-            txtDate.setText(trip.getTripDates());
+            txtDate.setText(String.valueOf(trip.getStart_time()));
 
             TextView txtDuration = rowView.findViewById(R.id.textView_duration);
-            txtDuration.setText(getDurationString());
+            //txtDuration.setText(getDurationString());
+            txtDuration.setText("");
+
 
             TextView txtKilometers = rowView.findViewById(R.id.textView_kilometers);
-            txtKilometers.setText(trip.getDistance());
+            txtKilometers.setText(String.valueOf(trip.getDistance()));
 
             ImageButton imageButtonShowOnMap = rowView.findViewById(R.id.imageButtonShowOnMap);
             imageButtonShowOnMap.setOnClickListener(view1 -> {
@@ -55,7 +58,7 @@ public class TripItemAdapter extends ArrayAdapter<Trip> {
         return rowView;
     }
 
-    private String getDurationString() {
+  /*  private String getDurationString() {
         StringBuilder resultDurationString = new StringBuilder();
         String durations[] = trip.getDurationPeriod();
         String params[] = new String[]{"days", "h", "min", "sec"};
@@ -69,6 +72,6 @@ public class TripItemAdapter extends ArrayAdapter<Trip> {
         }
 
         return resultDurationString.toString();
-    }
+    }*/
 
 }

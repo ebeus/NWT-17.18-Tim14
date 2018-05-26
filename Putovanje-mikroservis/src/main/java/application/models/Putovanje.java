@@ -34,7 +34,10 @@ public class Putovanje {
 	
 	@Column(name="end_time", nullable=true)
 	private long end_time;
-	
+
+	@Column(name="distance")
+	private double distance;
+
 	@Column(name="idKorisnika")
 	private long idKorisnika;
 	
@@ -44,20 +47,22 @@ public class Putovanje {
 	
 	protected Putovanje() {};
 	
-	public Putovanje(String naziv, long start_time, long end_time, long korisnik_id) {
+	public Putovanje(String naziv, long start_time, long end_time, long korisnik_id, double distance) {
 		this.naziv = naziv;
 		this.start_time = start_time;
 		this.end_time = end_time;
 		this.idKorisnika = korisnik_id;
 		this.listaLokacija = null;
+		this.distance = distance;
 	}
 	
-	public Putovanje(String naziv, long start_time, long end_time, long korisnik_id, List<Lokacija> listaLokacija) {
+	public Putovanje(String naziv, long start_time, long end_time, long korisnik_id, List<Lokacija> listaLokacija, double distance) {
 		this.naziv = naziv;
 		this.start_time = start_time;
 		this.end_time = end_time;
 		this.idKorisnika = korisnik_id;
 		this.listaLokacija = listaLokacija;
+		this.distance = distance;
 	}
 	
 	public Putovanje(String naziv, long start_time, long korisnik_id) {
@@ -97,8 +102,10 @@ public class Putovanje {
 	public void setIdKorisnika(long korisnik_id) {
 		this.idKorisnika = korisnik_id;
 	}
+    public double getDistance() {        return distance;    }
+    public void setDistance(double distance) {        this.distance = distance;    }
 
-	public List<Lokacija> getListaLokacija() {
+    public List<Lokacija> getListaLokacija() {
 		return listaLokacija;
 	}
 
