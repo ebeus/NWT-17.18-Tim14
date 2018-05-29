@@ -7,7 +7,9 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,20 +38,25 @@ import application.responses.ApiSuccess;
 @RequestMapping("/trip/")
 public class PutovanjeController {
 	
-	@Autowired
-	PutovanjeRepository putovanjeRepo;
+	private PutovanjeRepository putovanjeRepo;
+	private RabbitTemplate rabbitTemplate;
+	
 	@Autowired
 	LokacijaRepository lokacijaRepo;
 	
 	@Autowired
 	EurekaClient eurekaClient;
 	
-	@Autowired
-	private RabbitTemplate rabbitTemplate;
+    @Autowired
+    public PutovanjeController(PutovanjeRepository putovanjeRepo, RabbitTemplate rabbitTemplate) {
+        this.putovanjeRepo = putovanjeRepo;
+        this.rabbitTemplate = rabbitTemplate;
+    }
 	
 	private TripMessageReport tripMessageReport = null;
 
 	
+	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/by-user/{userId}", method = RequestMethod.GET)
 	public List<Putovanje> getByUserId(@PathVariable long userId) {
 		List<Putovanje> putovanja = putovanjeRepo.findAllByidKorisnika(userId);
@@ -59,6 +66,7 @@ public class PutovanjeController {
 			return putovanja;
 	}
 	
+	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/{tripId}", method = RequestMethod.GET)
 	public Putovanje getTrip(@PathVariable long tripId) {
 		Putovanje p = putovanjeRepo.findById(tripId);
@@ -68,7 +76,8 @@ public class PutovanjeController {
 		
 		return p;
 	}
-
+	
+	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/by-name/{tripName}", method = RequestMethod.GET)
 	public Putovanje getTripByName(@PathVariable String tripName) {
 		Putovanje p = putovanjeRepo.findByNaziv(tripName);
@@ -78,6 +87,7 @@ public class PutovanjeController {
 		return p;
 	}
 	
+	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/locations/{tripId}", method = RequestMethod.GET)
 	public List<Lokacija> getLocations(@PathVariable long tripId) {
 		Putovanje p = putovanjeRepo.findById(tripId);
@@ -93,11 +103,12 @@ public class PutovanjeController {
 		return lokacije;
 	}
 	
-	
+	@PreAuthorize("#oauth2.hasScope('mobile')")
 	@RequestMapping(value = "/start", method = RequestMethod.POST)
 	ResponseEntity<?> add_trip(@RequestParam String naziv,
 			@RequestParam long start_time,
-			@RequestParam long korisnikId) {
+			@RequestParam long korisnikId,
+			@RequestHeader("Authorization") String token) {
 		
 		//Check if user exists
 		
@@ -108,7 +119,7 @@ public class PutovanjeController {
 		ApiError apiError = null;
 		
 		try {
-			korisnik = restClient.getUserByID(korisnikId,eurekaClient);
+			korisnik = restClient.getUserByID(korisnikId,eurekaClient, token);
 		} catch (Exception e) {
 			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_START, ConstantMessages.STATUS_FAILED, 
 					ConstantMessages.DESC_START_FAIL_USER_COMMUNICATION, ConstantMessages.MICROSERVICE_NAME, "", "");
@@ -159,10 +170,12 @@ public class PutovanjeController {
 		return ResponseEntity.ok(apiSuccess);
 	}
 	
+	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/stop", method = RequestMethod.POST)
-	ResponseEntity<?> add_trip(@RequestParam long id,
+	ResponseEntity<?> stop_trip(@RequestParam long id,
 							   @RequestParam long end_time,
-							   @RequestParam double distance) {
+							   @RequestParam double distance,
+							   @RequestHeader("Authorization") String token) {
 		
 		Putovanje putovanje = putovanjeRepo.findById(id);
 		ApiError apiError = null;
@@ -185,7 +198,7 @@ public class PutovanjeController {
 		}
 		
 		try {
-			korisnik = restClient.getUserByID(putovanje.getIdKorisnika(),eurekaClient);
+			korisnik = restClient.getUserByID(putovanje.getIdKorisnika(), eurekaClient, token);
 		} catch (Exception e) {
 			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_END, ConstantMessages.STATUS_FAILED, 
 					ConstantMessages.DESC_START_FAIL_USER_NOT_FOUND, ConstantMessages.MICROSERVICE_NAME, "", "");
@@ -241,11 +254,13 @@ public class PutovanjeController {
 		return ResponseEntity.ok(apiSuccess);
 	}
 	
+	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/locations/add", method = RequestMethod.POST)
 	ResponseEntity<?> add_location(@RequestParam long id_putovanja,
 			@RequestParam long time,
 			@RequestParam Double lat,
-			@RequestParam Double lng) {
+			@RequestParam Double lng,
+			@RequestHeader("Authorization") String token) {
 		
 		TripService tripService = new TripService(rabbitTemplate);
 		Putovanje putovanje = putovanjeRepo.findById(id_putovanja);
@@ -266,7 +281,7 @@ public class PutovanjeController {
 		}
 		
 		try {
-			korisnik = restClient.getUserByID(putovanje.getIdKorisnika(),eurekaClient);
+			korisnik = restClient.getUserByID(putovanje.getIdKorisnika(),eurekaClient, token);
 		} catch (Exception e) {
 			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_START, ConstantMessages.STATUS_FAILED,
 					ConstantMessages.DESC_START_FAIL_USER_NOT_FOUND, ConstantMessages.MICROSERVICE_NAME, "", "");
@@ -308,7 +323,7 @@ public class PutovanjeController {
 		return ResponseEntity.ok(apiSuccess);
 	}
 	
-	
+	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete_trip(@PathVariable("id") long id) {
 		Putovanje putovanje = putovanjeRepo.findById(id);

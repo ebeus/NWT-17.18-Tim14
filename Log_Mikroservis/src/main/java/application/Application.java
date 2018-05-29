@@ -14,6 +14,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.stereotype.Component;
 //import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 //import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -24,7 +25,7 @@ import java.util.concurrent.CountDownLatch;
 @EnableDiscoveryClient
 @ComponentScan()
 @SpringBootApplication
-//@EnableResourceServer
+@EnableResourceServer
 @EnableAutoConfiguration
 public class Application {
 

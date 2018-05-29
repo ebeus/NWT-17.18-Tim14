@@ -10,6 +10,9 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -17,8 +20,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-//import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-//import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
 import application.models.Lokacija;
 import application.models.Putovanje;
@@ -28,7 +30,7 @@ import application.repository.PutovanjeRepository;
 @EnableDiscoveryClient
 @ComponentScan()
 @SpringBootApplication
-//@EnableResourceServer
+@EnableResourceServer
 @EnableAutoConfiguration
 public class PutovanjeMikroservisApplication {
 
@@ -54,6 +56,21 @@ public class PutovanjeMikroservisApplication {
     @Bean
     Binding binding(Queue queue,TopicExchange topicExchange){
         return BindingBuilder.bind(queue).to(topicExchange).with(ROUTING_KEY+"*");
+    }
+    
+    @Bean
+    SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
+            MessageListenerAdapter listenerAdapter) {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.setQueueNames(QUEUE_NAME);
+        container.setMessageListener(listenerAdapter);
+        return container;
+    }
+    
+    @Bean
+    MessageListenerAdapter listenerAdapter(Receiver receiver){
+        return new MessageListenerAdapter(receiver,"receiveMessage");
     }
     
 	@Bean

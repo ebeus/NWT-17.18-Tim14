@@ -13,6 +13,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -32,6 +33,7 @@ public class GrupaKorisnikaController {
         this.rabbitTemplate=rabbitTemplate;
     }
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Collection<GrupaKorisnika> grupe() {
         log.info("/grupe GET");
@@ -39,6 +41,7 @@ public class GrupaKorisnikaController {
         return (Collection<GrupaKorisnika>) this.grupaKorisnikaRepository.findAll();
     }
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/{groupId}", method = RequestMethod.GET)
     public Optional<GrupaKorisnika> grupaWithId(@PathVariable Long groupId) {
         Optional<GrupaKorisnika> existing=grupaKorisnikaRepository.findById(groupId);
@@ -52,6 +55,7 @@ public class GrupaKorisnikaController {
         }
     }
 
+    @PreAuthorize("#oauth2.hasScope('admin')")
     @RequestMapping(method = RequestMethod.GET)
     public Optional<GrupaKorisnika> grupaWithGroupName(@RequestParam("groupName") String groupName) {
         Optional<GrupaKorisnika> postojeca=grupaKorisnikaRepository.findByGroupName(groupName);
@@ -65,6 +69,7 @@ public class GrupaKorisnikaController {
         }
     }
 
+    @PreAuthorize("#oauth2.hasScope('admin')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> addGroup(@RequestParam String groupName) {
         if (!grupaKorisnikaRepository.findByGroupName(groupName).isPresent()) {
@@ -81,6 +86,7 @@ public class GrupaKorisnikaController {
         }
     }
 
+    @PreAuthorize("#oauth2.hasScope('admin')")
     @RequestMapping(value = "/update/{groupId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateGroupName(@PathVariable Long groupId, @RequestParam String groupName) {
         GrupaKorisnika staraGrupa = grupaKorisnikaRepository.findById(groupId).orElseThrow(
@@ -93,6 +99,7 @@ public class GrupaKorisnikaController {
         return ResponseEntity.ok(apiSuccess);
     }
 
+    @PreAuthorize("#oauth2.hasScope('admin')")
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteGroup(@PathVariable("id") long id) {
         log.info("Fetching & Deleting Group with id {}", id);

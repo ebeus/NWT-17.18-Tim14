@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import org.hibernate.validator.constraints.Length;
+
 @Entity
 @Table(name="korisnik")
 public class Korisnik {
@@ -29,28 +31,30 @@ public class Korisnik {
     @Size(min=3,max=20,message="Username should be between 3 and 20 characters")
     @NotBlank
     private String userName;
+    @Length(max=100)
     private String password;
     private String email;
-    private Long userTypeId;
-    private Long userGroupId;
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity=TipKorisnika.class )
+
+    @ManyToOne(targetEntity = TipKorisnika.class)
     @JoinColumn(name = "tip_korisnika_id")
     private TipKorisnika userType;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, targetEntity=GrupaKorisnika.class )
+    @ManyToOne(targetEntity = GrupaKorisnika.class)
     @JoinColumn(name = "grupa_korisnika_id")
     private GrupaKorisnika userGroup;
 
+
     public Korisnik(){}
 
-    public Korisnik(String firstName, String lastName, String userName, String password, String email, Long userTypeId, Long userGroupId) {
+    public Korisnik(String firstName, String lastName, String userName, String password, String email,
+    		TipKorisnika tip, GrupaKorisnika grupa) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.userName = userName;
         this.password = password;
+        this.userType = tip;
+        this.userGroup = grupa;
         this.email = email;
-        this.userTypeId = userTypeId;
-        this.userGroupId = userGroupId;
     }
 
     public void updateFields(Korisnik k){
@@ -59,8 +63,6 @@ public class Korisnik {
         this.userName = k.userName;
         this.password = k.password;
         this.email = k.email;
-        this.userTypeId = k.userTypeId;
-        this.userGroupId = k.userGroupId;
     }
     @Override
     public String toString() {
@@ -118,21 +120,7 @@ public class Korisnik {
 
     public void setEmail(String email) { this.email = email;    }
 
-    public Long getUserTypeId() {
-        return userTypeId;
-    }
 
-    public void setUserTypeId(Long userTypeId) {
-        this.userTypeId = userTypeId;
-    }
-
-    public Long getUserGroupId() {
-        return userGroupId;
-    }
-
-    public void setUserGroupId(Long userGroupId) {
-        this.userGroupId = userGroupId;
-    }
 
     public TipKorisnika getUserType() {
         return userType;

@@ -1,8 +1,12 @@
 package application.Controllers;
 
 import application.Application;
+import application.Repositories.GrupaKorisnikaRepository;
 import application.Repositories.KorisnikRepository;
+import application.Repositories.TipKorisnikaRepository;
+import application.Models.GrupaKorisnika;
 import application.Models.Korisnik;
+import application.Models.TipKorisnika;
 import application.Responses.ApiError;
 import application.Exceptions.ItemNotFoundException;
 import application.Responses.ApiSuccess;
@@ -14,6 +18,7 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -33,23 +38,32 @@ public class KorisnikController {
     private final RabbitTemplate rabbitTemplate;
 
     @Autowired
+    private GrupaKorisnikaRepository grupaRepo;
+    
+    @Autowired
+    private TipKorisnikaRepository tipRepo;
+    
+    @Autowired
     public KorisnikController(KorisnikRepository korisnikRepository, RabbitTemplate rabbitTemplate) {
         this.korisnikRepository = korisnikRepository;
         this.rabbitTemplate = rabbitTemplate;
     }
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Collection<Korisnik> korisnici() {
         log.info("Get all users");
         return (Collection<Korisnik>) this.korisnikRepository.findAll();
     }
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/group/{userGroupId}", method = RequestMethod.GET)
     public Collection<Korisnik> korisniciWithGroupId(@PathVariable Long userGroupId) {
         log.info("Get users in group");
         return (Collection<Korisnik>) this.korisnikRepository.findByUserGroupId(userGroupId);
     }
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
     public Optional<Korisnik> korisnikWithId(@PathVariable Long userId) {
         log.info("Get user with id: " + userId);
@@ -57,11 +71,13 @@ public class KorisnikController {
         return this.korisnikRepository.findById(userId);
     }
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/exists/{userId}", method = RequestMethod.GET)
     public boolean doesUserWithIdExist(@PathVariable Long userId){
         return korisnikRepository.findById(userId).isPresent();
     }
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/exists", method = RequestMethod.GET)
     public boolean doesUserWithUserNameExist(@RequestParam("userName") String userName){
         log.info("Does user with username exist");
@@ -69,12 +85,14 @@ public class KorisnikController {
     }
 
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(method = RequestMethod.GET)
     public Optional<Korisnik> korisnikWithUserName(@RequestParam("userName") String userName) {
         this.userWithUserNameExists(userName);
         return this.korisnikRepository.findByUserName(userName);
     }
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> add(@RequestParam String firstName,
                           @RequestParam String lastName,
@@ -91,7 +109,9 @@ public class KorisnikController {
 
             LogMessage lm;
             if (this.checkExistingUsername(userName)) {
-                Korisnik k = new Korisnik(firstName, lastName, userName, password, email, userTypeId, userGroupId);
+            	GrupaKorisnika grupa = grupaRepo.findById(userGroupId).get();
+            	TipKorisnika tipK = tipRepo.findById(userTypeId).get();
+                Korisnik k = new Korisnik(firstName, lastName, userName, password, email, tipK, grupa);
 
                 lm=new LogMessage(Constants.MESSAGING_USER_ADD,Constants.MESSAGING_EVERYTHING_OK,Constants.USER_REGISTERED, Constants.MESSAGING_MICROSERVICE, k.getUserName());
 
@@ -108,6 +128,7 @@ public class KorisnikController {
         }
     }
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/update/{userId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateUser(@PathVariable Long userId,
                                  @RequestParam String firstName,
@@ -125,7 +146,10 @@ public class KorisnikController {
             Korisnik stari = korisnikRepository.findById(userId).orElseThrow(
                     () -> new ItemNotFoundException(userId, "user"));
 
-            Korisnik k = new Korisnik(firstName, lastName, userName, password, email, userTypeId, userGroupId);
+        	GrupaKorisnika grupa = grupaRepo.findById(userGroupId).get();
+        	TipKorisnika tipK = tipRepo.findById(userTypeId).get();
+        	
+            Korisnik k = new Korisnik(firstName, lastName, userName, password, email, tipK, grupa);
             LogMessage lm = new LogMessage(Constants.MESSAGING_USER_ADD, Constants.MESSAGING_EVERYTHING_OK, Constants.USER_CHANGED, Constants.MESSAGING_MICROSERVICE, whatHasChanged(stari,k));
             stari.updateFields(k);
             rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY ,lm.toString());
@@ -158,11 +182,11 @@ public class KorisnikController {
             changed+="password-";
         }
 
-        if(!k1.getUserTypeId().equals(k2.getUserTypeId())){
+        if(!k1.getUserGroup().getId().equals(k2.getUserGroup().getId())){
             changed+="userTypeId-";
         }
 
-        if(!k1.getUserGroupId().equals(k2.getUserGroupId())){
+        if(!k1.getUserType().getId().equals(k2.getUserType().getId())){
             changed+="userGroupId-";
         }
         return  changed;
@@ -181,6 +205,7 @@ public class KorisnikController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST.value(),"Validation error",message.toString()));
     }
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteUser(@PathVariable("id") long id) {
         log.info("Fetching & Deleting User with id {}", id);

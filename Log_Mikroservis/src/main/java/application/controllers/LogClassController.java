@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -35,6 +36,7 @@ public class LogClassController {
 
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
+    @PreAuthorize("#oauth2.hasScope('admin')")
     public Collection<LogClass> logs(){
         logController.info("LogClassRestController: findAll()");
         return (Collection<LogClass>) this.logClassRepository.findAll();
@@ -48,6 +50,7 @@ public class LogClassController {
     }*/
 
     //Pretraga po tipu (string)
+    @PreAuthorize("#oauth2.hasScope('admin')")
     @RequestMapping(value = "type/{typeName}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithType(@PathVariable String typeName){
         logController.info("LogClassRestController: logsWithType() "+ typeName);
@@ -67,6 +70,7 @@ public class LogClassController {
     } */
 
     // - statusu (String)
+    @PreAuthorize("#oauth2.hasScope('admin')")
     @RequestMapping(value = "status/{statusName}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithStatus(@PathVariable String statusName){
         logController.info("LogClassRestController: logsWithType() "+ statusName);
@@ -79,6 +83,7 @@ public class LogClassController {
     }
 
     // - mikroservisu
+    @PreAuthorize("#oauth2.hasScope('admin')")
     @RequestMapping(value = "source/{source}" , method = RequestMethod.GET)
     public Collection<LogClass> losgWithSource(@PathVariable String source){
         logController.info("LogClassRestController: logWithLogSource() "+ source);
@@ -86,6 +91,7 @@ public class LogClassController {
     }
 
     // - korisnickom imenu
+    @PreAuthorize("#oauth2.hasScope('admin')")
     @RequestMapping(value = "/user/{user}", method = RequestMethod.GET)
     public Collection<LogClass> logsWithUser(@PathVariable String user){
         logController.info("LogClassRestController: logWithUser() "+ user);
@@ -93,12 +99,14 @@ public class LogClassController {
     }
 
     // - imenu putovanja
+    @PreAuthorize("#oauth2.hasScope('admin')")
     @RequestMapping(value = "trip/{tripName}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithTripName(@PathVariable String tripName){
         logController.info("LogClassRestController: logsWithTripName() "+ tripName);
         return this.logClassRepository.findByTripName(tripName);
     }
 
+    @PreAuthorize("#oauth2.hasScope('admin')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> add(@RequestParam Long logTypeId,
                           @RequestParam Long statusId,

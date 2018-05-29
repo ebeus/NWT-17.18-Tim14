@@ -27,17 +27,23 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 //import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 //import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.stereotype.Component;
 //import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @EnableDiscoveryClient
 @ComponentScan()
 @SpringBootApplication
-//@EnableResourceServer
 @EnableAutoConfiguration
 public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
@@ -45,6 +51,22 @@ public class Application {
     public static final String topicExchangeName=Constants.TOPIC_EXCHANGE_NAME;
     private static final  String queueName = Constants.USERS_QUEUE;
 
+	@SuppressWarnings("deprecation")
+	@Bean
+	@Primary
+	public PasswordEncoder passwordEncoder() {
+	    PasswordEncoder defaultEncoder = new BCryptPasswordEncoder();
+	    Map<String, PasswordEncoder> encoders = new HashMap<>();
+	    encoders.put("bcrypt", new BCryptPasswordEncoder());
+	    encoders.put("noop", NoOpPasswordEncoder.getInstance());
+	 
+	    DelegatingPasswordEncoder passworEncoder = new DelegatingPasswordEncoder(
+	      "bcrypt", encoders);
+	    passworEncoder.setDefaultPasswordEncoderForMatches(defaultEncoder);
+	 
+	    return passworEncoder;
+	}
+	
     @Bean
     Queue queue(){
         return new Queue(queueName,false);
@@ -102,19 +124,23 @@ public class Application {
         @Override
         public void run(String... args) throws Exception {
 
-            TipKorisnika administrator=new TipKorisnika("Administrator");
-            TipKorisnika obicni=new TipKorisnika("Obicni");
-            tipKorisnikaRepository.save(administrator);
-            tipKorisnikaRepository.save(obicni);
+            tipKorisnikaRepository.save(new TipKorisnika("admin"));
+            tipKorisnikaRepository.save(new TipKorisnika("user"));
+            
 
             GrupaKorisnika grupa1=new GrupaKorisnika("Grupa1");
             GrupaKorisnika grupa2=new GrupaKorisnika("Grupa2");
             grupaKorisnikaRepository.save(grupa1);
             grupaKorisnikaRepository.save(grupa2);
 
-            korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer","1234", "jack.bau@gmail.com",0L,0L));
-            korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian","1234", "chlo.o.b@gmail.com",0L, 0L));
-            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer","1234", "kim.bau@gmail.com",0L, 0L));
+            TipKorisnika tp = tipKorisnikaRepository.findByTypeName("admin").get();
+            GrupaKorisnika grupa = grupaKorisnikaRepository.findByGroupName("Grupa1").get();
+            korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer", passwordEncoder().encode("1234"), "jack.bau@gmail.com",
+            		tp,grupa));
+            korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian", passwordEncoder().encode("1234"), "chlo.o.b@gmail.com",
+            		tp,grupa));
+            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer", passwordEncoder().encode("1234"), "kim.bau@gmail.com",tp,grupa));
+       
 
             List<TipKorisnika> tipoviKorisnika= (List<TipKorisnika>) tipKorisnikaRepository.findAll();
             List<GrupaKorisnika> grupeKorisnika = (List<GrupaKorisnika>) grupaKorisnikaRepository.findAll();
@@ -128,13 +154,13 @@ public class Application {
             log.info("Admin: " + adminId);
             log.info("Obicni: " + obicniId);
 
-            for (Korisnik korisnik : korisnikRepository.findAll()) {
+/*            for (Korisnik korisnik : korisnikRepository.findAll()) {
                 korisnik.setUserTypeId(adminId);
                 korisnik.setUserGroupId(grupa2Id);
                 korisnik.setUserGroup(grupa2);
                 korisnik.setUserType(administrator);
                 korisnikRepository.save(korisnik);
-            }
+            }*/
 
             List<Korisnik> korisnici= (List<Korisnik>) korisnikRepository.findAll();
 
