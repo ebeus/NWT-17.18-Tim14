@@ -22,6 +22,8 @@
 
     <!-- Custom Fonts -->
     <link href="../vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+    <script src="../controllers/groups.js"></script>
     <!--[if lt IE 9]>
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
@@ -128,18 +130,10 @@
                                         <th>Akcije</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody ng-app="adminApp" ng-controller="groups">
                                     <tr>
-                                        <td>Naziv1</td>
-                                        <td>Član1; Član2;...</td>
-                                        <td>
-                                            <a href="korisnici.html" type="button" class="btn btn-default">Vidi sve korisnike</a>
-                                            <button type="button" class="btn btn-danger">Obriši grupu</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Naziv2</td>
-                                        <td>Član1; Član2;...</td>
+                                        <td>{{content.address.street}}</td>
+                                        <td>{{content.name}}</td>
                                         <td>
                                             <a href="korisnici.html" type="button" class="btn btn-default">Vidi sve korisnike</a>
                                             <button type="button" class="btn btn-danger">Obriši grupu</button>
