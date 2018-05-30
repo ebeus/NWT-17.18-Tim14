@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import ba.tim14.nwt.nwt_android.api.LocatorService;
 import ba.tim14.nwt.nwt_android.classes.Korisnik;
+import ba.tim14.nwt.nwt_android.classes.Putovanje;
 import ba.tim14.nwt.nwt_android.classes.Trip;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -43,7 +44,8 @@ public class Utils {
     public static final String URLPutovanja = "http://80.80.40.105:8081";
     public static final String URLKorisnici="http://80.80.40.105:8080";
 
-    public static ArrayList<Trip> tripList;
+    //public static ArrayList<Trip> tripList;
+    public static ArrayList<Putovanje> tripList;
     private static ArrayList<Korisnik> users = new ArrayList<>();
     public static ArrayList<LatLng> usersLoc = new ArrayList<>();
 

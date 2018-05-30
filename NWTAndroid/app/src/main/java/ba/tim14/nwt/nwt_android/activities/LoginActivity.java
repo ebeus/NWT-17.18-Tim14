@@ -628,7 +628,11 @@ public class LoginActivity extends Activity {
         try {
             Response<Korisnik> response = dobijeniKorisnik.execute();
             korisnikProvjera = response.body();
-            Log.i( TAG, "doesUserWithUserNameExist - Provjera:  "+ korisnikProvjera.getUserName());
+            if(korisnikProvjera != null){
+                Log.i( TAG, "doesUserWithUserNameExist - Provjera:  "+ korisnikProvjera.getUserName());
+            }
+            else
+                Log.i( TAG, "doesUserWithUserNameExist - Provjera:  Nema korisnika"+ nameOrEmailLogin);
         } catch (IOException e) {
             e.printStackTrace();
         }

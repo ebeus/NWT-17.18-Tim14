@@ -11,10 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ba.tim14.nwt.nwt_android.R;
+import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
 import ba.tim14.nwt.nwt_android.adapters.TripItemAdapter;
 import ba.tim14.nwt.nwt_android.api.LocatorService;
 import ba.tim14.nwt.nwt_android.classes.Putovanje;
-import ba.tim14.nwt.nwt_android.classes.Trip;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -22,7 +22,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static ba.tim14.nwt.nwt_android.utils.Utils.tripList;
 import static junit.framework.Assert.assertNotNull;
 
 public class TripHistoryActivity extends AppCompatActivity {
@@ -53,15 +52,14 @@ public class TripHistoryActivity extends AppCompatActivity {
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<List<Putovanje>> returnedTrips = locatorService.geAllTripsByUser(1L);
+        Call<List<Putovanje>> returnedTrips = locatorService.geAllTripsByUser(SharedPreferencesManager.instance().getId());
 
         returnedTrips.enqueue(new Callback<List<Putovanje>>() {
             @Override
             public void onResponse(Call<List<Putovanje>> call, Response<List<Putovanje>> response) {
                 putovanja = response.body();
                 Log.i(TAG, "trips "+ putovanja);
-                assertNotNull(putovanja);
-                if (putovanja.isEmpty()){
+                if (putovanja == null){
                     textViewInfo.setVisibility(View.VISIBLE);
                     textViewInfo.setTypeface(Utils.getFont());
                 }

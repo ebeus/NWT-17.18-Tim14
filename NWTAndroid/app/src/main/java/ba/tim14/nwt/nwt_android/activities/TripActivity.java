@@ -1,8 +1,10 @@
 package ba.tim14.nwt.nwt_android.activities;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.FloatingActionButton;
@@ -35,15 +37,15 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.List;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
 import ba.tim14.nwt.nwt_android.api.LocatorService;
 import ba.tim14.nwt.nwt_android.classes.Korisnik;
+import ba.tim14.nwt.nwt_android.classes.Lokacija;
 import ba.tim14.nwt.nwt_android.classes.ManageLocation;
 import ba.tim14.nwt.nwt_android.classes.Putovanje;
-import ba.tim14.nwt.nwt_android.classes.Trip;
 import ba.tim14.nwt.nwt_android.dialogs.TripNameDialog;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
@@ -85,8 +87,8 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     private int userPosition = 0;
     private int step = 0;
 
-    private Trip trip;
-    private Putovanje putovanje;
+    //private Trip trip;
+    //private Putovanje putovanje;
     private double distance = 0;
     private boolean tripStarted = false;
 
@@ -175,7 +177,8 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     private void drawTripOnMap() {
         positionOfTrip = getIntent().getIntExtra(Constants.MY_TRIP_HISTORY_POSITION,0);
         if(!tripStarted){
-            points = tripList.get(positionOfTrip).getPath();
+            points = getLocationList();
+           // points = tripList.get(positionOfTrip).getPath();
         }
         addMarkerOnMap(points.get(0),"Start" , 0,Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_start_trip));
         redrawLine();
@@ -186,6 +189,15 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         if (!tripStarted){
             addMarkerOnMap(points.get(end),"Stop" , end ,Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_finish_trip));
         }
+    }
+
+    private ArrayList<LatLng> getLocationList() {
+        List<Lokacija> lokacije = tripList.get(positionOfTrip).getListaLokacija();
+        ArrayList<LatLng> lista = new ArrayList<>();
+        for(Lokacija lokacija : lokacije){
+            lista.add(new LatLng(lokacija.getLatitude(),lokacija.getLongitude()));
+        }
+        return lista;
     }
 
     @Override
@@ -230,18 +242,66 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         oneClick = false;
 
         startTripSaveInDB();
+        getCurrentTrip();
+        Log.i(TAG, "Putovanje "+ currentTrip);
 
         points = new ArrayList<>();
         Toast.makeText(this, "Trip started", Toast.LENGTH_SHORT).show();
-        Date currentDateTime =  Calendar.getInstance().getTime();
-        trip = new Trip(currentDateTime);
+        //Date currentDateTime =  Calendar.getInstance().getTime();
+        //trip = new Trip(currentDateTime);
+        //putovanje = new Putovanje(c)
         distance = 0;
         addMarkerOnMap(myLocationMarker.getPosition(),"Start" , 0,Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_start_trip));
+
+        addLocationInTrip(myLocationMarker.getPosition());
         points.add(myLocationMarker.getPosition());
 
         handler = new Handler();
         handler.removeCallbacks(runnable);
         handler.postDelayed(runnable, 5000);
+    }
+
+
+    private void addLocationInTrip(LatLng position) {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLPutovanja)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<ResponseBody> addedLocation = locatorService.addLocation(currentTrip.getId(), Calendar.getInstance().getTimeInMillis(),position.latitude,position.longitude);
+
+        addedLocation.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody>  call, Response<ResponseBody> response) {
+                String responseString;
+                try {
+                    if(response.isSuccessful()) {
+                        responseString = response.body().string();
+                        Log.i(TAG, "trip " + responseString);
+                        assertNotNull(responseString);
+                    }
+                    else {
+                        String errorResponse = response.errorBody().string();
+                        Log.i(TAG, "trip " + errorResponse);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.i(TAG, "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private void buildStartTripDialog() {
@@ -280,19 +340,18 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         tripStarted = false;
         handler.removeCallbacks(runnable);
         Toast.makeText(this, "Trip stopped", Toast.LENGTH_SHORT).show();
-        Date currentDateTime =  Calendar.getInstance().getTime();
+        //Date currentDateTime =  Calendar.getInstance().getTime();
 
         addMarkerOnMap(myLocationMarker.getPosition(),"Stop" , points.size()-1 ,Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_finish_trip));
 
-        trip.setStopDateTime(currentDateTime);
-        trip.setDistance(String.valueOf(distance));
-        trip.setDurationPeriod();
-        trip.setPath(points);
-        tripList.add(trip);
-        points = new ArrayList<>();
+        //trip.setStopDateTime(currentDateTime);
+        //trip.setDistance(String.valueOf(distance));
+        //trip.setDurationPeriod();
+        //trip.setPath(points);
+        //tripList.add(trip);
 
         stopTripSaveInDB();
-
+        points = new ArrayList<>();
         deleteMarkers();
     }
 
@@ -339,6 +398,8 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
                     Log.i(TAG, "trip DISTANCE " + SphericalUtil.computeDistanceBetween(points.get(points.size()-1), tmpLatLng));
                     distance = distance + SphericalUtil.computeDistanceBetween(points.get(points.size()-1), tmpLatLng);
                     points.add(tmpLatLng);
+                    addLocationInTrip(tmpLatLng);
+
                     Log.i(TAG, "trip DISTANCE " + distance);
 //                    measureDistance(points.get(points.size()-1), tmpLatLng);
                     redrawLine();
@@ -529,34 +590,57 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
 
     }
 
-    private void getCurrentTrip() {
-        Retrofit.Builder builder = new Retrofit.Builder()
-                .baseUrl(Utils.URLKorisnici)
-                .addConverterFactory(GsonConverterFactory.create());
-
-        Retrofit retrofit = builder.build();
-
-        LocatorService locatorService = retrofit.create(LocatorService.class);
-        System.out.println("Get Current trip: " + "title: " + tripTitle);
-        Call<Putovanje> putovanjeCall = locatorService.getTripByName(tripTitle);
-
-        putovanjeCall.enqueue(new Callback<Putovanje>() {
+    @SuppressLint("StaticFieldLeak")
+    private boolean getCurrentTrip() {
+        final boolean[] check = {false};
+        new AsyncTask<Void, Void, Void>() {
             @Override
-            public void onResponse(Call<Putovanje> call, Response<Putovanje> response) {
-                currentTrip = response.body();
-                Log.i( TAG, "Get Current trip:  - Trip "+ currentTrip);
+            protected Void doInBackground(Void... voids) {
+                Log.i(TAG, "Trip title: " + tripTitle);
+                currentTrip = getTripByName(tripTitle);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if (currentTrip != null) {
+
+                    Log.i(TAG, "Trip title: " + tripTitle);
+                    check[0] = true;
+                }
+                return null;
             }
-            @Override
-            public void onFailure(Call<Putovanje> call, Throwable t) {
-                Log.i( TAG, "Get Current trip:  - Nesto nije okej:  " + t.toString());
-            }
-        });
+        }.execute();
 
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        if(check[0]){
+            Log.i(TAG, "validUsername: " + check[0] + " " + currentTrip.getNaziv());
+        }
+        return check[0];
+    }
+
+    private Putovanje getTripByName(String tripName) {
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLPutovanja)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<Putovanje> dobijenoPutovanje = locatorService.getTripByName(tripName);
+
+        try {
+            Response<Putovanje> response = dobijenoPutovanje.execute();
+            currentTrip = response.body();
+            Log.i( TAG, "doesUserWithUserNameExist - Provjera:  "+ currentTrip.getNaziv());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return currentTrip;
     }
 
     public void stopTripSaveInDB() {
@@ -580,7 +664,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
                     }
                     else {
                         String errorResponse = response.errorBody().string();
-                        System.out.println("stopTripSaveInDB - trip " + errorResponse);
+                        Log.i(TAG, "stopTripSaveInDB - trip " + errorResponse);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
