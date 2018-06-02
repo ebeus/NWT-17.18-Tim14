@@ -124,8 +124,8 @@ public class Application {
         @Override
         public void run(String... args) throws Exception {
 
-            tipKorisnikaRepository.save(new TipKorisnika("admin"));
-            tipKorisnikaRepository.save(new TipKorisnika("user"));
+            tipKorisnikaRepository.save(new TipKorisnika("ADMIN"));
+            tipKorisnikaRepository.save(new TipKorisnika("USER"));
             
 
             GrupaKorisnika grupa1=new GrupaKorisnika("Grupa1");

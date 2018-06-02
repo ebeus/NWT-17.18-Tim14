@@ -47,66 +47,19 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 		public AuthenticationManager authenticationManagerBean() throws Exception {
 			return super.authenticationManagerBean();
 		}
-	    
-/*		@Bean
-		public DaoAuthenticationProvider authProvider() throws Exception {
-		    DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-		    authProvider.setUserDetailsService(userDetailsServiceBean());
-		    authProvider.setPasswordEncoder(passwordEncoder);
-		    return authProvider;
-		}*/
 
-/*		@Override
-		@Bean
-		public UserDetailsService userDetailsServiceBean() throws Exception {
-			return new CustomUserDetailsService(repo);
-			//return super.userDetailsService();
-		}*/
 		
-/*		@Autowired
+		@Autowired
 		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			log.info("==========================================================================");
-			log.info("------------------ CHECK IF MATCHES ------------------------");
-			log.info("Encoded 1234:" + passwordEncoder.encode("1234"));
-			log.info("For matching: {bcrypt}$2a$10$K01E7L5cfVZQcp6CXqQxS./7kLRvoAGT7RvXp1aOOtR7RNjAw9zEK");
-			log.info("Result: " + passwordEncoder.matches("1234", "{bcrypt}$2a$10$K01E7L5cfVZQcp6CXqQxS./7kLRvoAGT7RvXp1aOOtR7RNjAw9zEK"));
 		    auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-		}*/
-		
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {	
-					   
-		//	auth.authenticationProvider(authProvider()).userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-			List<String> privileges = new ArrayList<>();
-			privileges.add("USER");
-			privileges.add("ADMIN");
-			
-	        List<GrantedAuthority> authorities = new ArrayList<>();
-	        for (String privilege : privileges) {
-	            authorities.add(new SimpleGrantedAuthority(privilege));
-	        }
-			
-			
-			auth.inMemoryAuthentication()
-			.withUser("user")
-			.password(passwordEncoder.encode("pass"))
-			.roles("USER")
-			.authorities("ROLE_USER")
-			.and()
-			.withUser("admin")
-			.password(passwordEncoder.encode("pass"))
-			.authorities(authorities)
-			.authorities("ROLE_ADMIN")
-			.roles("ADMIN");
 		}
+
 	
 	    @Override
 	    protected void configure(final HttpSecurity http) throws Exception {
 			http.authorizeRequests().antMatchers("/login").permitAll()
 			.antMatchers("/oauth/token/revokeById/**").permitAll()
 			.antMatchers("/tokens/**").permitAll()
-		//	.antMatchers("/users/").hasRole("ADMIN")
-		//	.antMatchers("/users/**").hasRole("USER")
 			.anyRequest().authenticated()
 			.and().csrf().disable();
 	    }

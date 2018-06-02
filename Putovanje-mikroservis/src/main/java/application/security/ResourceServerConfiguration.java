@@ -19,7 +19,9 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
 @Configuration
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-//	private String publicKey = "r3jac2c23sdvw9746akk";
+
+    private String SIGNING_KEY = "d98a8za0yzq55amr3e6mqr2";
+
 	@Autowired
 	CustomAccessTokenConverter customAccesstokenConverter;
     
@@ -49,7 +51,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
         converter.setAccessTokenConverter(customAccesstokenConverter);
-        converter.setSigningKey("d98a8za0yzq55amr3e6mqr2");
+        converter.setSigningKey(SIGNING_KEY);
         return converter;
     }
  

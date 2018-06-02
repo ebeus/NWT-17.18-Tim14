@@ -32,7 +32,9 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
 	private AuthenticationManager authenticationManager;
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
+    private String SIGNING_KEY = "d98a8za0yzq55amr3e6mqr2";
+
 	@Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 	    TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
@@ -53,7 +55,7 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setSigningKey("d98a8za0yzq55amr3e6mqr2");
+        converter.setSigningKey(SIGNING_KEY);
         return converter;
     }
  

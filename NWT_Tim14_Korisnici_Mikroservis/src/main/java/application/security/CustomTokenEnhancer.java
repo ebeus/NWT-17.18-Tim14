@@ -37,12 +37,9 @@ public class CustomTokenEnhancer implements TokenEnhancer{
      OAuth2AccessToken accessToken, 
      OAuth2Authentication authentication) {
         Map<String, Object> additionalInfo = new HashMap<>();
-       // additionalInfo.put("Group", getUsersGroup(authentication.getName()));
-       // additionalInfo.put("UserID", getUserID(authentication.getName()));
-        //additionalInfo.put("Type", getUserType(authentication.getName()));
-       // additionalInfo.put("UID", getUserID(authentication.getName().));
-        additionalInfo.put("UID","1");
-        additionalInfo.put("Group", "Grupa1");
+		additionalInfo.put("UID", getUserID(authentication.getName()));
+        additionalInfo.put("UGroup", getUsersGroup(authentication.getName()));
+        additionalInfo.put("UType", getUserType(authentication.getName()));
         ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
         return accessToken;
     }

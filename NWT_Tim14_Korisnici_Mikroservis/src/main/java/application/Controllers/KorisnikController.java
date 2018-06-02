@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,9 @@ public class KorisnikController {
     private final KorisnikRepository korisnikRepository;
 
     private final RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private GrupaKorisnikaRepository grupaRepo;
@@ -111,7 +115,7 @@ public class KorisnikController {
             if (this.checkExistingUsername(userName)) {
             	GrupaKorisnika grupa = grupaRepo.findById(userGroupId).get();
             	TipKorisnika tipK = tipRepo.findById(userTypeId).get();
-                Korisnik k = new Korisnik(firstName, lastName, userName, password, email, tipK, grupa);
+                Korisnik k = new Korisnik(firstName, lastName, userName, passwordEncoder.encode(password), email, tipK, grupa);
 
                 lm=new LogMessage(Constants.MESSAGING_USER_ADD,Constants.MESSAGING_EVERYTHING_OK,Constants.USER_REGISTERED, Constants.MESSAGING_MICROSERVICE, k.getUserName());
 
@@ -149,7 +153,7 @@ public class KorisnikController {
         	GrupaKorisnika grupa = grupaRepo.findById(userGroupId).get();
         	TipKorisnika tipK = tipRepo.findById(userTypeId).get();
         	
-            Korisnik k = new Korisnik(firstName, lastName, userName, password, email, tipK, grupa);
+            Korisnik k = new Korisnik(firstName, lastName, userName, passwordEncoder.encode(password), email, tipK, grupa);
             LogMessage lm = new LogMessage(Constants.MESSAGING_USER_ADD, Constants.MESSAGING_EVERYTHING_OK, Constants.USER_CHANGED, Constants.MESSAGING_MICROSERVICE, whatHasChanged(stari,k));
             stari.updateFields(k);
             rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY ,lm.toString());
@@ -177,6 +181,7 @@ public class KorisnikController {
         if(!k1.getUserName().equals(k2.getUserName())){
             changed+=k2.getUserName()+"-";
         }
+
 
         if(!k1.getPassword().equals(k2.getPassword())){
             changed+="password-";
