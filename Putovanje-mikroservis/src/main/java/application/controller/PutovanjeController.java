@@ -2,12 +2,16 @@ package application.controller;
 
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +50,8 @@ public class PutovanjeController {
 	
 	@Autowired
 	EurekaClient eurekaClient;
+
+	Authentication auth;
 	
     @Autowired
     public PutovanjeController(PutovanjeRepository putovanjeRepo, RabbitTemplate rabbitTemplate) {
@@ -70,6 +76,7 @@ public class PutovanjeController {
 	@RequestMapping(value = "/{tripId}", method = RequestMethod.GET)
 	public Putovanje getTrip(@PathVariable long tripId) {
 		Putovanje p = putovanjeRepo.findById(tripId);
+
 		
 		if(p == null)
 			throw new ItemNotFoundException(tripId, "Trip");
@@ -81,6 +88,7 @@ public class PutovanjeController {
 	@RequestMapping(value = "/by-name/{tripName}", method = RequestMethod.GET)
 	public Putovanje getTripByName(@PathVariable String tripName) {
 		Putovanje p = putovanjeRepo.findByNaziv(tripName);
+
 		if(p == null)
 			throw new ItemNotFoundException(tripName, "Trip");
 
@@ -109,14 +117,23 @@ public class PutovanjeController {
 			@RequestParam long start_time,
 			@RequestParam long korisnikId,
 			@RequestHeader("Authorization") String token) {
-		
-		//Check if user exists
-		
-		
+
 		RestClient restClient = new RestClient();
 		Korisnik korisnik = null;
 		TripService tripService = new TripService(rabbitTemplate);
 		ApiError apiError = null;
+
+
+		long idKorisnika = Long.parseLong(getExtraInfo("UID"));
+
+		if(idKorisnika != korisnikId) {
+			apiError = new ApiError(HttpStatus.BAD_REQUEST
+					.value(),ConstantMessages.DESC_START_INVALID_USER_ID,
+					ConstantMessages.DESC_START_INVALID_USER_ID);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+		}
+
+		//Check if user exists
 		
 		try {
 			korisnik = restClient.getUserByID(korisnikId,eurekaClient, token);
@@ -196,6 +213,7 @@ public class PutovanjeController {
 					ConstantMessages.DESC_STOP_FAIL_TRIP_NOT_FOUND);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
+
 		
 		try {
 			korisnik = restClient.getUserByID(putovanje.getIdKorisnika(), eurekaClient, token);
@@ -209,7 +227,16 @@ public class PutovanjeController {
 					ConstantMessages.DESC_START_FAIL_USER_COMMUNICATION);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
-		
+
+        long idKorisnika = Long.parseLong(getExtraInfo("UID"));
+
+        if(idKorisnika != korisnik.getId()) {
+            apiError = new ApiError(HttpStatus.BAD_REQUEST
+                    .value(),ConstantMessages.DESC_START_INVALID_USER_ID,
+                    ConstantMessages.DESC_START_INVALID_USER_ID);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+        }
+
 		if(putovanje.getStart_time() > end_time) {
 			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_END, 
 					ConstantMessages.STATUS_FAILED, 
@@ -279,7 +306,17 @@ public class PutovanjeController {
 					ConstantMessages.DESC_LOC_TRIP_NOT_FOUND);
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
-		
+
+        long idAuthKorisnika = Long.parseLong(getExtraInfo("UID"));
+        long idKorisnikaPutovanja = putovanje.getIdKorisnika();
+
+        if(idAuthKorisnika != idKorisnikaPutovanja) {
+            ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED
+                    .value(), ConstantMessages.DESC_UNAUTHORIZED,
+                    ConstantMessages.DESC_UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+        }
+
 		try {
 			korisnik = restClient.getUserByID(putovanje.getIdKorisnika(),eurekaClient, token);
 		} catch (Exception e) {
@@ -342,6 +379,18 @@ public class PutovanjeController {
 
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
+
+        long idAuthKorisnika = Long.parseLong(getExtraInfo("UID"));
+		String tipKorisnika = getExtraInfo("UType");
+		long idKorisnikaPutovanja = putovanje.getIdKorisnika();
+
+		//Admin ili autorizovan korisnik (koji je kreirao putovanje) mogu obrisati putovanje
+		if((idAuthKorisnika != idKorisnikaPutovanja) && !tipKorisnika.equals("ADMIN")) {
+            ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED
+                    .value(), ConstantMessages.DESC_UNAUTHORIZED,
+                    ConstantMessages.DESC_UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+        }
 		
 		putovanjeRepo.delete(putovanje);
 		tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_DELETE,
@@ -352,4 +401,11 @@ public class PutovanjeController {
 		ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "DELETED", putovanje);
 		return ResponseEntity.ok(apiSuccess);
 	}
+
+    private String getExtraInfo(String field) {
+        auth = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2AuthenticationDetails oauthDetails = (OAuth2AuthenticationDetails) auth.getDetails();
+        Map<String, Object> details = (Map<String, Object>) oauthDetails.getDecodedDetails();
+        return details.get(field).toString();
+    }
 }

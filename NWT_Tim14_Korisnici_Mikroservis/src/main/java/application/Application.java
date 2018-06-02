@@ -133,13 +133,14 @@ public class Application {
             grupaKorisnikaRepository.save(grupa1);
             grupaKorisnikaRepository.save(grupa2);
 
-            TipKorisnika tp = tipKorisnikaRepository.findByTypeName("admin").get();
+            TipKorisnika tp = tipKorisnikaRepository.findByTypeName("ADMIN").get();
+            TipKorisnika userType = tipKorisnikaRepository.findByTypeName("USER").get();
             GrupaKorisnika grupa = grupaKorisnikaRepository.findByGroupName("Grupa1").get();
             korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer", passwordEncoder().encode("1234"), "jack.bau@gmail.com",
             		tp,grupa));
             korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian", passwordEncoder().encode("1234"), "chlo.o.b@gmail.com",
-            		tp,grupa));
-            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer", passwordEncoder().encode("1234"), "kim.bau@gmail.com",tp,grupa));
+                    userType,grupa));
+            korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer", passwordEncoder().encode("1234"), "kim.bau@gmail.com",userType,grupa));
        
 
             List<TipKorisnika> tipoviKorisnika= (List<TipKorisnika>) tipKorisnikaRepository.findAll();

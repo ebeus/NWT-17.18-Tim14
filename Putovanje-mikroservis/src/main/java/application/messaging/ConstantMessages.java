@@ -16,6 +16,7 @@ public class ConstantMessages {
 	public static String DESC_START_FAIL_USER_NOT_FOUND = "User not found";
 	public static String DESC_START_FAIL_USER_COMMUNICATION = "Can't communicate with users service";
 	public static String DESC_START_FAIL_INVALID_START_TIME = "Invalid trip start time";
+	public static String DESC_START_INVALID_USER_ID = "Invalid user id";
 	
 	public static String DESC_STOP_FAIL_TRIP_NOT_FOUND = "Trip not found";
 	public static String DESC_STOP_FAIL_INVALID_END_TIME = "Invalid end time";
@@ -28,5 +29,6 @@ public class ConstantMessages {
 	
 	public static String DESC_TRIP_DEL_NOT_FOUND = "Trip does not exists";
 	public static String DESC_TRIP_DEL_USER_NOT_FOUND = "User not found";
-	
+
+	public static String DESC_UNAUTHORIZED = "Unauthorized";
 }

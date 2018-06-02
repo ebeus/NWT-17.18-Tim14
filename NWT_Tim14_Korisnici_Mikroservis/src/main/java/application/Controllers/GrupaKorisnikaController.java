@@ -69,7 +69,7 @@ public class GrupaKorisnikaController {
         }
     }
 
-    @PreAuthorize("#oauth2.hasScope('admin')")
+    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> addGroup(@RequestParam String groupName) {
         if (!grupaKorisnikaRepository.findByGroupName(groupName).isPresent()) {
@@ -86,7 +86,7 @@ public class GrupaKorisnikaController {
         }
     }
 
-    @PreAuthorize("#oauth2.hasScope('admin')")
+    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/update/{groupId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateGroupName(@PathVariable Long groupId, @RequestParam String groupName) {
         GrupaKorisnika staraGrupa = grupaKorisnikaRepository.findById(groupId).orElseThrow(
@@ -99,7 +99,7 @@ public class GrupaKorisnikaController {
         return ResponseEntity.ok(apiSuccess);
     }
 
-    @PreAuthorize("#oauth2.hasScope('admin')")
+    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteGroup(@PathVariable("id") long id) {
         log.info("Fetching & Deleting Group with id {}", id);

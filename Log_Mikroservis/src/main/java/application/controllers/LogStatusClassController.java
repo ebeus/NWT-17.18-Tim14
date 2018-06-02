@@ -26,14 +26,14 @@ public class LogStatusClassController {
         this.logStatusClassRepository = logStatusClassRepository;
     }
 
-    @PreAuthorize("#oauth2.hasScope('admin')")
+    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Collection<LogStatusClass> logs(){
         logController.info("LogStatusClassController: findAll()");
         return (Collection<LogStatusClass>) this.logStatusClassRepository.findAll();
     }
 
-    @PreAuthorize("#oauth2.hasScope('admin')")
+    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/{id}" , method = RequestMethod.GET)
     public Optional<LogStatusClass> statusWithId(@PathVariable Long id){
         logController.info("LogStatusClassController: StatusWithType() "+ id);
