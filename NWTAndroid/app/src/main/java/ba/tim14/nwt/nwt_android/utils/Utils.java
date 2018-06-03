@@ -39,10 +39,10 @@ public class Utils {
 
     public static final String EMAIL_REGEX = "^[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,4}$";
 
- //   public static final String URLPutovanja = "http://192.168.0.18:8081";
-  //  public static final String URLKorisnici="http://192.168.0.18:8080";
-    public static final String URLPutovanja = "http://80.80.40.105:8081";
-    public static final String URLKorisnici="http://80.80.40.105:8080";
+    public static final String URLPutovanja = "http://192.168.0.18:8081";
+    public static final String URLKorisnici="http://192.168.0.18:8080";
+//    public static final String URLPutovanja = "http://80.80.40.105:8081";
+//    public static final String URLKorisnici="http://80.80.40.105:8080";
 
     //public static ArrayList<Trip> tripList;
     public static ArrayList<Putovanje> tripList;

@@ -91,5 +91,8 @@ public interface LocatorService {
 
     @GET("/trip/locations/{tripId}")
     Call<List<Lokacija>> getAllLocationsInATrip(@Path("tripId") Long tripId);
+
+    @GET("/trip/locations/last-trip/{userId}")
+    Call<Lokacija> getLastLocationByUser(@Path("userId") Long userId);
 }
 

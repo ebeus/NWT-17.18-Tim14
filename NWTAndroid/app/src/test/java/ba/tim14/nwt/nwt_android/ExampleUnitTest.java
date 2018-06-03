@@ -421,6 +421,37 @@ public class ExampleUnitTest {
     }
 
     @Test
+    public void getLastKnownUserLocation() {
+
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLPutovanja)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<Lokacija> returnedLocation = locatorService.getLastLocationByUser(2L);
+
+        returnedLocation.enqueue(new Callback<Lokacija>() {
+            @Override
+            public void onResponse(Call<Lokacija> call, Response<Lokacija> response) {
+                Lokacija lastLocation = response.body();
+                System.out.println("TEST: " + "Lokacija "+ lastLocation);
+            }
+            @Override
+            public void onFailure(Call<Lokacija> call, Throwable t) {
+                System.out.println("TEST: " + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void doesUserWithIdExist() {
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(Utils.URLKorisnici)
