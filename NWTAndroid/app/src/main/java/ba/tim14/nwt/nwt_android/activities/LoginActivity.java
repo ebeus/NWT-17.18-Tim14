@@ -32,8 +32,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static junit.framework.Assert.assertNotNull;
-
 public class LoginActivity extends Activity {
 
     private static String TAG = LoginActivity.class.getSimpleName();
@@ -53,7 +51,7 @@ public class LoginActivity extends Activity {
 
     Korisnik korisnikProvjera = new Korisnik();
 
-    int result;
+    int result = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +61,7 @@ public class LoginActivity extends Activity {
             if(result == Constants.LOGIN && !SharedPreferencesManager.instance().isLoggedIn()){
                 setContentView(R.layout.activity_login);
                 ((TextView)findViewById(R.id.textView_title)).setTypeface(Utils.getFont());
+                findViewById(R.id.register).setOnClickListener(view -> startRegistration());
 
                 setUsernameAndPassLogin();
                 setListenersUsernameAndPass();
@@ -90,6 +89,12 @@ public class LoginActivity extends Activity {
                 }
             }
         }
+    }
+
+    private void startRegistration() {
+        Intent returnIntent = new Intent();
+        setResult(Constants.REGISTER, returnIntent);
+        finish();
     }
 
     private void setParamsChange() {
@@ -608,6 +613,9 @@ public class LoginActivity extends Activity {
             Intent goBack = new Intent(this, MenuActivity.class);
             goBack.putExtra(Constants.STEP,0);
             startActivity(goBack.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        }
+        else if (result == Constants.REGISTER){
+            startActivity(new Intent(this, MainActivity.class));
         }
         else{
             startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));

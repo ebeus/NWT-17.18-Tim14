@@ -22,6 +22,7 @@
     <string name="action_register">Register</string>
     <string name="action_change">Change</string>
 
+    <string name="str_register"><u>You do not have an account? Register!</u></string>
 
     <string name="error_username_login">User with this username does not exist.</string>
     <string name="error_first_name">First name must contain only letters.</string>

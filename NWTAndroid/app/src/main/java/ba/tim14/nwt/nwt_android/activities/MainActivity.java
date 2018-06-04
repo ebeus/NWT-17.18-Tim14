@@ -52,16 +52,16 @@ public class MainActivity extends Activity {
     }
 
     private void startApplication() {
-        if(!SharedPreferencesManager.instance().isLoggedIn() && SharedPreferencesManager.instance().getUsername().equals("")) {
+        if(!SharedPreferencesManager.instance().isLoggedIn()) {
             //Login
             startNewActivityForResult(LoginActivity.class, Constants.LOGIN);
             tripList = new ArrayList<>();
         }
-        else {
+       /* else {
             //Register
             tripList = new ArrayList<>();
             startNewActivityForResult(LoginActivity.class, Constants.REGISTER);
-        }
+        }*/
     }
 
     private void checkOrRequestPermissions() {
@@ -85,6 +85,9 @@ public class MainActivity extends Activity {
             case Constants.LOGIN:
                 if(resultCode == Constants.VALID){
                     startActivity(new Intent(this, MenuActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                }
+                else if(resultCode == Constants.REGISTER){
+                    startNewActivityForResult(LoginActivity.class,Constants.REGISTER);
                 }
                 break;
             case Constants.REGISTER:

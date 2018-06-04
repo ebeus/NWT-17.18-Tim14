@@ -182,7 +182,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         }
         addMarkerOnMap(points.get(0),"Start" , 0,Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_start_trip));
         redrawLine();
-        int end = 0;
+        int end = 0 ;
         if(points.size() > 1){
             end = points.size()-1;
         }
