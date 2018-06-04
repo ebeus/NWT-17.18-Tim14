@@ -42,7 +42,7 @@ public class CustomUserAdapter  extends ArrayAdapter<Korisnik> {
             txtEmail.setText(user.getEmail());
             ImageButton imageViewPin = rowView.findViewById(R.id.imageViewPin);
 
-            if(usersLoc.get(position).longitude == 0){
+            if(usersLoc.get(position).getLatitude() == null){
                 imageViewPin.setVisibility(View.GONE);
             }
             else {
