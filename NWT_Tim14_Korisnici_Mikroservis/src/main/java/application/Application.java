@@ -7,7 +7,8 @@ import application.Repositories.GrupaKorisnikaRepository;
 import application.Repositories.KorisnikRepository;
 import application.Repositories.TipKorisnikaRepository;
 import application.Utils.Constants;
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.databind.ObjectMapper;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Binding;
@@ -35,6 +36,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 //import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 //import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 //import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -66,6 +70,16 @@ public class Application {
 	 
 	    return passworEncoder;
 	}
+
+    @Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurerAdapter() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedOrigins("*");
+            }
+        };
+    }
 	
     @Bean
     Queue queue(){
@@ -213,7 +227,4 @@ public class Application {
            // log.info("Rest template response: " + response);
         }
     }
-
-
-
 }

@@ -1,13 +1,18 @@
 package application.Models;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+//import com.fasterxml.jackson.core.JsonProcessingException;
+//import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.hibernate.validator.constraints.Length;
+
+import java.io.IOException;
 
 @Entity
 @Table(name="korisnik")
@@ -70,7 +75,7 @@ public class Korisnik {
         String string="";
         try {
             string = mapper.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return string;

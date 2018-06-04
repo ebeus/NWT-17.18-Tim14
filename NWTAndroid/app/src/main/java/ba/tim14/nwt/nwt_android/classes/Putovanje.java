@@ -84,4 +84,16 @@ public class Putovanje {
         this.listaLokacija.add(lokacija);
     }
 
+    @Override
+    public String toString() {
+        return "Putovanje{" +
+                "id=" + id +
+                ", naziv='" + naziv + '\'' +
+                ", start_time=" + start_time +
+                ", end_time=" + end_time +
+                ", idKorisnika=" + idKorisnika +
+                ", distance=" + distance +
+                ", listaLokacija=" + listaLokacija +
+                '}';
+    }
 }

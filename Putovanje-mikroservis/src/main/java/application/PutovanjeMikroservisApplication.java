@@ -90,8 +90,8 @@ public class PutovanjeMikroservisApplication {
 			
 			lokacijaRepo.save(new Lokacija(ts1, 47.232345, 19.23332, putovanjeRepository.findById(1)));
 			lokacijaRepo.save(new Lokacija(ts2, 47.232445, 19.23352, putovanjeRepository.findById(1)));
-			lokacijaRepo.save(new Lokacija(ts3, 47.232545, 19.23532, putovanjeRepository.findById(1)));
-			lokacijaRepo.save(new Lokacija(ts4, 47.252445, 19.26352, putovanjeRepository.findById(1)));
+			lokacijaRepo.save(new Lokacija(ts3, 47.232545, 19.23532, putovanjeRepository.findById(4)));
+			lokacijaRepo.save(new Lokacija(ts4, 47.252445, 19.26352, putovanjeRepository.findById(4)));
 			
 			List<Lokacija> listaLokacija = lokacijaRepo.findAll();
 			

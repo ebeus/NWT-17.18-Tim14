@@ -53,7 +53,7 @@ public class KorisnikController {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+//    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Collection<Korisnik> korisnici() {
         log.info("Get all users");
@@ -96,7 +96,7 @@ public class KorisnikController {
         return this.korisnikRepository.findByUserName(userName);
     }
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+//    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> add(@RequestParam String firstName,
                           @RequestParam String lastName,

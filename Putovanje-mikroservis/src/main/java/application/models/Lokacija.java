@@ -38,7 +38,7 @@ public class Lokacija {
 	@JoinColumn(name="idPutovanja")
 	private Putovanje putovanje;
 	
-	protected Lokacija() {}
+	public Lokacija() {}
 	
 	public Lokacija(Timestamp timestamp, Double latitude, Double longitude) {
 		super();

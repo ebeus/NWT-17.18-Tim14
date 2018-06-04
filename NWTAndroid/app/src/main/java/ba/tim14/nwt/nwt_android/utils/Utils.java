@@ -41,6 +41,7 @@ public class Utils {
 
     public static final String URLPutovanja = "http://192.168.0.18:8081";
     public static final String URLKorisnici="http://192.168.0.18:8080";
+    public static final String URLOAuth = "http://192.168.0.18:8090";
 //    public static final String URLPutovanja = "http://80.80.40.105:8081";
 //    public static final String URLKorisnici="http://80.80.40.105:8080";
 

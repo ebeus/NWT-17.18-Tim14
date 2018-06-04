@@ -402,6 +402,39 @@ public class PutovanjeController {
 		return ResponseEntity.ok(apiSuccess);
 	}
 
+    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+	@RequestMapping(value = "/locations/last-trip/{userId}", method = RequestMethod.GET)
+	public Lokacija getLastLocationOfUser(@PathVariable long userId) {
+		List<Putovanje> allTrips= putovanjeRepo.findAllByidKorisnika(userId);
+
+		System.out.println("AALLL TRIPS: " + allTrips);
+
+		if(allTrips.isEmpty())
+			return new Lokacija();
+
+		Putovanje lastTrip = allTrips.get(allTrips.size()-1);
+
+		System.out.println("LAST TRIP: " + lastTrip);
+		if(lastTrip == null)
+			return new Lokacija();
+
+
+		List<Lokacija> allLocations = lastTrip.getListaLokacija();
+
+		System.out.println("AALLL locations: " + allLocations);
+
+		if(allLocations.isEmpty())
+			return new Lokacija();
+
+		Lokacija lastLocation = allLocations.get(allLocations.size()-1);
+
+		System.out.println("LAST location: " + lastLocation);
+		if(lastLocation==null)
+			return new Lokacija();
+
+		return lastLocation;
+	}
+
     private String getExtraInfo(String field) {
         auth = SecurityContextHolder.getContext().getAuthentication();
         OAuth2AuthenticationDetails oauthDetails = (OAuth2AuthenticationDetails) auth.getDetails();
