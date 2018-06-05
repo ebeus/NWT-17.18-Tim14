@@ -41,6 +41,7 @@ public class TripHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_trip_history);
 
         textViewInfo = findViewById(R.id.textView_info);
+        Utils.putovanjaKorisnika = new ArrayList<>();
         getPutovanja();
     }
 

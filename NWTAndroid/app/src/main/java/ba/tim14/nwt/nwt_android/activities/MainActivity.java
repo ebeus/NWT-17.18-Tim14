@@ -19,8 +19,6 @@ import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 
-import static ba.tim14.nwt.nwt_android.utils.Utils.tripList;
-
 public class MainActivity extends Activity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -55,7 +53,7 @@ public class MainActivity extends Activity {
         if(!SharedPreferencesManager.instance().isLoggedIn()) {
             //Login
             startNewActivityForResult(LoginActivity.class, Constants.LOGIN);
-            tripList = new ArrayList<>();
+            Utils.putovanjaKorisnika = new ArrayList<>();
         }
        /* else {
             //Register

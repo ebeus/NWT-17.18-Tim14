@@ -17,8 +17,6 @@ import ba.tim14.nwt.nwt_android.classes.Korisnik;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 
-import static ba.tim14.nwt.nwt_android.utils.Utils.usersLoc;
-
 public class CustomUserAdapter  extends ArrayAdapter<Korisnik> {
 
     private final Activity context;
@@ -42,10 +40,7 @@ public class CustomUserAdapter  extends ArrayAdapter<Korisnik> {
             txtEmail.setText(user.getEmail());
             ImageButton imageViewPin = rowView.findViewById(R.id.imageViewPin);
 
-            if(usersLoc.get(position).getLatitude() == null){
-                imageViewPin.setVisibility(View.GONE);
-            }
-            else {
+            if(Utils.usersLoc.get(position).getLatitude() != null){
                 imageViewPin.setVisibility(View.VISIBLE);
                 imageViewPin.setOnClickListener(view1 -> {
                     Intent startUserTrip = new Intent(new Intent(context, TripActivity.class));
@@ -53,6 +48,9 @@ public class CustomUserAdapter  extends ArrayAdapter<Korisnik> {
                     startUserTrip.putExtra(Constants.STEP, Constants.USERS);
                     context.startActivity(startUserTrip);
                 });
+            }
+            else {
+                imageViewPin.setVisibility(View.GONE);
             }
         }
         return rowView;

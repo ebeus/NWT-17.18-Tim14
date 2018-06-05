@@ -50,14 +50,12 @@ import ba.tim14.nwt.nwt_android.dialogs.TripNameDialog;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 import okhttp3.ResponseBody;
-import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static ba.tim14.nwt.nwt_android.utils.Utils.tripList;
 import static ba.tim14.nwt.nwt_android.utils.Utils.usersLoc;
 import static junit.framework.Assert.assertNotNull;
 
@@ -691,18 +689,17 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
      */
     @Override
     public void onBackPressed() {
-        if (tripStarted){
+        if (tripStarted) {
             endTrip();
             tripStarted = false;
         }
-        if(step == Constants.MY_TRIP_HISTORY){
+       /* if(step == Constants.MY_TRIP_HISTORY){
             startActivity(new Intent(this, TripHistoryActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }
         else if(step == Constants.USERS)
             startActivity(new Intent(this, GroupActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        else
+        else*/
             startActivity(new Intent(this, MenuActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-
     }
 
 }
