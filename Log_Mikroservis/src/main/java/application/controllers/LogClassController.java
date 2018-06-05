@@ -51,7 +51,7 @@ public class LogClassController {
 
     //Pretraga po tipu (string)
     @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
-    @RequestMapping(value = "type/{typeName}" , method = RequestMethod.GET)
+    @RequestMapping(value = "/type/{typeName}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithType(@PathVariable String typeName){
         logController.info("LogClassRestController: logsWithType() "+ typeName);
         final LogTypeClass[] logTypeClass = {new LogTypeClass()};
@@ -71,7 +71,7 @@ public class LogClassController {
 
     // - statusu (String)
     @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
-    @RequestMapping(value = "status/{statusName}" , method = RequestMethod.GET)
+    @RequestMapping(value = "/status/{statusName}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithStatus(@PathVariable String statusName){
         logController.info("LogClassRestController: logsWithType() "+ statusName);
         final LogStatusClass[] logStatusClass = {new LogStatusClass()};
@@ -84,7 +84,7 @@ public class LogClassController {
 
     // - mikroservisu
     @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
-    @RequestMapping(value = "source/{source}" , method = RequestMethod.GET)
+    @RequestMapping(value = "/source/{source}" , method = RequestMethod.GET)
     public Collection<LogClass> losgWithSource(@PathVariable String source){
         logController.info("LogClassRestController: logWithLogSource() "+ source);
         return this.logClassRepository.findBySource(source);
@@ -100,7 +100,7 @@ public class LogClassController {
 
     // - imenu putovanja
     @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
-    @RequestMapping(value = "trip/{tripName}" , method = RequestMethod.GET)
+    @RequestMapping(value = "/trip/{tripName}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithTripName(@PathVariable String tripName){
         logController.info("LogClassRestController: logsWithTripName() "+ tripName);
         return this.logClassRepository.findByTripName(tripName);

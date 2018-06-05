@@ -59,6 +59,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 	    protected void configure(final HttpSecurity http) throws Exception {
 			http.authorizeRequests().antMatchers("/login").permitAll()
 			.antMatchers("/oauth/token/revokeById/**").permitAll()
+			.antMatchers("/users/add*").permitAll()
 			.antMatchers("/tokens/**").permitAll()
 			.anyRequest().authenticated()
 			.and().csrf().disable();

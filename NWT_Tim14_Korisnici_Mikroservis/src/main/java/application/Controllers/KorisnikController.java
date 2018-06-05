@@ -96,7 +96,6 @@ public class KorisnikController {
         return this.korisnikRepository.findByUserName(userName);
     }
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> add(@RequestParam String firstName,
                           @RequestParam String lastName,
