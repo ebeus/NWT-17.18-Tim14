@@ -51,7 +51,6 @@
                     android:maxLines="1"
                     android:textColor="@color/colorPrimaryDark"
                     android:singleLine="true">
-                    <requestFocus />
                 </EditText>
 
             </android.support.design.widget.TextInputLayout>
@@ -78,9 +77,22 @@
                 style="@style/AppTheme.SimpleButton"
                 android:id="@+id/sign_in_button"
                 android:layout_below="@+id/til_pass"
-                android:layout_marginTop="16dp"
                 android:text="@string/action_sign_in"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/sign_in_button"
+                android:id="@+id/register"
+                android:padding="@dimen/button_settings_margin"
+                android:textColor="@color/colorPrimaryDark"
+                android:layout_centerHorizontal="true"
+                android:layout_marginEnd="@dimen/activity_vertical_margin"
+                style="@style/AppTheme.SimpleACTextView"
+                android:textSize="@dimen/text_size_small"
+                android:text="@string/str_register"
+                android:layout_marginRight="@dimen/activity_vertical_margin" />
 
         </RelativeLayout>
     </ScrollView>

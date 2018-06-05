@@ -119,7 +119,6 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
 
     private void initViews() {
         Utils.getKorisnike();
-        users = Utils.getPopulatedListWithUsers();
         points = new ArrayList<>();
 
         textViewTitle = findViewById(R.id.toolbar_title);
@@ -182,7 +181,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         }
         addMarkerOnMap(points.get(0),"Start" , 0,Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_start_trip));
         redrawLine();
-        int end = 0;
+        int end = 0 ;
         if(points.size() > 1){
             end = points.size()-1;
         }
@@ -417,7 +416,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     private void setOneUserOnMap() {
         clickedUser = users.get(userPosition);
         LatLng userLoc = new LatLng(43.856259, 18.413086);
-        if(userPosition < 8) userLoc = usersLoc.get(userPosition);
+        if(userPosition < 8) userLoc = new LatLng(usersLoc.get(userPosition).getLatitude(),usersLoc.get(userPosition).getLongitude());
         addMarkerOnMap(userLoc, clickedUser.getUserName(), userPosition, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
         //Zoom to clicked user location
         animateCamera(userLoc,20);
@@ -450,11 +449,15 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     private void showAllUsersOnMapAndZoom() {
         //Show all users
         for (int i = 0; i < users.size(); i++) {
-            addMarkerOnMap(usersLoc.get(i), users.get(i).getUserName(), i, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
+            if(usersLoc.get(i).getLatitude() != null){
+                LatLng userLoc = new LatLng(usersLoc.get(i).getLatitude(),usersLoc.get(i).getLongitude());
+                addMarkerOnMap(userLoc, users.get(i).getUserName(), i, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
+            }
         }
         if(step == Constants.USERS){ //Zoom to user
             int loc = Integer.valueOf(String.valueOf(clickedUser.getId()));
-            animateCamera(usersLoc.get(loc), 13);
+            LatLng userLoc = new LatLng(usersLoc.get(loc).getLatitude(),usersLoc.get(loc).getLongitude());
+            animateCamera(userLoc, 13);
         }
         else { //Zoom to my location
             if(!tripStarted) animateCamera(myLocationMarker.getPosition(),13);

@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import ba.tim14.nwt.nwt_android.api.LocatorService;
 import ba.tim14.nwt.nwt_android.classes.Korisnik;
+import ba.tim14.nwt.nwt_android.classes.Lokacija;
 import ba.tim14.nwt.nwt_android.classes.Putovanje;
 import ba.tim14.nwt.nwt_android.classes.Trip;
 import retrofit2.Call;
@@ -44,13 +45,16 @@ public class Utils {
     public static final String URLOAuth = "http://192.168.0.18:8090";
 //    public static final String URLPutovanja = "http://80.80.40.105:8081";
 //    public static final String URLKorisnici="http://80.80.40.105:8080";
+//    public static final String URLOAuth = "http://80.80.40.105:8090";
 
     //public static ArrayList<Trip> tripList;
     public static ArrayList<Putovanje> tripList;
-    private static ArrayList<Korisnik> users = new ArrayList<>();
-    public static ArrayList<LatLng> usersLoc = new ArrayList<>();
+    public static ArrayList<Korisnik> users = new ArrayList<>();
+    public static ArrayList<Lokacija> usersLoc = new ArrayList<>();
 
     private static Typeface customFont;
+
+    private static boolean usersSet = false;
 
     public static BitmapDescriptor getBitmapDescriptor(Context applicationContext, int id) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -72,7 +76,7 @@ public class Utils {
         }
     }
 
-    public static ArrayList<Korisnik> getPopulatedListWithUsers() {
+  /*  public static ArrayList<Korisnik> getPopulatedListWithUsers() {
         users = new ArrayList<>();
         // TODO: 22.05.2018. Ovo radi za samo 8 razlicitih lokacija, za ostale mi bilo glupo da su jedni
         // na drugima pa ovo treba preko location da Users trazi location za usera ili nesto sl.
@@ -90,7 +94,7 @@ public class Utils {
             }
         }
         return users;
-    }
+    }*/
 
     public static void getKorisnike() {
         Retrofit.Builder builder = new Retrofit.Builder()
@@ -127,4 +131,9 @@ public class Utils {
 
     public static Typeface getFont() {        return customFont;    }
 
+    public static void usersSet() {
+        usersSet = true;
+    }
+
 }
+
