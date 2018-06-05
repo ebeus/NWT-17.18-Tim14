@@ -189,6 +189,9 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
 
     private ArrayList<LatLng> getLocationList() {
 
+        System.out.println("Get location list putovanja: " + Utils.putovanjaKorisnika);
+        System.out.println("Get location list position of trip: " + positionOfTrip);
+
         List<Lokacija> lokacije = Utils.putovanjaKorisnika.get(positionOfTrip).getListaLokacija();
         ArrayList<LatLng> lista = new ArrayList<>();
         for(Lokacija lokacija : lokacije){
@@ -239,7 +242,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         oneClick = false;
 
         startTripSaveInDB();
-        getCurrentTrip();
+//        getCurrentTrip();
         Log.i(TAG, "Putovanje "+ currentTrip);
 
         points = new ArrayList<>();
@@ -267,7 +270,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<ResponseBody> addedLocation = locatorService.addLocation(currentTrip.getId(), Calendar.getInstance().getTimeInMillis(),position.latitude,position.longitude);
+        Call<ResponseBody> addedLocation = locatorService.addLocation(Utils.tokenType + Utils.token,currentTrip.getId(), Calendar.getInstance().getTimeInMillis(),position.latitude,position.longitude);
 
         addedLocation.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -446,7 +449,10 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
 
     private void showAllUsersOnMapAndZoom() {
         //Show all users
+        System.out.println("USERS SIZE!!!!!!: " + Utils.users + "\n USERS LOC SIZE!!!!!!: " + usersLoc);
+
         for (int i = 0; i < Utils.users.size(); i++) {
+
             if(usersLoc.get(i).getLatitude() != null){
                 LatLng userLoc = new LatLng(usersLoc.get(i).getLatitude(),usersLoc.get(i).getLongitude());
                 addMarkerOnMap(userLoc, Utils.users.get(i).getUserName(), i, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
@@ -472,6 +478,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     }
 
     private void addMarkerOnMap(LatLng location, String title, int tag, BitmapDescriptor iconImage) {
+        System.out.println("Adding marker " + location + " " +title);
         mMap.addMarker(new MarkerOptions()
                 .position(location)
                 .title(title)
@@ -550,7 +557,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<ResponseBody> tripStarted = locatorService.start(tripTitle, Calendar.getInstance().getTimeInMillis(),SharedPreferencesManager.instance().getId());
+        Call<ResponseBody> tripStarted = locatorService.start(Utils.tokenType + Utils.token, tripTitle, Calendar.getInstance().getTimeInMillis(),SharedPreferencesManager.instance().getId());
 
         tripStarted.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -563,6 +570,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
                         String responseObject= jsonObject.getString("responseObject");
                         Gson gson = new Gson();
                         currentTrip=gson.fromJson(responseObject,Putovanje.class);
+                        tripTitle=currentTrip.getNaziv();
                         Log.i(TAG, "startTripSaveInDB: " + currentTrip);
 //                        getCurrentTrip();
                     }
@@ -632,12 +640,12 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<Putovanje> dobijenoPutovanje = locatorService.getTripByName(tripName);
+        Call<Putovanje> dobijenoPutovanje = locatorService.getTripByName(Utils.tokenType + Utils.token, tripName);
 
         try {
             Response<Putovanje> response = dobijenoPutovanje.execute();
             currentTrip = response.body();
-            Log.i( TAG, "doesUserWithUserNameExist - Provjera:  "+ currentTrip.getNaziv());
+            Log.i( TAG, "get Trip by name - Provjera:  "+ currentTrip);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -652,7 +660,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<ResponseBody> tripStopped = locatorService.stop(currentTrip.getId(), Calendar.getInstance().getTimeInMillis(), distance);
+        Call<ResponseBody> tripStopped = locatorService.stop(Utils.tokenType + Utils.token, currentTrip.getId(), Calendar.getInstance().getTimeInMillis(), distance);
 
         tripStopped.enqueue(new Callback<ResponseBody>() {
             @Override

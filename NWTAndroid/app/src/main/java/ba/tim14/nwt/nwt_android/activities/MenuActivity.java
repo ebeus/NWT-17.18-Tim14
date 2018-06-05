@@ -137,7 +137,7 @@ public class MenuActivity extends Activity implements View.OnClickListener{
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<List<Korisnik>> korisniciDobijeni = locatorService.getAllUsersFromGroup(SharedPreferencesManager.instance().getUserGroupId());
+        Call<List<Korisnik>> korisniciDobijeni = locatorService.getAllUsersFromGroup(Utils.tokenType + Utils.token, SharedPreferencesManager.instance().getUserGroupId());
 
         korisniciDobijeni.enqueue(new Callback<List<Korisnik>>() {
             @Override
@@ -154,7 +154,13 @@ public class MenuActivity extends Activity implements View.OnClickListener{
     }
 
     private void setListOfUsers(List<Korisnik> korisnici) {
+
+        System.out.println("Korisnici iz poziva: " + korisnici);
+        Utils.users.clear();
         Utils.users.addAll(korisnici);
+
+        System.out.println("Korisnici iz u utils: " + Utils.users);
+
         getLastKnownUserLocation();
     }
 
@@ -168,7 +174,7 @@ public class MenuActivity extends Activity implements View.OnClickListener{
         LocatorService locatorService = retrofit.create(LocatorService.class);
         Call<Lokacija> returnedLocation = null;
         for (int i = 0; i < Utils.users.size(); i++){
-            returnedLocation = locatorService.getLastLocationByUser(Utils.users.get(i).getId());
+            returnedLocation = locatorService.getLastLocationByUser(Utils.tokenType + Utils.token, Utils.users.get(i).getId());
 
             int finalI = i;
             returnedLocation.enqueue(new Callback<Lokacija>() {

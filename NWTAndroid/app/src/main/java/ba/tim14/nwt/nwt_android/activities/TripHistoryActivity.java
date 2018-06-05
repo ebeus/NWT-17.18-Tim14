@@ -53,21 +53,29 @@ public class TripHistoryActivity extends AppCompatActivity {
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<List<Putovanje>> returnedTrips = locatorService.geAllTripsByUser(SharedPreferencesManager.instance().getId());
+        Call<List<Putovanje>> returnedTrips = locatorService.geAllTripsByUser(Utils.tokenType + Utils.token, SharedPreferencesManager.instance().getId());
 
         returnedTrips.enqueue(new Callback<List<Putovanje>>() {
             @Override
             public void onResponse(Call<List<Putovanje>> call, Response<List<Putovanje>> response) {
-                putovanja = response.body();
-                Log.i(TAG, "trips "+ putovanja);
-                if (putovanja == null){
-                    textViewInfo.setVisibility(View.VISIBLE);
-                    textViewInfo.setTypeface(Utils.getFont());
+
+                if(response.isSuccessful()){
+                    putovanja = response.body();
+                    Log.i(TAG, "trips "+ putovanja);
+                    if (putovanja == null){
+                        textViewInfo.setVisibility(View.VISIBLE);
+                        textViewInfo.setTypeface(Utils.getFont());
+                    }
+                    else {
+                        Utils.putovanjaKorisnika.addAll(putovanja);
+                        setAdapter();
+                    }
                 }
-                else {
-                    Utils.putovanjaKorisnika.addAll(putovanja);
-                    setAdapter();
+                else{
+                    System.out.println("Sva Putovanja greška: " + response.errorBody());
                 }
+
+
             }
             @Override
             public void onFailure(Call<List<Putovanje>> call, Throwable t) {

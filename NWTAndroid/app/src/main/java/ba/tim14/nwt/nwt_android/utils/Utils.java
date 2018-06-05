@@ -45,11 +45,13 @@ public class Utils {
     public static final String URLOAuth = "http://192.168.0.18:8090";
 //    public static final String URLPutovanja = "http://80.80.40.105:8081";
 //    public static final String URLKorisnici="http://80.80.40.105:8080";
-//    public static final String URLOAuth = "http://80.80.40.105:8090";
 
     public static ArrayList<Korisnik> users = new ArrayList<>();
     public static ArrayList<Lokacija> usersLoc = new ArrayList<>();
     public static ArrayList<Putovanje> putovanjaKorisnika = new ArrayList<>();
+
+    public static String token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVSUQiOjIsIlVHcm91cCI6IkdydXBhMSIsInVzZXJfbmFtZSI6ImNvQnJpYW4iLCJzY29wZSI6WyJtb2JpbGUiXSwiVVR5cGUiOiJVU0VSIiwiZXhwIjoxNTI4MjgyMzQwLCJhdXRob3JpdGllcyI6WyJST0xFX1VTRVIiXSwianRpIjoiNmM3OGIyZTktYTlmNy00MTIwLTk0ZDAtODQ3MWZiMDUyYTFlIiwiY2xpZW50X2lkIjoiY2xpZW50In0.EXw3YC9eg1ooXiMJ7DhwdRUh9Y8A46H2khQ-brJj468";
+    public static String tokenType="Bearer ";
 
 
     private static Typeface customFont;
@@ -82,7 +84,7 @@ public class Utils {
         Retrofit retrofit = builder.build();
 
                LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<List<Korisnik>> korisniciDobijeni = locatorService.getAllUsers();
+        Call<List<Korisnik>> korisniciDobijeni = locatorService.getAllUsers(Utils.tokenType + Utils.token);
 
         korisniciDobijeni.enqueue(new Callback<List<Korisnik>>() {
             @Override
@@ -99,6 +101,7 @@ public class Utils {
     }
 
     private static void setListOfUsers(List<Korisnik> korisnici) {
+        users.clear();
         users.addAll(korisnici);
     }
 

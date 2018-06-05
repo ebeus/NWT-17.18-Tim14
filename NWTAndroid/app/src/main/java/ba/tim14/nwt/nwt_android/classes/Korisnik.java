@@ -133,8 +133,8 @@ public class Korisnik {
                 ", userName='" + userName + '\'' +
                 ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
-                ", userTypeId=" + userGroupId +
-                ", userGroupId=" + userTypeId +
+                ", userTypeId=" + userTypeId +
+                ", userGroupId=" + userGroupId +
                 '}';
     }
 }

@@ -66,6 +66,15 @@ public class PutovanjeController {
 	@RequestMapping(value = "/by-user/{userId}", method = RequestMethod.GET)
 	public List<Putovanje> getByUserId(@PathVariable long userId) {
 		List<Putovanje> putovanja = putovanjeRepo.findAllByidKorisnika(userId);
+
+		for (int i=0; i< putovanja.size(); i++) {
+			List<Lokacija> lokacijePutovanja = lokacijaRepo.findByPutovanje(putovanja.get(i));
+			System.out.println("Lokacije: " + lokacijePutovanja);
+			putovanja.get(i).setListaLokacija(lokacijePutovanja);
+		}
+
+		System.out.println("Putovanja lokacije: " + putovanja.get(0).getListaLokacija());
+
 		if(putovanja.isEmpty())
 			throw new ItemNotFoundException(userId, "Trip");
 		else
@@ -172,7 +181,9 @@ public class PutovanjeController {
 					ConstantMessages.DESC_START_FAIL_INVALID_START_TIME);
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
 		}
-		
+
+		if(putovanjeRepo.existsBynaziv(naziv))
+			naziv=naziv+"1";
 		
 		Putovanje putovanje = new Putovanje(naziv, start_time, korisnikId);
 		putovanjeRepo.save(putovanje);

@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -291,7 +292,11 @@ public class LoginActivity extends Activity {
     private boolean validPassLogin() {
         try {
             String pass = editTextPass.getText().toString();
-            if (pass.equals(korisnikProvjera.getPassword())) {
+
+            Log.i(TAG, "pass: " + pass);
+            Log.i(TAG, "pass hash: " + korisnikProvjera.getPassword().substring(8));
+
+            if (BCrypt.checkpw(pass,korisnikProvjera.getPassword().substring(8))) {
             //if (pass.equals(SharedPreferencesManager.instance().getUserPass())) {
                 Log.i(TAG, "pass: " + pass);
                 SharedPreferencesManager.instance().setUserPass(pass);
@@ -402,7 +407,7 @@ public class LoginActivity extends Activity {
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<ResponseBody> dobijeniKorisnik = locatorService.doesUserWithUsernameExist(userName);
+        Call<ResponseBody> dobijeniKorisnik = locatorService.doesUserWithUsernameExist(Utils.tokenType + Utils.token, userName);
 
         try {
             Response<ResponseBody> response = dobijeniKorisnik.execute();
@@ -545,7 +550,7 @@ public class LoginActivity extends Activity {
 //        korisnik.setEmail(SharedPreferencesManager.instance().getUserEmail());
 //        korisnik.setUserTypeId(1L);
 //        korisnik.setUserGroupId(0L);
-        Call<ResponseBody> updateUser = locatorService.update(korisnik.getId(),korisnik.getFirstName(),korisnik.getLastName(),korisnik.getUserName(),korisnik.getPassword(),korisnik.getEmail(),korisnik.getUserTypeId(),korisnik.getUserGroupId());
+        Call<ResponseBody> updateUser = locatorService.update(Utils.tokenType + Utils.token, korisnik.getId(),korisnik.getFirstName(),korisnik.getLastName(),korisnik.getUserName(),korisnik.getPassword(),korisnik.getEmail(),korisnik.getUserTypeId(),korisnik.getUserGroupId());
         updateUser.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
@@ -608,7 +613,7 @@ public class LoginActivity extends Activity {
         Retrofit retrofit = builder.build();
 
         LocatorService locatorService = retrofit.create(LocatorService.class);
-        Call<Korisnik> dobijeniKorisnik = locatorService.getUserWithUserName(nameOrEmailLogin);
+        Call<Korisnik> dobijeniKorisnik = locatorService.getUserWithUserName(Utils.tokenType + Utils.token,nameOrEmailLogin);
 
         try {
             Response<Korisnik> response = dobijeniKorisnik.execute();

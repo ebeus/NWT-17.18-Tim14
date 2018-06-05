@@ -76,23 +76,38 @@ public class PutovanjeMikroservisApplication {
 	@Bean
 	public CommandLineRunner init(PutovanjeRepository putovanjeRepository, LokacijaRepository lokacijaRepo) {
 		return (args) -> {
-			log.info("INICIJALIZACIJA TESTNIH PODATAKA");
 			Timestamp ts1 = new Timestamp(1521579640*1000L);
 			Timestamp ts2 = new Timestamp(1521579641*1000L);
 			Timestamp ts3 = new Timestamp(1521579642*1000L);
 			Timestamp ts4 = new Timestamp(1521579643*1000L);
-			
 
-			putovanjeRepository.save(new Putovanje("P1", 1521579640L ,  1));
-			putovanjeRepository.save(new Putovanje("P2", 1521579659L , 1521581659L , 1, 2d));
-			putovanjeRepository.save(new Putovanje("P3", 1521579659L , 1521581659L , 2,3d));
-			putovanjeRepository.save(new Putovanje("P4", 1521579936L  , 1521581659L , 2,1d));
-			
-			lokacijaRepo.save(new Lokacija(ts1, 47.232345, 19.23332, putovanjeRepository.findById(1)));
-			lokacijaRepo.save(new Lokacija(ts2, 47.232445, 19.23352, putovanjeRepository.findById(1)));
-			lokacijaRepo.save(new Lokacija(ts3, 47.232545, 19.23532, putovanjeRepository.findById(4)));
-			lokacijaRepo.save(new Lokacija(ts4, 47.252445, 19.26352, putovanjeRepository.findById(4)));
-			
+			putovanjeRepository.save(new Putovanje("P1", 1521579640L ,  1521581659L,1,15));
+			putovanjeRepository.save(new Putovanje("P2", 1521579659L , 1521581659L , 2, 20d));
+			putovanjeRepository.save(new Putovanje("P3", 1521579659L , 1521581659L , 3,18d));
+
+
+			lokacijaRepo.save(new Lokacija(ts1, 43.232345, 18.33332, putovanjeRepository.findById(1)));
+			lokacijaRepo.save(new Lokacija(ts2, 43.242445, 18.43352, putovanjeRepository.findById(1)));
+			lokacijaRepo.save(new Lokacija(ts1, 43.252345, 18.53332, putovanjeRepository.findById(1)));
+			lokacijaRepo.save(new Lokacija(ts1, 43.262345, 18.63332, putovanjeRepository.findById(1)));
+			lokacijaRepo.save(new Lokacija(ts1, 43.272345, 18.73332, putovanjeRepository.findById(1)));
+			lokacijaRepo.save(new Lokacija(ts1, 43.84850367, 18.38398315, putovanjeRepository.findById(1)));
+
+			lokacijaRepo.save(new Lokacija(ts3, 43.84850367, 18.13532, putovanjeRepository.findById(2)));
+			lokacijaRepo.save(new Lokacija(ts3, 43.84850367, 18.23532, putovanjeRepository.findById(2)));
+			lokacijaRepo.save(new Lokacija(ts3, 43.84850367, 18.33532, putovanjeRepository.findById(2)));
+			lokacijaRepo.save(new Lokacija(ts3, 43.262545, 18.43532, putovanjeRepository.findById(2)));
+			lokacijaRepo.save(new Lokacija(ts3, 43.272545, 18.53532, putovanjeRepository.findById(2)));
+			lokacijaRepo.save(new Lokacija(ts3, 43.282545, 18.63532, putovanjeRepository.findById(2)));
+			lokacijaRepo.save(new Lokacija(ts3, 43.82850367, 18.32398315, putovanjeRepository.findById(2)));
+
+			lokacijaRepo.save(new Lokacija(ts4, 43.212445, 18.46352, putovanjeRepository.findById(3)));
+			lokacijaRepo.save(new Lokacija(ts4, 43.222445, 18.46352, putovanjeRepository.findById(3)));
+			lokacijaRepo.save(new Lokacija(ts4, 43.232445, 18.46352, putovanjeRepository.findById(3)));
+			lokacijaRepo.save(new Lokacija(ts4, 43.242445, 18.46352, putovanjeRepository.findById(3)));
+			lokacijaRepo.save(new Lokacija(ts4, 43.252445, 18.46352, putovanjeRepository.findById(3)));
+			lokacijaRepo.save(new Lokacija(ts4, 43.89850367, 18.34398315, putovanjeRepository.findById(3)));
+
 			List<Lokacija> listaLokacija = lokacijaRepo.findAll();
 			
 			

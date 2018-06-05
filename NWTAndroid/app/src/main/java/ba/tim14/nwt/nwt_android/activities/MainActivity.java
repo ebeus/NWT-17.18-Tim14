@@ -12,12 +12,23 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 import ba.tim14.nwt.nwt_android.R;
 import ba.tim14.nwt.nwt_android.SharedPreferencesManager;
+import ba.tim14.nwt.nwt_android.api.LocatorService;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends Activity {
 
@@ -33,6 +44,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         permissions[0] = Manifest.permission.ACCESS_FINE_LOCATION;
+
+        getAuthToken();
 
         int SPLASH_DISPLAY_LENGTH = 1000;
         new Handler().postDelayed(() -> {
@@ -137,5 +150,58 @@ public class MainActivity extends Activity {
     @Override
     public void onBackPressed() {
         startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+    }
+
+    public void getAuthToken() {
+
+        Retrofit.Builder builder = new Retrofit.Builder()
+                .baseUrl(Utils.URLOAuth)
+                .addConverterFactory(GsonConverterFactory.create());
+
+        Retrofit retrofit = builder.build();
+
+        LocatorService locatorService = retrofit.create(LocatorService.class);
+        Call<ResponseBody> retrievedToken = locatorService.getToken("Basic Y2xpZW50OnNlY3JldA==","client","secret","password","mobile","coBrian","1234");
+
+        retrievedToken.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody>  call, Response<ResponseBody> response) {
+                String responseString;
+                try {
+                    if(response.isSuccessful()) {
+                        responseString = response.body().string();
+                        JSONObject jsonObject = new JSONObject(responseString);
+
+                        System.out.println("TEST: " + "success: " + responseString);
+
+                        Utils.token=jsonObject.getString("access_token");
+                        Utils.tokenType=jsonObject.getString("token_type");
+
+                        System.out.println("TEST: " + "access_token: " + jsonObject.getString("access_token"));
+                        System.out.println("TEST: " + "token_type: " + jsonObject.getString("token_type"));
+
+                    }
+                    else {
+                        String errorResponse = response.errorBody().string();
+                        System.out.println("TEST: " + "error: " + errorResponse);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                System.out.println("TEST" + "Nesto nije okej:  " + t.toString());
+            }
+        });
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

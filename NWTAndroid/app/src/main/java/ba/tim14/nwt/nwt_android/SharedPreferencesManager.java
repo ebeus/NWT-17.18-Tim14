@@ -55,8 +55,8 @@ public class SharedPreferencesManager {
         editor.putString(USERNAME_KEY, user.getUserName());
         editor.putString(EMAIL_KEY, user.getEmail());
         editor.putString(USER_PASS_KEY, user.getPassword());
-        editor.putLong(USER_GROUP_ID_KEY, user.getUserGroupId());
-        editor.putLong(USER_TYPE_ID_KEY, user.getUserTypeId());
+        editor.putLong(USER_GROUP_ID_KEY, user.getUserGroup().getId());
+        editor.putLong(USER_TYPE_ID_KEY, user.getUserType().getId());
         editor.apply();
     }
 
