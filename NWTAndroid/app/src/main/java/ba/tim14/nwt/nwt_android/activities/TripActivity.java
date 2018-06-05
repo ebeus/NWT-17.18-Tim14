@@ -56,7 +56,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import static ba.tim14.nwt.nwt_android.utils.Utils.tripList;
 import static ba.tim14.nwt.nwt_android.utils.Utils.usersLoc;
 import static junit.framework.Assert.assertNotNull;
 
@@ -65,8 +64,6 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     private static final String TAG = TripActivity.class.getSimpleName();
 
     private GoogleMap mMap;
-
-    ArrayList<Korisnik> users = new ArrayList<>();
 
     FloatingActionButton fabStart;
     FloatingActionButton fabStop;
@@ -191,7 +188,8 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     }
 
     private ArrayList<LatLng> getLocationList() {
-        List<Lokacija> lokacije = tripList.get(positionOfTrip).getListaLokacija();
+
+        List<Lokacija> lokacije = Utils.putovanjaKorisnika.get(positionOfTrip).getListaLokacija();
         ArrayList<LatLng> lista = new ArrayList<>();
         for(Lokacija lokacija : lokacije){
             lista.add(new LatLng(lokacija.getLatitude(),lokacija.getLongitude()));
@@ -414,7 +412,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     }
 
     private void setOneUserOnMap() {
-        clickedUser = users.get(userPosition);
+        clickedUser = Utils.users.get(userPosition);
         LatLng userLoc = new LatLng(43.856259, 18.413086);
         if(userPosition < 8) userLoc = new LatLng(usersLoc.get(userPosition).getLatitude(),usersLoc.get(userPosition).getLongitude());
         addMarkerOnMap(userLoc, clickedUser.getUserName(), userPosition, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
@@ -448,10 +446,10 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
 
     private void showAllUsersOnMapAndZoom() {
         //Show all users
-        for (int i = 0; i < users.size(); i++) {
+        for (int i = 0; i < Utils.users.size(); i++) {
             if(usersLoc.get(i).getLatitude() != null){
                 LatLng userLoc = new LatLng(usersLoc.get(i).getLatitude(),usersLoc.get(i).getLongitude());
-                addMarkerOnMap(userLoc, users.get(i).getUserName(), i, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
+                addMarkerOnMap(userLoc, Utils.users.get(i).getUserName(), i, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
             }
         }
         if(step == Constants.USERS){ //Zoom to user
@@ -691,18 +689,17 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
      */
     @Override
     public void onBackPressed() {
-        if (tripStarted){
+        if (tripStarted) {
             endTrip();
             tripStarted = false;
         }
-        if(step == Constants.MY_TRIP_HISTORY){
+       /* if(step == Constants.MY_TRIP_HISTORY){
             startActivity(new Intent(this, TripHistoryActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         }
         else if(step == Constants.USERS)
             startActivity(new Intent(this, GroupActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        else
+        else*/
             startActivity(new Intent(this, MenuActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-
     }
 
 }

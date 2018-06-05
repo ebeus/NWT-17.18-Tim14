@@ -88,6 +88,6 @@
         android:layout_below="@+id/textView_duration"
         android:src="@drawable/ic_map"
         android:padding="10dp"
-        android:background="@color/colorPrimaryLight" />
+        android:background="@null" />
 
 </RelativeLayout>

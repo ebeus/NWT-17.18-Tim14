@@ -169,29 +169,30 @@ public class MenuActivity extends Activity implements View.OnClickListener{
         Call<Lokacija> returnedLocation = null;
         for (int i = 0; i < Utils.users.size(); i++){
             returnedLocation = locatorService.getLastLocationByUser(Utils.users.get(i).getId());
-        }
 
-        returnedLocation.enqueue(new Callback<Lokacija>() {
-            @Override
-            public void onResponse(Call<Lokacija> call, Response<Lokacija> response) {
-                Lokacija lastLocation = response.body();
-                Log.i(TAG, "Lokacija "+ lastLocation);
-                lokacije.add(lastLocation);
-                if(Utils.users.size() == lokacije.size()){
-                    Utils.usersLoc.addAll(lokacije);
-                    Utils.usersSet();
+            int finalI = i;
+            returnedLocation.enqueue(new Callback<Lokacija>() {
+                @Override
+                public void onResponse(Call<Lokacija> call, Response<Lokacija> response) {
+                    Lokacija lastLocation = response.body();
+                    Log.i(TAG, "Lokacija "+ lastLocation);
+                    lokacije.add(lastLocation);
+                    if(Utils.users.size() == finalI + 1){
+                        Utils.usersLoc.addAll(lokacije);
+                        Utils.usersSet();
+                    }
                 }
-            }
-            @Override
-            public void onFailure(Call<Lokacija> call, Throwable t) {
-                Log.i(TAG,"Nesto nije okej:  " + t.toString());
-            }
-        });
+                @Override
+                public void onFailure(Call<Lokacija> call, Throwable t) {
+                    Log.i(TAG,"Nesto nije okej:  " + t.toString());
+                }
+            });
 
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

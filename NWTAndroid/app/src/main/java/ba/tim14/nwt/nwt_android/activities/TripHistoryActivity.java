@@ -16,6 +16,7 @@ import ba.tim14.nwt.nwt_android.adapters.TripItemAdapter;
 import ba.tim14.nwt.nwt_android.api.LocatorService;
 import ba.tim14.nwt.nwt_android.classes.Putovanje;
 import ba.tim14.nwt.nwt_android.utils.Utils;
+import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,7 +33,6 @@ public class TripHistoryActivity extends AppCompatActivity {
     TextView textViewInfo;
 
     List<Putovanje> putovanja = new ArrayList<>();
-    ArrayList<Putovanje> putovanjaKorisnika = new ArrayList<>();
 
 
     @Override
@@ -41,6 +41,7 @@ public class TripHistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_trip_history);
 
         textViewInfo = findViewById(R.id.textView_info);
+        Utils.putovanjaKorisnika = new ArrayList<>();
         getPutovanja();
     }
 
@@ -64,7 +65,7 @@ public class TripHistoryActivity extends AppCompatActivity {
                     textViewInfo.setTypeface(Utils.getFont());
                 }
                 else {
-                    putovanjaKorisnika.addAll(putovanja);
+                    Utils.putovanjaKorisnika.addAll(putovanja);
                     setAdapter();
                 }
             }
@@ -82,7 +83,7 @@ public class TripHistoryActivity extends AppCompatActivity {
     }
 
     private void setAdapter() {
-        TripItemAdapter listAdapter = new TripItemAdapter(TripHistoryActivity.this, putovanjaKorisnika);
+        TripItemAdapter listAdapter = new TripItemAdapter(TripHistoryActivity.this, Utils.putovanjaKorisnika);
         listViewTripHistory = findViewById(R.id.trip_history_list);
         listViewTripHistory.setAdapter(listAdapter);
     }
