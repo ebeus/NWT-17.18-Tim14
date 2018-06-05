@@ -45,14 +45,12 @@ public class Utils {
     public static final String URLPutovanja = "http://80.80.40.105:8081";
     public static final String URLKorisnici="http://80.80.40.105:8080";
 
-    //public static ArrayList<Trip> tripList;
-    public static ArrayList<Putovanje> tripList;
     public static ArrayList<Korisnik> users = new ArrayList<>();
     public static ArrayList<Lokacija> usersLoc = new ArrayList<>();
+    public static ArrayList<Putovanje> putovanjaKorisnika = new ArrayList<>();
+
 
     private static Typeface customFont;
-
-    private static boolean usersSet = false;
 
     public static BitmapDescriptor getBitmapDescriptor(Context applicationContext, int id) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -73,26 +71,6 @@ public class Utils {
             return BitmapDescriptorFactory.fromResource(id);
         }
     }
-
-  /*  public static ArrayList<Korisnik> getPopulatedListWithUsers() {
-        users = new ArrayList<>();
-        // TODO: 22.05.2018. Ovo radi za samo 8 razlicitih lokacija, za ostale mi bilo glupo da su jedni
-        // na drugima pa ovo treba preko location da Users trazi location za usera ili nesto sl.
-        usersLoc.add(new LatLng(43.856259, 18.413076));
-        usersLoc.add(new  LatLng(43.857657, 18.416134));
-        usersLoc.add(new  LatLng(43.859143, 18.412014));
-        usersLoc.add(new  LatLng(43.855859, 18.396404));
-        usersLoc.add(new  LatLng(43.847683, 18.387619));
-        usersLoc.add(new  LatLng(43.859342, 18.423951));
-        usersLoc.add(new  LatLng(43.861988, 18.412428));
-        usersLoc.add(new  LatLng(43.845642, 18.361547));
-        if(users.size() > 7){
-            for (int i = 7; i < users.size(); i++){
-                usersLoc.add(new LatLng(0,0));
-            }
-        }
-        return users;
-    }*/
 
     public static void getKorisnike() {
         Retrofit.Builder builder = new Retrofit.Builder()
@@ -130,7 +108,7 @@ public class Utils {
     public static Typeface getFont() {        return customFont;    }
 
     public static void usersSet() {
-        usersSet = true;
+        boolean usersSet = true;
     }
 
 }

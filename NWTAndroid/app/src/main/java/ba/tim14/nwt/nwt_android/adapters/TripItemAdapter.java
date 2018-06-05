@@ -37,15 +37,18 @@ public class TripItemAdapter extends ArrayAdapter<Putovanje> {
 
         if (trip != null){
             TextView txtDate = rowView.findViewById(R.id.textView_date);
-            txtDate.setText(String.valueOf(trip.getStart_time()));
+            txtDate.setText(String.valueOf(trip.getNaziv()));
 
             TextView txtDuration = rowView.findViewById(R.id.textView_duration);
-            //txtDuration.setText(getDurationString());
+            //String duration = getParsedDurationString(trip.getEnd_time(), trip.getStart_time());
             txtDuration.setText("");
 
-
             TextView txtKilometers = rowView.findViewById(R.id.textView_kilometers);
-            txtKilometers.setText(String.valueOf(trip.getDistance()));
+            String distance = String.valueOf(trip.getDistance());
+            if(distance.length() >= 10)
+                txtKilometers.setText(String.valueOf(trip.getDistance()).substring(0,10));
+            else
+                txtKilometers.setText(String.valueOf(trip.getDistance()));
 
             ImageButton imageButtonShowOnMap = rowView.findViewById(R.id.imageButtonShowOnMap);
             imageButtonShowOnMap.setOnClickListener(view1 -> {
@@ -56,6 +59,10 @@ public class TripItemAdapter extends ArrayAdapter<Putovanje> {
             });
         }
         return rowView;
+    }
+
+    private String getParsedDurationString(Long end_time, Long start_time) {
+        return null;
     }
 
   /*  private String getDurationString() {

@@ -30,6 +30,8 @@
     <string name="error_pass_login">Wrong password</string>
     <string name="error_email_or_username_short">Username is too short</string>
     <string name="error_username_exists">Username exists. Choose another one.</string>
+    <string name="error_user_does_not_exist">User does not exist.</string>
+
 
     <string name="error_invalid_email">Wrong email</string>
     <string name="error_invalid_password">This password is too short</string>

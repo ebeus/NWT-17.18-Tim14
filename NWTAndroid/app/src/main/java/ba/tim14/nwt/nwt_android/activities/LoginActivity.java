@@ -254,11 +254,10 @@ public class LoginActivity extends Activity {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        if (nameOrEmailLogin.equals(korisnikProvjera.getUserName())) {
-                            //if (nameOrEmail.equals(SharedPreferencesManager.instance().getUsername())) {
-                            //SharedPreferencesManager.instance().setId(korisnikProvjera.getId());
-                            //SharedPreferencesManager.instance().setUsername(nameOrEmailLogin);
-                            //SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
+                        if(korisnikProvjera == null){
+                            check[0] = false;
+                        }
+                        else if (nameOrEmailLogin.equals(korisnikProvjera.getUserName())) {
                             SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
 
                             Log.i(TAG, "name: " + nameOrEmailLogin);
@@ -274,6 +273,8 @@ public class LoginActivity extends Activity {
                     Log.i(TAG, "validUsername: " + check[0] + " " + korisnikProvjera.getUserName());
                     SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
                 }
+                else
+                    nameInputLayout.setError(getText(R.string.error_user_does_not_exist));
 
                 return check[0];
 
@@ -281,30 +282,6 @@ public class LoginActivity extends Activity {
                 nameInputLayout.setError(getText(R.string.error_email_or_username_short));
                 return false;
             }
-           /* nameOrEmailLogin = editTextName.getText().toString();
-
-
-            korisnikProvjera = getUserWithUserName(nameOrEmailLogin);
-            if (nameOrEmailLogin.equals(korisnikProvjera.getUserName())) {
-                //if (nameOrEmail.equals(SharedPreferencesManager.instance().getUsername())) {
-                //SharedPreferencesManager.instance().setId(korisnikProvjera.getId());
-                //SharedPreferencesManager.instance().setUsername(nameOrEmailLogin);
-                //SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
-                SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
-
-                Log.i(TAG, "name: " + nameOrEmailLogin);
-                return true;
-            }
-            else if(nameOrEmailLogin.equals(korisnikProvjera.getEmail())){
-                //SharedPreferencesManager.instance().setUserEmail(nameOrEmailLogin);
-                Log.i(TAG, "email: " + nameOrEmailLogin);
-                SharedPreferencesManager.instance().setParamsForUser(korisnikProvjera);
-                return true;
-            }
-            else{
-                nameInputLayout.setError(getText(R.string.error_username_login));
-                return false;
-            }*/
         } catch (Exception e) {
             Log.e(TAG, Constants.EXCEPTION_STRING + e);
             return false;
@@ -640,7 +617,7 @@ public class LoginActivity extends Activity {
                 Log.i( TAG, "doesUserWithUserNameExist - Provjera:  "+ korisnikProvjera.getUserName());
             }
             else
-                Log.i( TAG, "doesUserWithUserNameExist - Provjera:  Nema korisnika"+ nameOrEmailLogin);
+                Log.i( TAG, "doesUserWithUserNameExist - Provjera:  Nema korisnika "+ nameOrEmailLogin);
         } catch (IOException e) {
             e.printStackTrace();
         }

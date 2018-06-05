@@ -50,6 +50,7 @@ import ba.tim14.nwt.nwt_android.dialogs.TripNameDialog;
 import ba.tim14.nwt.nwt_android.utils.Constants;
 import ba.tim14.nwt.nwt_android.utils.Utils;
 import okhttp3.ResponseBody;
+import okhttp3.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -65,8 +66,6 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     private static final String TAG = TripActivity.class.getSimpleName();
 
     private GoogleMap mMap;
-
-    ArrayList<Korisnik> users = new ArrayList<>();
 
     FloatingActionButton fabStart;
     FloatingActionButton fabStop;
@@ -191,7 +190,8 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     }
 
     private ArrayList<LatLng> getLocationList() {
-        List<Lokacija> lokacije = tripList.get(positionOfTrip).getListaLokacija();
+
+        List<Lokacija> lokacije = Utils.putovanjaKorisnika.get(positionOfTrip).getListaLokacija();
         ArrayList<LatLng> lista = new ArrayList<>();
         for(Lokacija lokacija : lokacije){
             lista.add(new LatLng(lokacija.getLatitude(),lokacija.getLongitude()));
@@ -414,7 +414,7 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
     }
 
     private void setOneUserOnMap() {
-        clickedUser = users.get(userPosition);
+        clickedUser = Utils.users.get(userPosition);
         LatLng userLoc = new LatLng(43.856259, 18.413086);
         if(userPosition < 8) userLoc = new LatLng(usersLoc.get(userPosition).getLatitude(),usersLoc.get(userPosition).getLongitude());
         addMarkerOnMap(userLoc, clickedUser.getUserName(), userPosition, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
@@ -448,10 +448,10 @@ public class TripActivity extends FragmentActivity implements CompoundButton.OnC
 
     private void showAllUsersOnMapAndZoom() {
         //Show all users
-        for (int i = 0; i < users.size(); i++) {
+        for (int i = 0; i < Utils.users.size(); i++) {
             if(usersLoc.get(i).getLatitude() != null){
                 LatLng userLoc = new LatLng(usersLoc.get(i).getLatitude(),usersLoc.get(i).getLongitude());
-                addMarkerOnMap(userLoc, users.get(i).getUserName(), i, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
+                addMarkerOnMap(userLoc, Utils.users.get(i).getUserName(), i, Utils.getBitmapDescriptor(getApplicationContext(), R.drawable.ic_user_pin));
             }
         }
         if(step == Constants.USERS){ //Zoom to user
