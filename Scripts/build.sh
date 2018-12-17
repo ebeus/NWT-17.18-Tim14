@@ -1,10 +1,12 @@
 #!/bin/bash
 
-project_paths=("Eureka_Server" "NWT_Tim14_Korisnici_Mikroservis" "Putovanje-mikroservis" "nwt_tim14_gateway" "Log_Mikroservis")
+project_paths=("../Eureka" "../Korisnici" "../Putovanje" "../Gateway" "../Log")
 pom_xml="/pom.xml"
 target_dir="/target/"
 extension="*.jar"
-copy_destination="Docker/files"
+copy_destination="../build"
+
+mkdir -p $copy_destination;
 
 for i in "${project_paths[@]}"
 do
