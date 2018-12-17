@@ -1,4 +1,0 @@
-FROM rabbitmq:3-management
-MAINTAINER etf
-EXPOSE 5672
-EXPOSE 15672

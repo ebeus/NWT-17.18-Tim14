@@ -1,6 +1,0 @@
-FROM anapsix/alpine-java
-MAINTAINER etf
-COPY files/log_mikroservis-1.0-SNAPSHOT.jar /opt/lib/
-#ENTRYPOINT ["/usr/bin/java"]
-CMD ["java", "-jar", "/opt/lib/log_mikroservis-1.0-SNAPSHOT.jar"]
-EXPOSE 8083

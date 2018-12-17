@@ -1,8 +1,0 @@
-Iz direktorija Docker izvrsiti:
-sudo docker-compose up --build
-Prije toga dodati u direktorij /files JAR file-ove od svakog mikroservisa
-
-Eureka server: 172.18.10.10
-Korisnici DB: 172.18.10.20
-Putovanja DB: 172.18.10.21
-Log DB: 172.18.10.22
