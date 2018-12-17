@@ -1,10 +1,13 @@
 package application.security;
 
 import application.security.CustomAccessTokenConverter;
+import io.micrometer.core.instrument.util.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
@@ -15,12 +18,15 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
+
+import java.io.IOException;
 
 
 @Configuration
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-    private String SIGNING_KEY = "d98a8za0yzq55amr3e6mqr2";
+    private static String PASSWORD = "???????????????????????????????????";
 
 	@Autowired
 	CustomAccessTokenConverter customAccesstokenConverter;
@@ -50,8 +56,10 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("tssk.jks"),
+                PASSWORD.toCharArray());
         converter.setAccessTokenConverter(customAccesstokenConverter);
-        converter.setSigningKey(SIGNING_KEY);
+        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("tssk"));
         return converter;
     }
  

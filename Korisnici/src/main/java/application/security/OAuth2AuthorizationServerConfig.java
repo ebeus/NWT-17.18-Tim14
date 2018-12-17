@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -23,6 +24,7 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
 
 @Configuration
@@ -33,7 +35,10 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
-    private String SIGNING_KEY = "d98a8za0yzq55amr3e6mqr2";
+    @Autowired
+    CustomAccessTokenConverter customAccesstokenConverter;
+
+    private static String PASSWORD = "iuCXPHv2RtqJwcu3H4Btz8UxzVMPxMWJxrmGw9SufQbvSk9";
 
 	@Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
@@ -55,7 +60,9 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        converter.setSigningKey(SIGNING_KEY);
+        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("tssk.jks"),
+                PASSWORD.toCharArray());
+        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("tssk"));
         return converter;
     }
  
