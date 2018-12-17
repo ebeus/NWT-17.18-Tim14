@@ -26,7 +26,7 @@ import java.io.IOException;
 @Configuration
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-    private static String PASSWORD = "???????????????????????????????????";
+    private static String PASSWORD = "iuCXPHv2RtqJwcu3H4Btz8UxzVMPxMWJxrmGw9SufQbvSk9";
 
 	@Autowired
 	CustomAccessTokenConverter customAccesstokenConverter;
@@ -56,10 +56,17 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("tssk.jks"),
-                PASSWORD.toCharArray());
+        Resource resource = new ClassPathResource("public.txt");
+        String publicKey = null;
+
+        try {
+            publicKey = IOUtils.toString(resource.getInputStream());
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
+
         converter.setAccessTokenConverter(customAccesstokenConverter);
-        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("tssk"));
+        converter.setVerifierKey(publicKey);
         return converter;
     }
  
