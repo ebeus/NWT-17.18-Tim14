@@ -1,6 +1,7 @@
 package application.Controllers;
 
 import application.Application;
+import application.Models.KorisnikReturn;
 import application.Repositories.GrupaKorisnikaRepository;
 import application.Repositories.KorisnikRepository;
 import application.Repositories.TipKorisnikaRepository;
@@ -12,6 +13,7 @@ import application.Exceptions.ItemNotFoundException;
 import application.Responses.ApiSuccess;
 import application.Responses.LogMessage;
 import application.Utils.Constants;
+import application.Utils.ConvertUsers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -55,24 +57,24 @@ public class KorisnikController {
 
 //    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public Collection<Korisnik> korisnici() {
+    public Collection<KorisnikReturn> korisnici() {
         log.info("Get all users");
-        return (Collection<Korisnik>) this.korisnikRepository.findAll();
+        return (Collection<KorisnikReturn>) ConvertUsers.ToKorisniciReturn(this.korisnikRepository.findAll());
     }
 
     @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/group/{userGroupId}", method = RequestMethod.GET)
-    public Collection<Korisnik> korisniciWithGroupId(@PathVariable Long userGroupId) {
+    public Collection<KorisnikReturn> korisniciWithGroupId(@PathVariable Long userGroupId) {
         log.info("Get users in group");
-        return (Collection<Korisnik>) this.korisnikRepository.findByUserGroupId(userGroupId);
+        return (Collection<KorisnikReturn>) ConvertUsers.ToKorisniciReturn(this.korisnikRepository.findByUserGroupId(userGroupId));
     }
 
     @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-    public Optional<Korisnik> korisnikWithId(@PathVariable Long userId) {
+    public Optional<KorisnikReturn> korisnikWithId(@PathVariable Long userId) {
         log.info("Get user with id: " + userId);
         this.userWithIdExists(userId);
-        return this.korisnikRepository.findById(userId);
+        return ConvertUsers.ToKorisnikReturnOpt(this.korisnikRepository.findById(userId));
     }
 
     @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
@@ -91,9 +93,9 @@ public class KorisnikController {
 
     @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(method = RequestMethod.GET)
-    public Optional<Korisnik> korisnikWithUserName(@RequestParam("userName") String userName) {
+    public Optional<KorisnikReturn> korisnikWithUserName(@RequestParam("userName") String userName) {
         this.userWithUserNameExists(userName);
-        return this.korisnikRepository.findByUserName(userName);
+        return ConvertUsers.ToKorisnikReturnOpt(this.korisnikRepository.findByUserName(userName));
     }
 
 //    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
@@ -180,11 +182,6 @@ public class KorisnikController {
 
         if(!k1.getUserName().equals(k2.getUserName())){
             changed+=k2.getUserName()+"-";
-        }
-
-
-        if(!k1.getPassword().equals(k2.getPassword())){
-            changed+="password-";
         }
 
         if(!k1.getUserGroup().getId().equals(k2.getUserGroup().getId())){
