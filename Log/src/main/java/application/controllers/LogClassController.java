@@ -36,21 +36,15 @@ public class LogClassController {
 
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
+    @PreAuthorize("#oauth2.hasScope('mobile') and hasRole('ROLE_ADMIN')")
     public Collection<LogClass> logs(){
         logController.info("LogClassRestController: findAll()");
         return (Collection<LogClass>) this.logClassRepository.findAll();
     }
 
-   /* //Pretraga po tipu (1-5)
-    @RequestMapping(value = "type/{typeId}" , method = RequestMethod.GET)
-    public Collection<LogClass> logsWithType(@PathVariable Long typeId){
-        logController.info("LogClassRestController: logsWithType() "+ typeId);
-        return this.logClassRepository.findByLogTypeId(typeId);
-    }*/
 
     //Pretraga po tipu (string)
-    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
+    @PreAuthorize("#oauth2.hasScope('mobile') and hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/type/{typeName}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithType(@PathVariable String typeName){
         logController.info("LogClassRestController: logsWithType() "+ typeName);
@@ -62,15 +56,9 @@ public class LogClassController {
         return this.logClassRepository.findByLogTypeId(logTypeClass[0].getId());
     }
 
-    // - statusu (1, 0)
-  /*  @RequestMapping(value = "status/{status}" , method = RequestMethod.GET)
-    public Collection<LogClass> logsWithStatus(@PathVariable Long status){
-        logController.info("LogClassRestController: logsWithType() "+ status);
-        return this.logClassRepository.findByStatus(status);
-    } */
 
     // - statusu (String)
-    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
+    @PreAuthorize("#oauth2.hasScope('mobile') and hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/status/{statusName}" , method = RequestMethod.GET)
     public Collection<LogClass> logsWithStatus(@PathVariable String statusName){
         logController.info("LogClassRestController: logsWithType() "+ statusName);
@@ -83,7 +71,7 @@ public class LogClassController {
     }
 
     // - mikroservisu
-    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
+    @PreAuthorize("#oauth2.hasScope('mobile') and hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/source/{source}" , method = RequestMethod.GET)
     public Collection<LogClass> losgWithSource(@PathVariable String source){
         logController.info("LogClassRestController: logWithLogSource() "+ source);
@@ -91,7 +79,7 @@ public class LogClassController {
     }
 
     // - korisnickom imenu
-    @PreAuthorize("#oauth2.hasScope('admin')")
+    @PreAuthorize("#oauth2.hasScope('mobile') and hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/user/{user}", method = RequestMethod.GET)
     public Collection<LogClass> logsWithUser(@PathVariable String user){
         logController.info("LogClassRestController: logWithUser() "+ user);

@@ -25,6 +25,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 
 import application.DataValidation;
+import application.FieldConstants;
 import application.exceptions.ItemNotFoundException;
 import application.messaging.ConstantMessages;
 import application.messaging.RestClient;
@@ -37,11 +38,11 @@ import application.repository.LokacijaRepository;
 import application.repository.PutovanjeRepository;
 import application.responses.ApiError;
 import application.responses.ApiSuccess;
+import net.bytebuddy.implementation.bytecode.constant.FieldConstant;
 
 @RestController
 @RequestMapping("/trip/")
 public class PutovanjeController {
-	
 	private PutovanjeRepository putovanjeRepo;
 	private RabbitTemplate rabbitTemplate;
 	
@@ -64,7 +65,21 @@ public class PutovanjeController {
 	
 	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/by-user/{userId}", method = RequestMethod.GET)
-	public List<Putovanje> getByUserId(@PathVariable long userId) {
+	public ResponseEntity<?>  getByUserId(@PathVariable long userId
+			,@RequestHeader("Authorization") String token) {
+		ApiError apiError = null;
+		
+		long idAuthKorisnika = getUserIdFromAuth();
+		System.out.println("GET BY USER: ID AUTH KORISNIKA " + idAuthKorisnika + " REQ ID: " + userId);
+		if((!areUsersInSameGroup(idAuthKorisnika, userId, token) 
+				&& !isUserThisType(FieldConstants.USER_TYPE_ADMIN))) {
+			
+			apiError = new ApiError(HttpStatus.UNAUTHORIZED
+					.value(),ConstantMessages.DESC_UNAUTHORIZED,
+					ConstantMessages.DESC_UNAUTHORIZED);
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+		}
+		
 		List<Putovanje> putovanja = putovanjeRepo.findAllByidKorisnika(userId);
 
 		for (int i=0; i< putovanja.size(); i++) {
@@ -75,49 +90,71 @@ public class PutovanjeController {
 
 		System.out.println("Putovanja lokacije: " + putovanja.get(0).getListaLokacija());
 
-		if(putovanja.isEmpty())
-			throw new ItemNotFoundException(userId, "Trip");
-		else
-			return putovanja;
+		return new ResponseEntity<List<Putovanje>>(putovanja, HttpStatus.OK);
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/{tripId}", method = RequestMethod.GET)
-	public Putovanje getTrip(@PathVariable long tripId) {
+	public ResponseEntity<?> getTrip(@PathVariable long tripId,
+			@RequestHeader("Authorization") String token) {
+		
+		ApiError apiError = null;
 		Putovanje p = putovanjeRepo.findById(tripId);
 
+		if(!canUserReadPutovanje(p, token)) {
+			apiError = new ApiError(HttpStatus.UNAUTHORIZED
+					.value(),ConstantMessages.DESC_UNAUTHORIZED,
+					ConstantMessages.DESC_UNAUTHORIZED);
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+		}
 		
-		if(p == null)
-			throw new ItemNotFoundException(tripId, "Trip");
-		
-		return p;
+		return new ResponseEntity<Putovanje>(p, HttpStatus.OK);
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/by-name/{tripName}", method = RequestMethod.GET)
-	public Putovanje getTripByName(@PathVariable String tripName) {
-		Putovanje p = putovanjeRepo.findByNaziv(tripName);
+	public ResponseEntity<?>  getTripByName(@PathVariable String tripName,
+			@RequestHeader("Authorization") String token) {
+		ApiError apiError = null;
 
+		Putovanje p = putovanjeRepo.findByNaziv(tripName);
 		if(p == null)
 			throw new ItemNotFoundException(tripName, "Trip");
+		
+		if(!canUserReadPutovanje(p, token)) {
+			apiError = new ApiError(HttpStatus.UNAUTHORIZED
+					.value(),ConstantMessages.DESC_UNAUTHORIZED,
+					ConstantMessages.DESC_UNAUTHORIZED);
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+		}
 
-		return p;
+		return new ResponseEntity<Putovanje>(p, HttpStatus.OK);
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/locations/{tripId}", method = RequestMethod.GET)
-	public List<Lokacija> getLocations(@PathVariable long tripId) {
+	public ResponseEntity<?> getLocations(@PathVariable long tripId,
+			@RequestHeader("Authorization") String token) {
+		ApiError apiError = null;
 		Putovanje p = putovanjeRepo.findById(tripId);
 		
 		if(p == null)
 			throw new ItemNotFoundException(tripId, "Trip");
+		
+		if(!canUserReadPutovanje(p, token)) {
+			apiError = new ApiError(HttpStatus.UNAUTHORIZED
+					.value(),ConstantMessages.DESC_UNAUTHORIZED,
+					ConstantMessages.DESC_UNAUTHORIZED);
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+		}
+		
 		
 		List<Lokacija> lokacije = p.getListaLokacija();
 		
 		if(lokacije.isEmpty())
 			throw new ItemNotFoundException(tripId, "Location ");
 		
-		return lokacije;
+		return new ResponseEntity<List<Lokacija>>(lokacije, HttpStatus.OK);
 	}
 	
 	@PreAuthorize("#oauth2.hasScope('mobile')")
@@ -132,14 +169,13 @@ public class PutovanjeController {
 		TripService tripService = new TripService(rabbitTemplate);
 		ApiError apiError = null;
 
-
-		long idKorisnika = Long.parseLong(getExtraInfo("UID"));
+		long idKorisnika = getUserIdFromAuth();
 
 		if(idKorisnika != korisnikId) {
-			apiError = new ApiError(HttpStatus.BAD_REQUEST
-					.value(),ConstantMessages.DESC_START_INVALID_USER_ID,
-					ConstantMessages.DESC_START_INVALID_USER_ID);
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+			apiError = new ApiError(HttpStatus.UNAUTHORIZED
+					.value(),ConstantMessages.DESC_UNAUTHORIZED,
+					ConstantMessages.DESC_UNAUTHORIZED);
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
 		}
 
 		//Check if user exists
@@ -173,7 +209,7 @@ public class PutovanjeController {
 			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_START, ConstantMessages.STATUS_FAILED, 
 					ConstantMessages.DESC_START_FAIL_INVALID_START_TIME, 
 					ConstantMessages.MICROSERVICE_NAME, 
-					korisnik.getUserName(), naziv);
+					korisnik.getUsername(), naziv);
 			tripService.tripStarted(tripMessageReport);
 
 			apiError = new ApiError(HttpStatus.BAD_REQUEST
@@ -192,7 +228,7 @@ public class PutovanjeController {
 		
 		tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_START, ConstantMessages.STATUS_SUCCESS,
 				ConstantMessages.DESC_SUCCESS, ConstantMessages.MICROSERVICE_NAME, 
-				korisnik.getUserName(), putovanje.getNaziv());
+				korisnik.getUsername(), putovanje.getNaziv());
 		tripService.tripStarted(tripMessageReport);
 		
 		return ResponseEntity.ok(apiSuccess);
@@ -239,13 +275,13 @@ public class PutovanjeController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
 
-        long idKorisnika = Long.parseLong(getExtraInfo("UID"));
+        long idKorisnika = getUserIdFromAuth();
 
         if(idKorisnika != korisnik.getId()) {
-            apiError = new ApiError(HttpStatus.BAD_REQUEST
-                    .value(),ConstantMessages.DESC_START_INVALID_USER_ID,
-                    ConstantMessages.DESC_START_INVALID_USER_ID);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+            apiError = new ApiError(HttpStatus.UNAUTHORIZED
+                    .value(),ConstantMessages.DESC_UNAUTHORIZED,
+                    ConstantMessages.DESC_UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
         }
 
 		if(putovanje.getStart_time() > end_time) {
@@ -253,7 +289,7 @@ public class PutovanjeController {
 					ConstantMessages.STATUS_FAILED, 
 					ConstantMessages.DESC_STOP_FAIL_INVALID_END_TIME, 
 					ConstantMessages.MICROSERVICE_NAME,
-					korisnik.getUserName(), putovanje.getNaziv());
+					korisnik.getUsername(), putovanje.getNaziv());
 			tripService.tripEnded(tripMessageReport);
 
 			apiError = new ApiError(HttpStatus.BAD_REQUEST
@@ -267,7 +303,7 @@ public class PutovanjeController {
 					ConstantMessages.STATUS_FAILED, 
 					ConstantMessages.DESC_STOP_ALREADY_ENDED,
 					ConstantMessages.MICROSERVICE_NAME, 
-					korisnik.getUserName(), putovanje.getNaziv());
+					korisnik.getUsername(), putovanje.getNaziv());
 			tripService.tripEnded(tripMessageReport);
 
 			apiError = new ApiError(HttpStatus.BAD_REQUEST
@@ -285,7 +321,7 @@ public class PutovanjeController {
 				ConstantMessages.STATUS_SUCCESS, 
 				ConstantMessages.DESC_SUCCESS,
 				ConstantMessages.MICROSERVICE_NAME,
-				korisnik.getUserName(), putovanje.getNaziv());
+				korisnik.getUsername(), putovanje.getNaziv());
 		
 		tripService.tripEnded(tripMessageReport);
 		
@@ -318,7 +354,7 @@ public class PutovanjeController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
 
-        long idAuthKorisnika = Long.parseLong(getExtraInfo("UID"));
+        long idAuthKorisnika = getUserIdFromAuth();
         long idKorisnikaPutovanja = putovanje.getIdKorisnika();
 
         if(idAuthKorisnika != idKorisnikaPutovanja) {
@@ -354,7 +390,7 @@ public class PutovanjeController {
 			tripMessageReport = new TripMessageReport(ConstantMessages.TYPE_TRIP_END,
 					ConstantMessages.STATUS_FAILED,
 					ConstantMessages.DESC_LOC_TRIP_ENDED,
-					ConstantMessages.MICROSERVICE_NAME, korisnik.getUserName(), putovanje.getNaziv());
+					ConstantMessages.MICROSERVICE_NAME, korisnik.getUsername(), putovanje.getNaziv());
 			tripService.tripStarted(tripMessageReport);
 
 			ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST
@@ -391,12 +427,11 @@ public class PutovanjeController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 		}
 
-        long idAuthKorisnika = Long.parseLong(getExtraInfo("UID"));
-		String tipKorisnika = getExtraInfo("UType");
+        long idAuthKorisnika = getUserIdFromAuth();
 		long idKorisnikaPutovanja = putovanje.getIdKorisnika();
 
 		//Admin ili autorizovan korisnik (koji je kreirao putovanje) mogu obrisati putovanje
-		if((idAuthKorisnika != idKorisnikaPutovanja) && !tipKorisnika.equals("ADMIN")) {
+		if((idAuthKorisnika != idKorisnikaPutovanja) || !isUserThisType(FieldConstants.USER_TYPE_ADMIN)) {
             ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED
                     .value(), ConstantMessages.DESC_UNAUTHORIZED,
                     ConstantMessages.DESC_UNAUTHORIZED);
@@ -415,35 +450,40 @@ public class PutovanjeController {
 
     @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
 	@RequestMapping(value = "/locations/last-trip/{userId}", method = RequestMethod.GET)
-	public Lokacija getLastLocationOfUser(@PathVariable long userId) {
+	public ResponseEntity<?> getLastLocationOfUser(@PathVariable long userId,
+			@RequestHeader("Authorization") String token) {
+    	
+    	ApiError apiError = null;
+    	if(!areUsersInSameGroup(getUserIdFromAuth(), userId, token) 
+    			|| !isUserThisType(FieldConstants.USER_TYPE_ADMIN)) {
+            apiError = new ApiError(HttpStatus.UNAUTHORIZED
+                    .value(), ConstantMessages.DESC_UNAUTHORIZED,
+                    ConstantMessages.DESC_UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);
+    	}
+    	
 		List<Putovanje> allTrips= putovanjeRepo.findAllByidKorisnika(userId);
 
-		System.out.println("AALLL TRIPS: " + allTrips);
-
 		if(allTrips.isEmpty())
-			return new Lokacija();
+			return new ResponseEntity<Lokacija>(new Lokacija(), HttpStatus.OK);
 
 		Putovanje lastTrip = allTrips.get(allTrips.size()-1);
 
-		System.out.println("LAST TRIP: " + lastTrip);
 		if(lastTrip == null)
-			return new Lokacija();
-
+			return new ResponseEntity<Lokacija>(new Lokacija(), HttpStatus.OK);
 
 		List<Lokacija> allLocations = lastTrip.getListaLokacija();
 
-		System.out.println("AALLL locations: " + allLocations);
-
 		if(allLocations.isEmpty())
-			return new Lokacija();
+			return new ResponseEntity<Lokacija>(new Lokacija(), HttpStatus.OK);
 
 		Lokacija lastLocation = allLocations.get(allLocations.size()-1);
 
-		System.out.println("LAST location: " + lastLocation);
 		if(lastLocation==null)
-			return new Lokacija();
+			return new ResponseEntity<Lokacija>(new Lokacija(), HttpStatus.OK);
 
-		return lastLocation;
+
+		return new ResponseEntity<Lokacija>(lastLocation, HttpStatus.OK);
 	}
 
     private String getExtraInfo(String field) {
@@ -451,5 +491,36 @@ public class PutovanjeController {
         OAuth2AuthenticationDetails oauthDetails = (OAuth2AuthenticationDetails) auth.getDetails();
         Map<String, Object> details = (Map<String, Object>) oauthDetails.getDecodedDetails();
         return details.get(field).toString();
+    }
+    
+    private boolean isUserThisType(String userType) {
+    	String authType = getExtraInfo(FieldConstants.USER_TYPE_TOKEN_FIELD);
+    	return authType.equals(userType);
+    }
+    
+    private boolean areUsersInSameGroup(long UserId1, long UserId2, String token) {
+    	RestClient restClient = new RestClient();
+    	try {
+    		long group1 = (long)restClient.getUserByID(UserId1, eurekaClient, token).getUserGroupId();
+    		long group2 = (long)restClient.getUserByID(UserId2, eurekaClient, token).getUserGroupId();
+    	return group1 == group2;
+    	} catch (Exception e) {
+    		System.out.println(e.getMessage());
+			return false;
+		}
+    	
+    }
+    
+    private long getUserIdFromAuth() {
+		return Long.parseLong(getExtraInfo(FieldConstants.USER_ID_TOKEN_FIELD));
+    }
+    
+    private boolean canUserReadPutovanje(Putovanje p, String token) {
+		if((p.getIdKorisnika() == getUserIdFromAuth() 
+				|| isUserThisType(FieldConstants.USER_TYPE_ADMIN)
+				|| areUsersInSameGroup(p.getIdKorisnika(), getUserIdFromAuth(), token))) {
+			return true;
+		}
+		return false;
     }
 }

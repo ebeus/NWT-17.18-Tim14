@@ -44,14 +44,12 @@ public class RestClient {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 		headers.set("Authorization",  token);
-		log.info("HEADER: " + headers.getFirst("Authorization"));
-		log.info("url " + url);
 		HttpEntity<String> entity = new HttpEntity<String>("",headers);
 		ResponseEntity<Korisnik> korisnik;
-		log.info(entity.getBody());
 		try {
 			korisnik = restTemplate.exchange(url,HttpMethod.GET,entity, Korisnik.class);
 		} catch (HttpClientErrorException e) {
+			log.info("REST Client error.");
 			return null;
 		}
 		return (Korisnik)korisnik.getBody();

@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
+import application.FieldConstants;
 import application.Models.Korisnik;
 import application.Repositories.KorisnikRepository;
 
@@ -37,9 +38,9 @@ public class CustomTokenEnhancer implements TokenEnhancer{
      OAuth2AccessToken accessToken, 
      OAuth2Authentication authentication) {
         Map<String, Object> additionalInfo = new HashMap<>();
-		additionalInfo.put("UID", getUserID(authentication.getName()));
-        additionalInfo.put("UGroup", getUsersGroup(authentication.getName()));
-        additionalInfo.put("UType", getUserType(authentication.getName()));
+		additionalInfo.put(FieldConstants.USER_ID_TOKEN_FIELD, getUserID(authentication.getName()));
+        additionalInfo.put(FieldConstants.USER_GROUP_TOKEN_FIELD, getUsersGroup(authentication.getName()));
+        additionalInfo.put(FieldConstants.USER_TYPE_TOKEN_FIELD, getUserType(authentication.getName()));
         ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(additionalInfo);
         return accessToken;
     }

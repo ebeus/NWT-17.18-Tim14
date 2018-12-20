@@ -1,6 +1,7 @@
 package application.Controllers;
 
 import application.Application;
+import application.FieldConstants;
 import application.Models.KorisnikReturn;
 import application.Repositories.GrupaKorisnikaRepository;
 import application.Repositories.KorisnikRepository;
@@ -14,6 +15,7 @@ import application.Responses.ApiSuccess;
 import application.Responses.LogMessage;
 import application.Utils.Constants;
 import application.Utils.ConvertUsers;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -21,7 +23,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -54,19 +60,26 @@ public class KorisnikController {
         this.korisnikRepository = korisnikRepository;
         this.rabbitTemplate = rabbitTemplate;
     }
+    
+	Authentication auth;
 
-//    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+
+    @PreAuthorize("#oauth2.hasScope('mobile') and hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public Collection<KorisnikReturn> korisnici() {
+    public ResponseEntity<?> korisnici() {
         log.info("Get all users");
-        return (Collection<KorisnikReturn>) ConvertUsers.ToKorisniciReturn(this.korisnikRepository.findAll());
+       
+        return new ResponseEntity<Iterable<KorisnikReturn>>( ConvertUsers.ToKorisniciReturn(this.korisnikRepository.findAll()), HttpStatus.OK);
     }
 
     @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
     @RequestMapping(value = "/group/{userGroupId}", method = RequestMethod.GET)
-    public Collection<KorisnikReturn> korisniciWithGroupId(@PathVariable Long userGroupId) {
+    public ResponseEntity<?> korisniciWithGroupId(@PathVariable Long userGroupId,
+    		@RequestHeader("Authorization") String token) {
+    	
         log.info("Get users in group");
-        return (Collection<KorisnikReturn>) ConvertUsers.ToKorisniciReturn(this.korisnikRepository.findByUserGroupId(userGroupId));
+                
+        return new ResponseEntity<Iterable<KorisnikReturn>>( ConvertUsers.ToKorisniciReturn(this.korisnikRepository.findByUserGroupId(userGroupId)), HttpStatus.OK);
     }
 
     @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
@@ -240,5 +253,33 @@ public class KorisnikController {
     private boolean checkExistingUsername(String userName) {
         boolean b = korisnikRepository.findByUserName(userName).isPresent();
         return !b;
+    }
+    
+    private String getExtraInfo(String field) {
+        auth = SecurityContextHolder.getContext().getAuthentication();
+        OAuth2AuthenticationDetails oauthDetails = (OAuth2AuthenticationDetails) auth.getDetails();
+        Map<String, Object> details = (Map<String, Object>) oauthDetails.getDecodedDetails();
+        return details.get(field).toString();
+    }
+    
+    private boolean isUserThisType(String userType) {
+    	String authType = getExtraInfo(FieldConstants.USER_TYPE_TOKEN_FIELD);
+    	return authType.equals(userType);
+    }
+    
+    private boolean areUsersInSameGroup(long UserId1, long UserId2, String token) {
+    	Optional<Korisnik> korisnik1 = korisnikRepository.findById(UserId1);    
+    	Optional<Korisnik> korisnik2 = korisnikRepository.findById(UserId2);
+    	if(!korisnik1.isPresent() || !korisnik2.isPresent())
+    		return false;
+    	
+    	if(korisnik1.get().getUserGroup().getId() == korisnik2.get().getUserGroup().getId())
+    		return true;
+    	
+    	return false;
+    }
+    
+    private long getUserIdFromAuth() {
+		return Long.parseLong(getExtraInfo(FieldConstants.USER_ID_TOKEN_FIELD));
     }
 }

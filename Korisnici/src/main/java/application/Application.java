@@ -144,18 +144,22 @@ public class Application {
 
             GrupaKorisnika grupa1=new GrupaKorisnika("Grupa1");
             GrupaKorisnika grupa2=new GrupaKorisnika("Grupa2");
+            
             grupaKorisnikaRepository.save(grupa1);
             grupaKorisnikaRepository.save(grupa2);
 
             TipKorisnika tp = tipKorisnikaRepository.findByTypeName("ADMIN").get();
             TipKorisnika userType = tipKorisnikaRepository.findByTypeName("USER").get();
             GrupaKorisnika grupa = grupaKorisnikaRepository.findByGroupName("Grupa1").get();
+            GrupaKorisnika grupaKorisnika2 = grupaKorisnikaRepository.findByGroupName("Grupa2").get();
+            
             korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer", passwordEncoder().encode("1234"), "jack.bau@gmail.com",
             		tp,grupa));
             korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian", passwordEncoder().encode("1234"), "chlo.o.b@gmail.com",
                     userType,grupa));
             korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer", passwordEncoder().encode("1234"), "kim.bau@gmail.com",userType,grupa));
        
+            korisnikRepository.save(new Korisnik("John", "Smith", "jSmith",passwordEncoder().encode("1234"),"j.smith@example.com",userType, grupaKorisnika2));
 
             List<TipKorisnika> tipoviKorisnika= (List<TipKorisnika>) tipKorisnikaRepository.findAll();
             List<GrupaKorisnika> grupeKorisnika = (List<GrupaKorisnika>) grupaKorisnikaRepository.findAll();
@@ -209,9 +213,7 @@ public class Application {
             korisnikRepository.findByLastName("Bauer").forEach(bauer -> {
                 log.info(bauer.toString());
             });
-            // for (Customer bauer : korisnikRepository.findByLastName("Bauer")) {
-            // 	log.info(bauer.toString());
-            // }
+
             log.info("");
 
 
@@ -220,11 +222,6 @@ public class Application {
 
             String abc;
 
-           // log.info("Sending message...");
-           // rabbitTemplate.convertAndSend(Application.topicExchangeName,Constants.USERS_ROUTING_KEY,korisnici.get(0).toString());
-
-           // String response= restTemplate.getForObject("http://localhost:8080/users/9",String.class);
-           // log.info("Rest template response: " + response);
         }
     }
 }
