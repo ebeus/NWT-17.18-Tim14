@@ -33,7 +33,7 @@ public class GrupaKorisnikaController {
         this.rabbitTemplate=rabbitTemplate;
     }
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public Collection<GrupaKorisnika> grupe() {
         log.info("/grupe GET");
@@ -41,7 +41,7 @@ public class GrupaKorisnikaController {
         return (Collection<GrupaKorisnika>) this.grupaKorisnikaRepository.findAll();
     }
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/{groupId}", method = RequestMethod.GET)
     public Optional<GrupaKorisnika> grupaWithId(@PathVariable Long groupId) {
         Optional<GrupaKorisnika> existing=grupaKorisnikaRepository.findById(groupId);
@@ -55,7 +55,7 @@ public class GrupaKorisnikaController {
         }
     }
 
-    @PreAuthorize("#oauth2.hasScope('admin')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(method = RequestMethod.GET)
     public Optional<GrupaKorisnika> grupaWithGroupName(@RequestParam("groupName") String groupName) {
         Optional<GrupaKorisnika> postojeca=grupaKorisnikaRepository.findByGroupName(groupName);
@@ -69,7 +69,7 @@ public class GrupaKorisnikaController {
         }
     }
 
-    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> addGroup(@RequestParam String groupName) {
         if (!grupaKorisnikaRepository.findByGroupName(groupName).isPresent()) {
@@ -86,7 +86,7 @@ public class GrupaKorisnikaController {
         }
     }
 
-    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/update/{groupId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateGroupName(@PathVariable Long groupId, @RequestParam String groupName) {
         GrupaKorisnika staraGrupa = grupaKorisnikaRepository.findById(groupId).orElseThrow(
@@ -99,7 +99,7 @@ public class GrupaKorisnikaController {
         return ResponseEntity.ok(apiSuccess);
     }
 
-    @PreAuthorize("#oauth2.hasScope('admin') and hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<?> deleteGroup(@PathVariable("id") long id) {
         log.info("Fetching & Deleting Group with id {}", id);

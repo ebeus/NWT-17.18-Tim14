@@ -63,15 +63,14 @@ public class PutovanjeController {
 	private TripMessageReport tripMessageReport = null;
 
 	
-	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+	@PreAuthorize("#oauth2.hasScope('mobile')")
 	@RequestMapping(value = "/by-user/{userId}", method = RequestMethod.GET)
 	public ResponseEntity<?>  getByUserId(@PathVariable long userId
 			,@RequestHeader("Authorization") String token) {
 		ApiError apiError = null;
 		
 		long idAuthKorisnika = getUserIdFromAuth();
-		System.out.println("GET BY USER: ID AUTH KORISNIKA " + idAuthKorisnika + " REQ ID: " + userId);
-		if((!areUsersInSameGroup(idAuthKorisnika, userId, token) 
+		if((!areUsersInSameGroup(idAuthKorisnika, userId, token)
 				&& !isUserThisType(FieldConstants.USER_TYPE_ADMIN))) {
 			
 			apiError = new ApiError(HttpStatus.UNAUTHORIZED
@@ -88,12 +87,10 @@ public class PutovanjeController {
 			putovanja.get(i).setListaLokacija(lokacijePutovanja);
 		}
 
-		System.out.println("Putovanja lokacije: " + putovanja.get(0).getListaLokacija());
-
 		return new ResponseEntity<List<Putovanje>>(putovanja, HttpStatus.OK);
 	}
 	
-	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+	@PreAuthorize("#oauth2.hasScope('mobile')")
 	@RequestMapping(value = "/{tripId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getTrip(@PathVariable long tripId,
 			@RequestHeader("Authorization") String token) {
@@ -111,7 +108,7 @@ public class PutovanjeController {
 		return new ResponseEntity<Putovanje>(p, HttpStatus.OK);
 	}
 	
-	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+	@PreAuthorize("#oauth2.hasScope('mobile')")
 	@RequestMapping(value = "/by-name/{tripName}", method = RequestMethod.GET)
 	public ResponseEntity<?>  getTripByName(@PathVariable String tripName,
 			@RequestHeader("Authorization") String token) {
@@ -131,7 +128,7 @@ public class PutovanjeController {
 		return new ResponseEntity<Putovanje>(p, HttpStatus.OK);
 	}
 	
-	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+	@PreAuthorize("#oauth2.hasScope('mobile')")
 	@RequestMapping(value = "/locations/{tripId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getLocations(@PathVariable long tripId,
 			@RequestHeader("Authorization") String token) {
@@ -234,7 +231,7 @@ public class PutovanjeController {
 		return ResponseEntity.ok(apiSuccess);
 	}
 	
-	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+	@PreAuthorize("#oauth2.hasScope('mobile')")
 	@RequestMapping(value = "/stop", method = RequestMethod.POST)
 	ResponseEntity<?> stop_trip(@RequestParam long id,
 							   @RequestParam long end_time,
@@ -328,7 +325,7 @@ public class PutovanjeController {
 		return ResponseEntity.ok(apiSuccess);
 	}
 	
-	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+	@PreAuthorize("#oauth2.hasScope('mobile')")
 	@RequestMapping(value = "/locations/add", method = RequestMethod.POST)
 	ResponseEntity<?> add_location(@RequestParam long id_putovanja,
 			@RequestParam long time,
@@ -407,7 +404,7 @@ public class PutovanjeController {
 		return ResponseEntity.ok(apiSuccess);
 	}
 	
-	@PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+	@PreAuthorize("#oauth2.hasScope('mobile')")
 	@RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> delete_trip(@PathVariable("id") long id) {
 		Putovanje putovanje = putovanjeRepo.findById(id);
@@ -448,7 +445,7 @@ public class PutovanjeController {
 		return ResponseEntity.ok(apiSuccess);
 	}
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+    @PreAuthorize("#oauth2.hasScope('mobile')")
 	@RequestMapping(value = "/locations/last-trip/{userId}", method = RequestMethod.GET)
 	public ResponseEntity<?> getLastLocationOfUser(@PathVariable long userId,
 			@RequestHeader("Authorization") String token) {

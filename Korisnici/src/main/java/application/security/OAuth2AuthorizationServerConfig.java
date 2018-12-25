@@ -87,12 +87,7 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     		.withClient("client")
     		.secret(passwordEncoder.encode("secret"))
     		.authorizedGrantTypes("password",  "authorization_code", "refresh_token")
-    		.scopes("mobile", "user")
-    		.and()
-    		.withClient("admin")
-    		.secret(passwordEncoder.encode("secret"))
-    		.authorizedGrantTypes("password")
-    		.scopes("web", "admin");
+    		.scopes("mobile", "user");
     }
     
 }

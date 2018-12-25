@@ -64,7 +64,7 @@ public class KorisnikController {
 	Authentication auth;
 
 
-    @PreAuthorize("#oauth2.hasScope('mobile') and hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity<?> korisnici() {
         log.info("Get all users");
@@ -72,46 +72,57 @@ public class KorisnikController {
         return new ResponseEntity<Iterable<KorisnikReturn>>( ConvertUsers.ToKorisniciReturn(this.korisnikRepository.findAll()), HttpStatus.OK);
     }
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+    @PreAuthorize("#oauth2.hasScope('mobile') or hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/group/{userGroupId}", method = RequestMethod.GET)
     public ResponseEntity<?> korisniciWithGroupId(@PathVariable Long userGroupId,
     		@RequestHeader("Authorization") String token) {
     	
         log.info("Get users in group");
-                
+        if(!isUserThisType(FieldConstants.USER_TYPE_ADMIN)) {
+        	Optional<KorisnikReturn> korisnik = ConvertUsers.ToKorisnikReturnOpt(korisnikRepository.findById(getUserIdFromAuth()));
+        	if(!korisnik.isPresent()) {
+        		ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), Constants.MESSAGE_DOES_NOT_EXIST, Constants.MESSAGE_DOES_NOT_EXIST);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+        	}
+        	if(userGroupId != korisnik.get().getGrupaKorisnika().getId()) {
+        		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), Constants.MESSAGE_UNAUTHORIZED, Constants.MESSAGE_UNAUTHORIZED);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);        		
+        	}
+        }
         return new ResponseEntity<Iterable<KorisnikReturn>>( ConvertUsers.ToKorisniciReturn(this.korisnikRepository.findByUserGroupId(userGroupId)), HttpStatus.OK);
     }
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+    @PreAuthorize("#oauth2.hasScope('mobile') or hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-    public Optional<KorisnikReturn> korisnikWithId(@PathVariable Long userId) {
+    public ResponseEntity<?>  korisnikWithId(@PathVariable Long userId,
+    		@RequestHeader("Authorization") String token) {
+    	
         log.info("Get user with id: " + userId);
+        if(!isUserThisType(FieldConstants.USER_TYPE_ADMIN)) {
+        	Optional<KorisnikReturn> korisnik = ConvertUsers.ToKorisnikReturnOpt(korisnikRepository.findById(getUserIdFromAuth()));
+        	if(!korisnik.isPresent()) {
+        		ApiError apiError = new ApiError(HttpStatus.NOT_FOUND.value(), Constants.MESSAGE_DOES_NOT_EXIST, Constants.MESSAGE_DOES_NOT_EXIST);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+        	}
+        	if(!areUsersInSameGroup(korisnik.get().getId(), userId, token)) {
+        		ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), Constants.MESSAGE_UNAUTHORIZED, Constants.MESSAGE_UNAUTHORIZED);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(apiError);        		
+        	}
+        }
+        
         this.userWithIdExists(userId);
-        return ConvertUsers.ToKorisnikReturnOpt(this.korisnikRepository.findById(userId));
-    }
-
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
-    @RequestMapping(value = "/exists/{userId}", method = RequestMethod.GET)
-    public boolean doesUserWithIdExist(@PathVariable Long userId){
-        return korisnikRepository.findById(userId).isPresent();
-    }
-
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
-    @RequestMapping(value = "/exists", method = RequestMethod.GET)
-    public boolean doesUserWithUserNameExist(@RequestParam("userName") String userName){
-        log.info("Does user with username exist");
-        return korisnikRepository.findByUserName(userName).isPresent();
+        return new ResponseEntity<Optional<KorisnikReturn>> (ConvertUsers.ToKorisnikReturnOpt(this.korisnikRepository.findById(userId)), HttpStatus.OK);
     }
 
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(method = RequestMethod.GET)
     public Optional<KorisnikReturn> korisnikWithUserName(@RequestParam("userName") String userName) {
         this.userWithUserNameExists(userName);
         return ConvertUsers.ToKorisnikReturnOpt(this.korisnikRepository.findByUserName(userName));
     }
 
-//    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> add(@RequestParam String firstName,
                           @RequestParam String lastName,
@@ -147,28 +158,28 @@ public class KorisnikController {
         }
     }
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+    @PreAuthorize("#oauth2.hasScope('mobile') or hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/update/{userId}", method = RequestMethod.PUT)
-    public ResponseEntity<?> updateUser(@PathVariable Long userId,
+    public ResponseEntity<?> updateFullUser(@PathVariable Long userId,
                                  @RequestParam String firstName,
                                  @RequestParam String lastName,
-                                 @RequestParam String userName,
                                  @RequestParam String password,
                                  @RequestParam String email,
-                                 @RequestParam Long userTypeId,
-                                 @RequestParam Long userGroupId,
-                                 @Valid Korisnik k2,BindingResult bindingResult) {
+                                 @Valid Korisnik k2,BindingResult bindingResult,
+                                 @RequestHeader("Authorization") String token) {
 
+    	if(!isUserThisType(FieldConstants.USER_TYPE_ADMIN) && userId != getUserIdFromAuth()) {
+    			return new ResponseEntity<String>(Constants.MESSAGE_UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+    	}
+    	
         if(bindingResult.hasErrors()){
             return validationErrorHandling(bindingResult);
         }else {
             Korisnik stari = korisnikRepository.findById(userId).orElseThrow(
                     () -> new ItemNotFoundException(userId, "user"));
 
-        	GrupaKorisnika grupa = grupaRepo.findById(userGroupId).get();
-        	TipKorisnika tipK = tipRepo.findById(userTypeId).get();
         	
-            Korisnik k = new Korisnik(firstName, lastName, userName, passwordEncoder.encode(password), email, tipK, grupa);
+            Korisnik k = new Korisnik(firstName, lastName, stari.getUserName(), passwordEncoder.encode(password), email, tipRepo.findById(stari.getUserType().getId()).get(),  grupaRepo.findById(stari.getUserGroup().getId()).get());
             LogMessage lm = new LogMessage(Constants.MESSAGING_USER_ADD, Constants.MESSAGING_EVERYTHING_OK, Constants.USER_CHANGED, Constants.MESSAGING_MICROSERVICE, whatHasChanged(stari,k));
             stari.updateFields(k);
             rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY ,lm.toString());
@@ -177,6 +188,42 @@ public class KorisnikController {
             return ResponseEntity.ok(apiSuccess);
         }
     }
+
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @RequestMapping(value = "/admin/update/{userId}", method = RequestMethod.PUT)
+    public ResponseEntity<?> updateUser(@PathVariable Long userId,
+                                        @RequestParam String firstName,
+                                        @RequestParam String lastName,
+                                        @RequestParam String password,
+                                        @RequestParam String email,
+                                        @RequestParam Long userTypeId,
+                                        @RequestParam Long userGroupId,
+                                        @Valid Korisnik k2,BindingResult bindingResult,
+                                        @RequestHeader("Authorization") String token) {
+
+        if(!isUserThisType(FieldConstants.USER_TYPE_ADMIN)) {
+            return new ResponseEntity<String>(Constants.MESSAGE_UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
+        }
+
+        if(bindingResult.hasErrors()){
+            return validationErrorHandling(bindingResult);
+        }else {
+            Korisnik stari = korisnikRepository.findById(userId).orElseThrow(
+                    () -> new ItemNotFoundException(userId, "user"));
+
+            GrupaKorisnika grupa = grupaRepo.findById(userGroupId).get();
+            TipKorisnika tipK = tipRepo.findById(userTypeId).get();
+
+            Korisnik k = new Korisnik(firstName, lastName, stari.getUserName(), passwordEncoder.encode(password), email, tipK, grupa);
+            LogMessage lm = new LogMessage(Constants.MESSAGING_USER_ADD, Constants.MESSAGING_EVERYTHING_OK, Constants.USER_CHANGED, Constants.MESSAGING_MICROSERVICE, whatHasChanged(stari,k));
+            stari.updateFields(k);
+            rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY ,lm.toString());
+            korisnikRepository.save(stari);
+            ApiSuccess apiSuccess = new ApiSuccess(HttpStatus.OK.value(), "User updated", stari);
+            return ResponseEntity.ok(apiSuccess);
+        }
+    }
+
 
     private String whatHasChanged(Korisnik k1, Korisnik k2){
 
@@ -220,10 +267,14 @@ public class KorisnikController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ApiError(HttpStatus.BAD_REQUEST.value(),"Validation error",message.toString()));
     }
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or #oauth2.hasScope('admin')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteUser(@PathVariable("id") long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable("id") long id,
+    		@RequestHeader("Authorization") String token) {
         log.info("Fetching & Deleting User with id {}", id);
+        
+        
+        
         LogMessage lm;
         Optional<Korisnik> korisnik = korisnikRepository.findById(id);
         if (!korisnik.isPresent()) {
@@ -258,6 +309,8 @@ public class KorisnikController {
     private String getExtraInfo(String field) {
         auth = SecurityContextHolder.getContext().getAuthentication();
         OAuth2AuthenticationDetails oauthDetails = (OAuth2AuthenticationDetails) auth.getDetails();
+        System.out.println(auth.getDetails().toString());
+        System.out.println(oauthDetails.getDecodedDetails());
         Map<String, Object> details = (Map<String, Object>) oauthDetails.getDecodedDetails();
         return details.get(field).toString();
     }

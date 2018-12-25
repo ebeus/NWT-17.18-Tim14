@@ -38,6 +38,8 @@ public class Korisnik {
     private String userName;
     @Length(max=100)
     private String password;
+    @NotNull
+    @NotBlank
     private String email;
 
     @ManyToOne(targetEntity = TipKorisnika.class)

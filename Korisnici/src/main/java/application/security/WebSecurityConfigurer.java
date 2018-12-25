@@ -60,9 +60,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 			http.authorizeRequests()
 			.antMatchers("/login").permitAll()
 			.antMatchers("/oauth/token/revokeById/**").permitAll()
-			.antMatchers("/users/add*").permitAll()
 			.antMatchers("/tokens/**").permitAll()
-            .antMatchers("/users/add").permitAll()
 			.anyRequest().authenticated()
 			.and().csrf().disable();
 	    }

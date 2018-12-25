@@ -25,6 +25,7 @@ public class Constants {
     public static final int MESSAGING_EVERYTHING_OK = 1;
     public static final int MESSAGING_SOMETHING_WRONG = 2;
 
-
+    public static final String MESSAGE_UNAUTHORIZED = "UNAUTHORIZED";
+    public static final String MESSAGE_DOES_NOT_EXIST = "DOES NOT EXIST";
 
 }
