@@ -63,6 +63,7 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
         KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("tssk.jks"),
                 PASSWORD.toCharArray());
         converter.setKeyPair(keyStoreKeyFactory.getKeyPair("tssk"));
+        converter.setAccessTokenConverter(customAccesstokenConverter);
         return converter;
     }
  

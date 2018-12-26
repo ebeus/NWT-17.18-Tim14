@@ -62,7 +62,7 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 			.antMatchers("/oauth/token/revokeById/**").permitAll()
 			.antMatchers("/tokens/**").permitAll()
 			.anyRequest().authenticated()
-			.and().csrf().disable();
+					.and().csrf().disable();;
 	    }
 	    
 }

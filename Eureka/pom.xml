@@ -6,7 +6,6 @@
 
     <groupId>etf.unsa.ba</groupId>
     <artifactId>Eureka</artifactId>
-    <version>1.0</version>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -56,6 +55,12 @@
             <version>1.1.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    
     </dependencies>
 
     <dependencyManagement>

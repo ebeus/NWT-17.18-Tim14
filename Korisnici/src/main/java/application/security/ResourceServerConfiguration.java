@@ -56,8 +56,8 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
         KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("tssk.jks"),
                 PASSWORD.toCharArray());
-        converter.setAccessTokenConverter(customAccesstokenConverter);
         converter.setKeyPair(keyStoreKeyFactory.getKeyPair("tssk"));
+        converter.setAccessTokenConverter(customAccesstokenConverter);
         return converter;
     }
  

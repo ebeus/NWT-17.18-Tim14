@@ -54,13 +54,13 @@ public class KorisnikController {
     
     @Autowired
     private TipKorisnikaRepository tipRepo;
-    
+
     @Autowired
     public KorisnikController(KorisnikRepository korisnikRepository, RabbitTemplate rabbitTemplate) {
         this.korisnikRepository = korisnikRepository;
         this.rabbitTemplate = rabbitTemplate;
     }
-    
+
 	Authentication auth;
 
 
@@ -309,7 +309,7 @@ public class KorisnikController {
         boolean b = korisnikRepository.findByUserName(userName).isPresent();
         return !b;
     }
-    
+
     private String getExtraInfo(String field) {
         auth = SecurityContextHolder.getContext().getAuthentication();
         OAuth2AuthenticationDetails oauthDetails = (OAuth2AuthenticationDetails) auth.getDetails();

@@ -5,8 +5,6 @@
 
 	<groupId>nwt14.etf.unsa.ba</groupId>
 	<artifactId>Putovanje</artifactId>
-	<version>1.0</version>
-	<packaging>jar</packaging>
 
 	<name>Putovanje-mikroservis</name>
 	<description>Putovanje mikroservis NWT</description>
@@ -112,6 +110,12 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-netflix-eureka-server</artifactId>
             </dependency>
+            
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
