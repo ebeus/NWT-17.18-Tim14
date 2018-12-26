@@ -66,7 +66,7 @@ public class KorisnikController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity<?> korisnici() {
+    public ResponseEntity<?> korisnici(@RequestHeader("Authorization") String token) {
         log.info("Get all users");
        
         return new ResponseEntity<Iterable<KorisnikReturn>>( ConvertUsers.ToKorisniciReturn(this.korisnikRepository.findAll()), HttpStatus.OK);
@@ -131,14 +131,15 @@ public class KorisnikController {
                           @RequestParam String email,
                           @RequestParam Long userTypeId,
                           @RequestParam Long userGroupId,
-                          @Valid Korisnik k1,BindingResult bindingResult) {
+                          @Valid Korisnik k1,BindingResult bindingResult,
+                                 @RequestHeader("Authorization") String token) {
 
         if(bindingResult.hasErrors()){
             return validationErrorHandling(bindingResult);
         }else {
 
             LogMessage lm;
-            if (this.checkExistingUsername(userName)) {
+            if (this.checkExistingUsername(userName) && !korisnikRepository.findByEmail(email).isPresent()) {
             	GrupaKorisnika grupa = grupaRepo.findById(userGroupId).get();
             	TipKorisnika tipK = tipRepo.findById(userTypeId).get();
                 Korisnik k = new Korisnik(firstName, lastName, userName, passwordEncoder.encode(password), email, tipK, grupa);
@@ -158,19 +159,24 @@ public class KorisnikController {
         }
     }
 
-    @PreAuthorize("#oauth2.hasScope('mobile') or hasRole('ROLE_ADMIN')")
+    @PreAuthorize("#oauth2.hasScope('mobile')")
     @RequestMapping(value = "/update/{userId}", method = RequestMethod.PUT)
     public ResponseEntity<?> updateFullUser(@PathVariable Long userId,
                                  @RequestParam String firstName,
                                  @RequestParam String lastName,
+                                 @RequestParam String userName,
                                  @RequestParam String password,
                                  @RequestParam String email,
                                  @Valid Korisnik k2,BindingResult bindingResult,
                                  @RequestHeader("Authorization") String token) {
 
-    	if(!isUserThisType(FieldConstants.USER_TYPE_ADMIN) && userId != getUserIdFromAuth()) {
+    	if(userId != getUserIdFromAuth() || isUserThisType(FieldConstants.USER_TYPE_ADMIN)) {
     			return new ResponseEntity<String>(Constants.MESSAGE_UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
     	}
+
+    	if(this.checkExistingUsername(userName) || korisnikRepository.findByEmail(email).isPresent()) {
+            return new ResponseEntity<String>(Constants.MESSAGING_USER_EXISTS, HttpStatus.BAD_REQUEST);
+        }
     	
         if(bindingResult.hasErrors()){
             return validationErrorHandling(bindingResult);
@@ -179,7 +185,7 @@ public class KorisnikController {
                     () -> new ItemNotFoundException(userId, "user"));
 
         	
-            Korisnik k = new Korisnik(firstName, lastName, stari.getUserName(), passwordEncoder.encode(password), email, tipRepo.findById(stari.getUserType().getId()).get(),  grupaRepo.findById(stari.getUserGroup().getId()).get());
+            Korisnik k = new Korisnik(firstName, lastName, userName, passwordEncoder.encode(password), email, tipRepo.findById(stari.getUserType().getId()).get(),  grupaRepo.findById(stari.getUserGroup().getId()).get());
             LogMessage lm = new LogMessage(Constants.MESSAGING_USER_ADD, Constants.MESSAGING_EVERYTHING_OK, Constants.USER_CHANGED, Constants.MESSAGING_MICROSERVICE, whatHasChanged(stari,k));
             stari.updateFields(k);
             rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY ,lm.toString());
@@ -194,8 +200,6 @@ public class KorisnikController {
     public ResponseEntity<?> updateUser(@PathVariable Long userId,
                                         @RequestParam String firstName,
                                         @RequestParam String lastName,
-                                        @RequestParam String password,
-                                        @RequestParam String email,
                                         @RequestParam Long userTypeId,
                                         @RequestParam Long userGroupId,
                                         @Valid Korisnik k2,BindingResult bindingResult,
@@ -214,7 +218,7 @@ public class KorisnikController {
             GrupaKorisnika grupa = grupaRepo.findById(userGroupId).get();
             TipKorisnika tipK = tipRepo.findById(userTypeId).get();
 
-            Korisnik k = new Korisnik(firstName, lastName, stari.getUserName(), passwordEncoder.encode(password), email, tipK, grupa);
+            Korisnik k = new Korisnik(firstName, lastName, stari.getUserName(), stari.getPassword(), stari.getEmail(), tipK, grupa);
             LogMessage lm = new LogMessage(Constants.MESSAGING_USER_ADD, Constants.MESSAGING_EVERYTHING_OK, Constants.USER_CHANGED, Constants.MESSAGING_MICROSERVICE, whatHasChanged(stari,k));
             stari.updateFields(k);
             rabbitTemplate.convertAndSend(Application.topicExchangeName, Constants.USERS_ROUTING_KEY ,lm.toString());
