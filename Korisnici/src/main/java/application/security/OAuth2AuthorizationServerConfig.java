@@ -38,7 +38,7 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     @Autowired
     CustomAccessTokenConverter customAccesstokenConverter;
 
-    private static String PASSWORD = "iuCXPHv2RtqJwcu3H4Btz8UxzVMPxMWJxrmGw9SufQbvSk9";
+    private static String PASSWORD = "XXXXXXXXXXXXXXXXXX";
 
 	@Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
@@ -60,9 +60,9 @@ public class OAuth2AuthorizationServerConfig extends AuthorizationServerConfigur
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("tssk.jks"),
+        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("TSCERT.jks"),
                 PASSWORD.toCharArray());
-        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("tssk"));
+        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("TSCERT"));
         converter.setAccessTokenConverter(customAccesstokenConverter);
         return converter;
     }

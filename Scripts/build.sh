@@ -21,6 +21,7 @@ for i in "${project_paths[@]}"
 do
     :
     cp $i$target_dir$extension $copy_destination
+    rm -rf $i$target_dir
     if [ $? -ne 0 ]; then
         echo "Cannot copy file ${i}|${target_dir}|${extension} to  ${copy_destination}"
     fi

@@ -1,0 +1,47 @@
+sudo groupadd -r www-gateway
+sudo groupadd -r www-eureka
+sudo groupadd -r www-korisnici
+sudo groupadd -r www-log
+sudo groupadd -r www-putovanje
+sudo useradd -r -s /bin/false -g www-gateway www-gateway
+sudo useradd -r -s /bin/false -g www-korisnici www-korisnici
+sudo useradd -r -s /bin/false -g www-eureka www-eureka
+sudo useradd -r -s /bin/false -g www-log www-log
+sudo useradd -r -s /bin/false -g www-putovanje www-putovanje
+
+sudo systemctl enable eureka.service
+sudo systemctl enable korisnici.service
+sudo systemctl enable log.service
+sudo systemctl enable putovanja.service
+sudo systemctl enable gateway.service
+
+sudo cp Eureka-2.1.1.RELEASE.jar /opt/eureka-service/
+sudo cp Gateway-1.4.0.RELEASE.jar /opt/gateway-service/
+sudo cp Korisnici-2.1.1.RELEASE.jar /opt/korisnici-service/
+sudo cp Putovanje-2.1.1.RELEASE.jar /opt/putovanja-service/
+sudo cp Log-2.1.1.RELEASE.jar /opt/log-service/
+
+
+sudo chown -R www-eureka:www-eureka /opt/eureka-service/
+sudo chown -R www-gateway:www-gateway /opt/gateway-service/
+sudo chown -R www-korisnici:www-korisnici /opt/korisnici-service/
+sudo chown -R www-log:www-log /opt/log-service/
+sudo chown -R www-putovanje:www-putovanje /opt/putovanja-service/
+
+sudo systemctl daemon-reload 
+
+sudo systemctl restart eureka.service
+sudo systemctl restart gateway.service
+sudo systemctl restart korisnici.service
+sudo systemctl restart log.service
+sudo systemctl restart putovanja.service
+
+
+sudo iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+sudo iptables -I INPUT 1 -i lo -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 8090 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport ssh -j ACCEPT
+sudo iptables -A INPUT -j DROP
+

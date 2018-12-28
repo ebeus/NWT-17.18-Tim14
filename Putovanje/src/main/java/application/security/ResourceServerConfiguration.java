@@ -26,7 +26,7 @@ import java.io.IOException;
 @Configuration
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
 
-    private static String PASSWORD = "iuCXPHv2RtqJwcu3H4Btz8UxzVMPxMWJxrmGw9SufQbvSk9";
+    private static String PASSWORD = "XXXXXXXXXXXXXXXXXXXX";
 
 	@Autowired
 	CustomAccessTokenConverter customAccesstokenConverter;

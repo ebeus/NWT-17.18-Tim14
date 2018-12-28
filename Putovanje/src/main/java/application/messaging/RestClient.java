@@ -34,11 +34,10 @@ public class RestClient {
 	    if(instanceInfo == null)
 	    	throw new NotFoundException("Application not found");
 	    
-	    String hostname = instanceInfo.getIPAddr();
 	    int port = instanceInfo.getPort();
 	    
 	    String end = "/users/" + id;
-	    String url = buildUrl("http://", hostname, port, end);
+	    String url = buildUrl("http://", "127.0.0.1", port, end);
 	    
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders headers = new HttpHeaders();

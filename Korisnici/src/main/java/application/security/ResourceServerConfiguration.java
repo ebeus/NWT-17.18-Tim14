@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFacto
 @Configuration
 @EnableResourceServer
 public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
-    private static String PASSWORD = "iuCXPHv2RtqJwcu3H4Btz8UxzVMPxMWJxrmGw9SufQbvSk9";
+    private static String PASSWORD = "XXXXXXXXXXXXXXXXXXXXXXXXXXXX";
 	@Autowired
 	CustomAccessTokenConverter customAccesstokenConverter;
     
@@ -54,9 +54,9 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("tssk.jks"),
+        KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new ClassPathResource("TSCERT.jks"),
                 PASSWORD.toCharArray());
-        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("tssk"));
+        converter.setKeyPair(keyStoreKeyFactory.getKeyPair("TSCERT"));
         converter.setAccessTokenConverter(customAccesstokenConverter);
         return converter;
     }

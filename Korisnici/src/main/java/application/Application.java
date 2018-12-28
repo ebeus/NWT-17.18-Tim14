@@ -140,11 +140,11 @@ public class Application {
 
             tipKorisnikaRepository.save(new TipKorisnika("ADMIN"));
             tipKorisnikaRepository.save(new TipKorisnika("USER"));
-            
+
 
             GrupaKorisnika grupa1=new GrupaKorisnika("Grupa1");
             GrupaKorisnika grupa2=new GrupaKorisnika("Grupa2");
-            
+
             grupaKorisnikaRepository.save(grupa1);
             grupaKorisnikaRepository.save(grupa2);
 
@@ -152,13 +152,13 @@ public class Application {
             TipKorisnika userType = tipKorisnikaRepository.findByTypeName("USER").get();
             GrupaKorisnika grupa = grupaKorisnikaRepository.findByGroupName("Grupa1").get();
             GrupaKorisnika grupaKorisnika2 = grupaKorisnikaRepository.findByGroupName("Grupa2").get();
-            
+
             korisnikRepository.save(new Korisnik("Jack", "Bauer","jBauer", passwordEncoder().encode("1234"), "jack.bau@gmail.com",
             		tp,grupa));
             korisnikRepository.save(new Korisnik("Chloe", "O'Brian","coBrian", passwordEncoder().encode("1234"), "chlo.o.b@gmail.com",
                     userType,grupa));
             korisnikRepository.save(new Korisnik("Kim", "Bauer","kBauer", passwordEncoder().encode("1234"), "kim.bau@gmail.com",userType,grupa));
-       
+
             korisnikRepository.save(new Korisnik("John", "Smith", "jSmith",passwordEncoder().encode("1234"),"j.smith@example.com",userType, grupaKorisnika2));
 
             List<TipKorisnika> tipoviKorisnika= (List<TipKorisnika>) tipKorisnikaRepository.findAll();
@@ -181,7 +181,7 @@ public class Application {
                 korisnikRepository.save(korisnik);
             }*/
 
-            List<Korisnik> korisnici= (List<Korisnik>) korisnikRepository.findAll();
+/*            List<Korisnik> korisnici= (List<Korisnik>) korisnikRepository.findAll();
 
             log.info("Svi korisnici pomocu findAll(): ");
             log.info("-------------------------------");
@@ -214,7 +214,7 @@ public class Application {
                 log.info(bauer.toString());
             });
 
-            log.info("");
+            log.info("");*/
 
 
             ObjectMapper mapper = new ObjectMapper();
