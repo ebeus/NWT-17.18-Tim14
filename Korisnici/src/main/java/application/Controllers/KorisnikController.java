@@ -122,6 +122,7 @@ public class KorisnikController {
         return ConvertUsers.ToKorisnikReturnOpt(this.korisnikRepository.findByUserName(userName));
     }
 
+    //Only admin can update user type and user id
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public ResponseEntity<?> add(@RequestParam String firstName,
@@ -170,7 +171,7 @@ public class KorisnikController {
                                  @Valid Korisnik k2,BindingResult bindingResult,
                                  @RequestHeader("Authorization") String token) {
 
-    	if(userId != getUserIdFromAuth() || isUserThisType(FieldConstants.USER_TYPE_ADMIN)) {
+    	if(userId != getUserIdFromAuth()) {
     			return new ResponseEntity<String>(Constants.MESSAGE_UNAUTHORIZED, HttpStatus.UNAUTHORIZED);
     	}
 
